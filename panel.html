@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<title>کلبه نارنجی</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:#0A0A0B;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:"Vazirmatn",system-ui,sans-serif;padding:24px}
+.logo{display:flex;align-items:center;gap:12px;margin-bottom:52px}
+.mark{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#FF7A1A,#C24E00);display:grid;place-items:center;color:#0A0A0B;font-weight:900;font-size:1.3rem}
+.logo-text{font-size:1.3rem;font-weight:800;color:#F4EFE7}
+.cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;width:180px;height:180px;border-radius:22px;text-decoration:none;transition:transform .18s,box-shadow .18s;cursor:pointer}
+.card:hover{transform:translateY(-4px)}
+.card.admin{background:linear-gradient(145deg,#1C1C1F,#141416);border:1px solid #2A2A2E;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.card.admin:hover{border-color:#FF7A1A;box-shadow:0 8px 32px rgba(255,122,26,.2)}
+.card.site{background:linear-gradient(145deg,#1a2e1a,#0f1f0f);border:1px solid #1e3a1e;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.card.site:hover{border-color:#28aa5a;box-shadow:0 8px 32px rgba(40,170,90,.2)}
+.card.checkin{background:linear-gradient(145deg,#1e1e2e,#141420);border:1px solid #2a2a3e;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.card.checkin:hover{border-color:#7c6af7;box-shadow:0 8px 32px rgba(124,106,247,.2)}
+.card.crm{background:linear-gradient(145deg,#2e2415,#1f1810);border:1px solid #3e3320;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.card.crm:hover{border-color:#FFB454;box-shadow:0 8px 32px rgba(255,180,84,.2)}
+.icon{width:64px;height:64px;border-radius:16px;display:grid;place-items:center}
+.card.admin .icon{background:rgba(255,122,26,.15)}
+.card.site .icon{background:rgba(40,170,90,.15)}
+.card.checkin .icon{background:rgba(124,106,247,.15)}
+.card.crm .icon{background:rgba(255,180,84,.15)}
+.label{font-size:1rem;font-weight:700;text-align:center;line-height:1.4}
+.card.admin .label{color:#F4EFE7}
+.card.site .label{color:#b8f0c8}
+.card.checkin .label{color:#c8c0ff}
+.card.crm .label{color:#ffe0b0}
+.sub{font-size:.75rem;color:#5A5A60;text-align:center;margin-top:4px}
+
+/* جلوگیری از zoom در iOS Safari */
+@viewport{width:device-width;zoom:1.0;min-zoom:1.0;max-zoom:1.0;user-zoom:fixed}
+html{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
+input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
+@media(max-width:600px){
+  input[type=text],input[type=tel],input[type=email],input[type=number],input[type=date],input[type=time],select,textarea{font-size:16px!important}
+}
+</style>
+</head>
+<body>
+
+<div class="logo">
+  <span class="mark">ک</span>
+  <span class="logo-text">کلبه نارنجی</span>
+</div>
+
+<div class="cards">
+
+  <a href="admin.html" class="card admin">
+    <div class="icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF7A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+    </div>
+    <div>
+      <div class="label">پنل مدیریت</div>
+      <div class="sub">رزروها · حسابداری</div>
+    </div>
+  </a>
+
+  <a href="index.html" target="_blank" class="card site">
+    <div class="icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#28aa5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/><path d="M12 3a15 15 0 010 18M3 12h18M3.6 7.5h16.8M3.6 16.5h16.8"/>
+      </svg>
+    </div>
+    <div>
+      <div class="label">وبسایت</div>
+      <div class="sub">صفحه رزرو مهمان</div>
+    </div>
+  </a>
+
+  <a href="checkin.html" class="card checkin">
+    <div class="icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#7c6af7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+      </svg>
+    </div>
+    <div>
+      <div class="label">فرم تحویل</div>
+      <div class="sub">چک‌اِن · چک‌اوت</div>
+    </div>
+  </a>
+
+  <a href="crm.html" class="card crm">
+    <div class="icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFB454" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+      </svg>
+    </div>
+    <div>
+      <div class="label">مدیریت مشتریان</div>
+      <div class="sub">CRM · وفاداری</div>
+    </div>
+  </a>
+
+</div>
+
+</body>
+</html>

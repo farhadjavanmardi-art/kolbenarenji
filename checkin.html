@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<title>فرم تحویل و تحول اقامتگاه · کلبه نارنجی</title>
+<script>
+  const SUPABASE_URL      = "https://ajkmagdcoxpqhfknmmmk.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_WQVbekgoKZFSkB7Fw1rfOw_pPaDzd2G";
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A0A0B;--s:#141416;--s2:#1C1C1F;--line:#2A2A2E;--orange:#FF7A1A;--amber:#FFB454;--text:#F4EFE7;--muted:#9A9AA0;--r:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Vazirmatn",system-ui,sans-serif;line-height:1.75;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.wrap{max-width:820px;margin:0 auto;padding:18px}
+header{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(10,10,11,.92);backdrop-filter:blur(12px);z-index:50}
+.topbar{display:flex;align-items:center;gap:12px;height:60px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:.98rem}
+.mark{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--orange),#C24E00);display:grid;place-items:center;color:#0A0A0B;font-weight:800;font-size:.85rem}
+.btn{background:var(--orange);color:#0A0A0B;border:0;cursor:pointer;padding:11px 22px;border-radius:999px;font:inherit;font-weight:700;font-size:.92rem}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+h2{font-size:1.02rem;color:var(--amber);margin:0 0 6px;display:flex;align-items:center;gap:8px}
+.sec-desc{font-size:.83rem;color:var(--muted);margin-bottom:14px;line-height:1.7}
+.card{background:var(--s);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:14px}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:11px 12px;font:inherit;font-size:16px;width:100%;touch-action:manipulation}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--orange)}
+textarea{resize:vertical;min-height:64px}
+label{font-size:.85rem;font-weight:600;display:block;margin-bottom:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+@media(max-width:600px){.grid2{grid-template-columns:1fr}}
+.fld{display:flex;flex-direction:column;gap:5px}
+.fld.full{grid-column:1/-1}
+.req{color:var(--orange)}
+.guest-pick{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.gp-btn{flex:1;min-width:62px;background:var(--s2);border:1px solid var(--line);border-radius:10px;padding:12px 4px;cursor:pointer;font:inherit;font-size:16px;font-weight:700;color:var(--muted);text-align:center;transition:.12s}
+.gp-btn.active{border-color:var(--orange);background:rgba(255,122,26,.14);color:var(--orange)}
+.clsec{border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden;background:var(--bg)}
+.clsec-head{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;background:var(--s2);user-select:none}
+.clsec-head:hover{background:#232327}
+.clsec-num{width:26px;height:26px;border-radius:8px;background:rgba(255,122,26,.16);color:var(--orange);display:grid;place-items:center;font-weight:800;font-size:.85rem;flex:none}
+.clsec-title{font-weight:700;font-size:.95rem;flex:1}
+.clsec-arrow{color:var(--muted);transition:transform .2s;flex:none}
+.clsec.open .clsec-arrow{transform:rotate(180deg)}
+.clsec-body{display:none;padding:6px 14px 14px}
+.clsec.open .clsec-body{display:block}
+.clsec-note{font-size:.8rem;color:var(--muted);padding:10px 2px 12px;line-height:1.7;border-bottom:1px dashed var(--line);margin-bottom:10px}
+.item{padding:11px 0;border-bottom:1px solid rgba(42,42,46,.5)}
+.item:last-child{border-bottom:0}
+.item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.item-info{flex:1;min-width:140px}
+.item-name{font-weight:600;font-size:.9rem}
+.item-meta{font-size:.76rem;color:var(--muted);margin-top:2px}
+.item-price{font-size:.74rem;color:var(--amber);background:rgba(255,180,84,.1);border:1px solid rgba(255,180,84,.25);border-radius:7px;padding:2px 8px;white-space:nowrap;align-self:flex-start;margin-top:2px}
+.item-btns{display:flex;gap:6px;flex:none}
+.ib{background:var(--s2);border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer;font:inherit;font-size:.8rem;color:var(--muted);touch-action:manipulation}
+.ib.ok{border-color:#28aa5a;color:#74e0a0;background:rgba(40,170,90,.12)}
+.ib.bad{border-color:#d84545;color:#f0a0a0;background:rgba(220,60,60,.12)}
+.item-notebox{margin-top:8px;display:none}
+.item-notebox.show{display:block}
+.item-notebox input{font-size:16px;padding:8px 10px}
+.legal{background:rgba(255,122,26,.06);border:1px solid rgba(255,122,26,.3);border-radius:10px;padding:16px 18px;margin-top:4px}
+.legal p{font-size:.85rem;line-height:1.9;margin-bottom:10px}
+.legal .danger{background:rgba(220,60,60,.08);border:1px solid rgba(220,60,60,.3);border-radius:8px;padding:12px 14px;margin:10px 0}
+.legal .danger p{color:#f0a0a0;margin:0;font-weight:700}
+.chk{display:flex;gap:11px;align-items:flex-start;margin-bottom:13px;cursor:pointer}
+.chk input{width:21px;height:21px;margin-top:2px;accent-color:var(--orange);flex:none}
+.chk span{font-size:.87rem;line-height:1.7}
+.sig-wrap{border:2px dashed var(--line);border-radius:10px;background:#fff;touch-action:none}
+canvas{display:block;width:100%;height:150px;border-radius:8px}
+.sig-bar{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.jdate{position:relative}
+.jdate-pop{position:absolute;top:calc(100% + 6px);right:0;left:0;background:var(--s);border:1px solid var(--line);border-radius:12px;padding:12px;z-index:100;box-shadow:0 12px 40px rgba(0,0,0,.6);display:none}
+.jdate-pop.show{display:block}
+.jdate-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px}
+.jdate-nav{background:var(--s2);border:1px solid var(--line);border-radius:8px;width:34px;height:34px;cursor:pointer;color:var(--text);font-size:1.1rem;display:grid;place-items:center}
+.jdate-title{font-weight:700;font-size:.9rem}
+.jdate-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.jdate-wd{text-align:center;font-size:.72rem;color:var(--muted);padding:4px 0;font-weight:700}
+.jdate-day{text-align:center;padding:8px 0;border-radius:8px;cursor:pointer;font-size:.86rem;border:1px solid transparent}
+.jdate-day:hover{background:var(--s2)}
+.jdate-day.sel{background:var(--orange);color:#0A0A0B;font-weight:800}
+.jdate-day.empty{cursor:default}
+.msg{border-radius:10px;padding:13px 15px;margin-top:14px;font-size:.9rem;display:none}
+.msg.ok{display:block;background:rgba(40,170,90,.12);border:1px solid rgba(40,170,90,.4);color:#74e0a0}
+.msg.err{display:block;background:rgba(220,60,60,.12);border:1px solid rgba(220,60,60,.4);color:#f0a0a0}
+@viewport{width:device-width;zoom:1;min-zoom:1;max-zoom:1;user-zoom:fixed}
+html{touch-action:manipulation}
+@media print{
+  header,.no-print,.jdate-pop{display:none!important}
+  body{background:#fff;color:#000}
+  .card,.clsec{border:1px solid #ccc;background:#fff;break-inside:avoid}
+  .clsec-body{display:block!important}
+  .clsec-head{background:#f0f0f0}
+  input,select,textarea{border:1px solid #ccc!important;background:#fff!important;color:#000!important}
+  canvas{border:1px solid #ccc;border-radius:4px}
+  .item-price{color:#a06000}
+}
+</style>
+</head>
+<body>
+<header><div class="wrap topbar">
+  <div class="brand"><span class="mark">ک</span><span>کلبه نارنجی · فرم تحویل و تحول</span></div>
+</div></header>
+<div class="wrap">
+<div class="card">
+  <h2>① اطلاعات مهمان و اقامت</h2>
+  <p class="sec-desc">اطلاعات هویتی مهمان و مدت اقامت در این بخش ثبت می‌شود. ارائه و بررسی مدرک شناسایی معتبر هنگام ورود الزامی است.</p>
+  <div class="grid2">
+    <div class="fld"><label>نام و نام خانوادگی مهمان <span class="req">*</span></label><input id="g_name" placeholder="نام کامل"></div>
+    <div class="fld"><label>شماره تماس (واتساپ) <span class="req">*</span></label><input id="g_phone" inputmode="tel" placeholder="۰۹…"></div>
+    <div class="fld jdate"><label>تاریخ ورود <span class="req">*</span></label>
+      <input id="g_in" readonly placeholder="انتخاب تاریخ" onclick="openJ('g_in')">
+      <div class="jdate-pop" id="pop_g_in"></div>
+    </div>
+    <div class="fld jdate"><label>تاریخ خروج <span class="req">*</span></label>
+      <input id="g_out" readonly placeholder="انتخاب تاریخ" onclick="openJ('g_out')">
+      <div class="jdate-pop" id="pop_g_out"></div>
+    </div>
+    <div class="fld"><label>نوع مدرک شناسایی تحویلی <span class="req">*</span></label>
+      <select id="g_id_type">
+        <option value="">— انتخاب کنید —</option>
+        <option value="کارت ملی">کارت ملی</option>
+        <option value="پاسپورت">پاسپورت</option>
+        <option value="گواهینامه">گواهینامه</option>
+        <option value="سایر">سایر</option>
+      </select>
+    </div>
+    <div class="fld"><label>شماره مدرک <span class="req">*</span></label><input id="g_id_num" placeholder="شماره کارت ملی / پاسپورت"></div>
+  </div>
+  <div class="fld full" style="margin-top:13px">
+    <label>تعداد مهمانان</label>
+    <div class="guest-pick" id="guestPick"></div>
+  </div>
+</div>
+<div class="card">
+  <h2>② فهرست وسایل و وضعیت اقامتگاه</h2>
+  <p class="sec-desc">فهرست زیر بر اساس تعداد مهمانان اعلام‌شده تنظیم شده است. هر بخش را باز کنید، تعداد و وضعیت هر مورد را هنگام تحویل بررسی و در صورت وجود مشکل، توضیح آن را ثبت کنید. ستون نارنجی، قیمت تقریبی جایگزینی هر مورد بر اساس بازار است که مبنای محاسبهٔ خسارت احتمالی قرار می‌گیرد.</p>
+  <div id="clList"></div>
+</div>
+<div class="card">
+  <h2>③ تعهد و مسئولیت قانونی</h2>
+  <div class="legal">
+    <p style="font-weight:800;color:var(--orange)">⚠️ مهم — لطفاً پیش از امضا با دقت بخوانید</p>
+    <p>بر اساس <strong>ماده ۴۹۰ قانون مدنی جمهوری اسلامی ایران</strong>، مستأجر موظف است در استفاده از مورد اجاره به نحو متعارف رفتار نموده و در حفظ و نگهداری آن کوشش کند. در صورت ورود هرگونه خسارت ناشی از <strong>تعدی یا تفریط</strong>، مسئولیت جبران کامل آن بر عهدهٔ مستأجر خواهد بود.</p>
+    <div class="danger">
+      <p>📌 چنانچه مجموع خسارات وارده از مبلغ ودیعه (۱٬۵۰۰٬۰۰۰ تومان) تجاوز نماید، تسویه‌حساب نهایی و استرداد مدرک شناسایی، پس از محاسبه و پرداخت کامل مابه‌التفاوت خسارت بر اساس قیمت‌های روز بازار انجام خواهد شد.</p>
+    </div>
+    <p style="color:var(--muted)">مهمان با امضای این فرم اقرار می‌نماید که فهرست وسایل و وضعیت آن‌ها را مشاهده و تأیید کرده و در صورت بروز هرگونه کمبود یا خسارت بیش از مبلغ ودیعه، متعهد به پرداخت مابه‌التفاوت می‌باشد.</p>
+  </div>
+</div>
+<div class="card">
+  <h2>④ تأییدیه‌ها و قوانین اقامت</h2>
+  <p class="sec-desc">موارد زیر باید پیش از تحویل کلید توسط مهمان مطالعه و تأیید شود.</p>
+  <label class="chk"><input type="checkbox" id="c_id"><span>مدرک شناسایی معتبر مهمان به‌صورت حضوری ارائه و بررسی شد و اطلاعات آن در فرم ثبت گردید.</span></label>
+  <label class="chk"><input type="checkbox" id="c_count"><span>تعداد واقعی مهمانان مطابق با عدد اعلام‌شده در این فرم است. مهمان آگاه است که در صورت حضور نفرات بیش از تعداد اعلامی، هزینهٔ نفرات اضافه (هر نفر ۵۰۰٬۰۰۰ تومان در هر شب) از ودیعه کسر می‌گردد.</span></label>
+  <label class="chk"><input type="checkbox" id="c_rules"><span>قوانین اقامت شامل خروج تا ساعت ۱۲ ظهر، احترام به محیط و همسایگان، جبران خسارت در صورت آسیب، و ممنوعیت استعمال دخانیات در فضای بستهٔ ویلا، خوانده و پذیرفته شد.</span></label>
+  <div class="fld full" style="margin-top:12px"><label>توضیحات اضافه</label><textarea id="c_notes" placeholder="هر نکته‌ای که لازم است ثبت شود…"></textarea></div>
+</div>
+<div class="card">
+  <h2>⑤ امضای مسئول اقامتگاه</h2>
+  <p class="sec-desc">مسئول تحویل، با امضای زیر صحت اطلاعات و تحویل اقامتگاه را تأیید می‌کند.</p>
+  <div class="sig-wrap"><canvas id="sig_admin"></canvas></div>
+  <div class="sig-bar no-print">
+    <span style="font-size:.78rem;color:var(--muted)">با انگشت یا ماوس امضا کنید</span>
+    <button type="button" class="btn ghost" style="padding:6px 14px;font-size:.8rem" onclick="clearSig('admin')">پاک کردن</button>
+  </div>
+</div>
+<div class="card">
+  <h2>⑥ امضای مهمان</h2>
+  <p class="sec-desc">مهمان با امضای زیر، فهرست وسایل، وضعیت اقامتگاه و تمام تعهدات مندرج در این فرم را می‌پذیرد.</p>
+  <div class="sig-wrap"><canvas id="sig_guest"></canvas></div>
+  <div class="sig-bar no-print">
+    <span style="font-size:.78rem;color:var(--muted)">با انگشت یا ماوس امضا کنید</span>
+    <button type="button" class="btn ghost" style="padding:6px 14px;font-size:.8rem" onclick="clearSig('guest')">پاک کردن</button>
+  </div>
+</div>
+<div class="card">
+  <h2>⑦ تاریخ تنظیم و ثبت نهایی</h2>
+  <div class="grid2">
+    <div class="fld jdate"><label>تاریخ تنظیم فرم</label>
+      <input id="f_date" readonly placeholder="انتخاب تاریخ" onclick="openJ('f_date')">
+      <div class="jdate-pop" id="pop_f_date"></div>
+    </div>
+  </div>
+  <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap" class="no-print">
+    <button class="btn" onclick="submitForm()">💾 ثبت فرم</button>
+    <button class="btn ghost" onclick="window.print()">🖨️ چاپ / ذخیره PDF</button>
+  </div>
+  <div class="msg" id="fMsg"></div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+function jdiv(a,b){return~~(a/b);}function jmod(a,b){return a-~~(a/b)*b;}
+function jalCal(jy){var breaks=[-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178],bl=breaks.length,gy=jy+621,leapJ=-14,jp=breaks[0],jm,jump=0,leap,leapG,march,n,i;for(i=1;i<bl;i++){jm=breaks[i];jump=jm-jp;if(jy<jm)break;leapJ=leapJ+jdiv(jump,33)*8+jdiv(jmod(jump,33),4);jp=jm;}n=jy-jp;leapJ=leapJ+jdiv(n,33)*8+jdiv(jmod(n,33)+3,4);if(jmod(jump,33)===4&&jump-n===4)leapJ+=1;leapG=jdiv(gy,4)-jdiv((jdiv(gy,100)+1)*3,4)-150;march=20+leapJ-leapG;if(jump-n<6)n=n-jump+jdiv(jump+4,33)*33;leap=jmod(jmod(n+1,33)-1,4);if(leap===-1)leap=4;return{leap:leap,gy:gy,march:march};}
+function g2d(gy,gm,gd){var d=jdiv((gy+jdiv(gm-8,6)+100100)*1461,4)+jdiv(153*jmod(gm+9,12)+2,5)+gd-34840408;d=d-jdiv(jdiv(gy+100100+jdiv(gm-8,6),100)*3,4)+752;return d;}
+function d2g(jdn){var j,i,gd,gm,gy;j=4*jdn+139361631;j=j+jdiv(jdiv(4*jdn+183187720,146097)*3,4)*4-3908;i=jdiv(jmod(j,1461),4)*5+308;gd=jdiv(jmod(i,153),5)+1;gm=jmod(jdiv(i,153),12)+1;gy=jdiv(j,1461)-100100+jdiv(8-gm,6);return{gy:gy,gm:gm,gd:gd};}
+function j2d(jy,jm,jd){var r=jalCal(jy);return g2d(r.gy,3,r.march)+(jm-1)*31-jdiv(jm,7)*(jm-7)+jd-1;}
+function d2j(jdn){var gy=d2g(jdn).gy,jy=gy-621,r=jalCal(jy),jdn1f=g2d(gy,3,r.march),jd,jm,k;k=jdn-jdn1f;if(k>=0){if(k<=185){jm=1+jdiv(k,31);jd=jmod(k,31)+1;return{jy:jy,jm:jm,jd:jd};}else{k-=186;}}else{jy-=1;k+=179;if(r.leap===1)k+=1;}jm=7+jdiv(k,30);jd=jmod(k,30)+1;return{jy:jy,jm:jm,jd:jd};}
+function toJalali(dt){return d2j(g2d(dt.getFullYear(),dt.getMonth()+1,dt.getDate()));}
+function toGreg(jy,jm,jd){var r=d2g(j2d(jy,jm,jd));return new Date(r.gy,r.gm-1,r.gd);}
+function jMonLen(jy,jm){if(jm<=6)return 31;if(jm<=11)return 30;return jalCal(jy).leap===0?30:29;}
+function toFa(n){return String(n).replace(/[0-9]/g,d=>"۰۱۲۳۴۵۶۷۸۹"[d]);}
+const FA_MONTHS=["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
+const FA_WEEK=["ش","ی","د","س","چ","پ","ج"];
+const jVals={};
+let jOpenField=null, jViewY, jViewM;
+function openJ(fieldId){
+  document.querySelectorAll(".jdate-pop").forEach(p=>p.classList.remove("show"));
+  jOpenField=fieldId;
+  let base;
+  if(jVals[fieldId]){const d=new Date(jVals[fieldId]+"T00:00:00");base=toJalali(d);}
+  else{base=toJalali(new Date());}
+  jViewY=base.jy; jViewM=base.jm;
+  renderJ();
+  document.getElementById("pop_"+fieldId).classList.add("show");
+}
+function renderJ(){
+  const pop=document.getElementById("pop_"+jOpenField);
+  const len=jMonLen(jViewY,jViewM);
+  const firstGreg=toGreg(jViewY,jViewM,1);
+  let offset=(firstGreg.getDay()+1)%7;
+  let cells="";
+  for(let i=0;i<offset;i++)cells+='<div class="jdate-day empty"></div>';
+  const sel=jVals[jOpenField]?toJalali(new Date(jVals[jOpenField]+"T00:00:00")):null;
+  for(let d=1;d<=len;d++){
+    const isSel=sel&&sel.jy===jViewY&&sel.jm===jViewM&&sel.jd===d;
+    cells+=`<div class="jdate-day${isSel?' sel':''}" onclick="pickJ(${d})">${toFa(d)}</div>`;
+  }
+  pop.innerHTML=`<div class="jdate-head"><button class="jdate-nav" onclick="navJ(-1)">‹</button><span class="jdate-title">${FA_MONTHS[jViewM-1]} ${toFa(jViewY)}</span><button class="jdate-nav" onclick="navJ(1)">›</button></div><div class="jdate-grid">${FA_WEEK.map(w=>`<div class="jdate-wd">${w}</div>`).join("")}${cells}</div>`;
+}
+function navJ(dir){jViewM+=dir;if(jViewM>12){jViewM=1;jViewY++;}if(jViewM<1){jViewM=12;jViewY--;}renderJ();}
+function pickJ(d){
+  const greg=toGreg(jViewY,jViewM,d);
+  const iso=greg.getFullYear()+"-"+String(greg.getMonth()+1).padStart(2,"0")+"-"+String(greg.getDate()).padStart(2,"0");
+  jVals[jOpenField]=iso;
+  document.getElementById(jOpenField).value=toFa(jViewY)+"/"+toFa(jViewM)+"/"+toFa(d)+"  ("+FA_MONTHS[jViewM-1]+")";
+  document.getElementById("pop_"+jOpenField).classList.remove("show");
+}
+document.addEventListener("click",e=>{if(!e.target.closest(".jdate"))document.querySelectorAll(".jdate-pop").forEach(p=>p.classList.remove("show"));});
+let guestCount=2;
+function renderGuestPick(){
+  const el=document.getElementById("guestPick");
+  el.innerHTML="";
+  for(let n=2;n<=6;n++){
+    const b=document.createElement("button");
+    b.type="button";
+    b.className="gp-btn"+(n===guestCount?" active":"");
+    b.textContent=toFa(n)+" نفر";
+    b.onclick=()=>{guestCount=n;renderGuestPick();renderList();};
+    el.appendChild(b);
+  }
+}
+const SECTIONS=[
+  {k:"sleep",title:"خواب و استراحت",note:"تخت، تشک و وسایل خواب از اجزای اصلی اقامتگاه مبله است. تعداد ست‌های رختخواب بر اساس ظرفیت مهمانان تنظیم می‌شود.",items:[
+     {n:"تخت دو نفره با تشک",qty:()=>1,price:"۱۲٬۰۰۰٬۰۰۰"},
+     {n:"بالش",qty:g=>g,price:"۲۵۰٬۰۰۰"},
+     {n:"روبالشی",qty:g=>g,price:"۸۰٬۰۰۰"},
+     {n:"ست ملحفه و رختخواب",qty:g=>Math.ceil(g/2),price:"۹۰۰٬۰۰۰"},
+     {n:"پتو / لحاف",qty:g=>g,price:"۷۰۰٬۰۰۰"},
+     {n:"تشک اضافه (مهمان)",qty:g=>Math.max(0,g-2),price:"۲٬۵۰۰٬۰۰۰"}]},
+  {k:"living",title:"پذیرایی و نشیمن",note:"مبلمان، میز و وسایل سرگرمی فضای نشیمن. این موارد مستقل از تعداد مهمان، باید کامل و سالم تحویل شوند.",items:[
+     {n:"مبل / نشیمن",qty:()=>1,price:"۱۸٬۰۰۰٬۰۰۰"},
+     {n:"میز جلومبلی",qty:()=>1,price:"۲٬۵۰۰٬۰۰۰"},
+     {n:"فرش / قالیچه",qty:()=>1,price:"۸٬۰۰۰٬۰۰۰"},
+     {n:"تلویزیون",qty:()=>1,price:"۱۵٬۰۰۰٬۰۰۰"},
+     {n:"کنترل تلویزیون / گیرنده",qty:()=>2,price:"۳۵۰٬۰۰۰"},
+     {n:"چندراهی برق",qty:()=>1,price:"۲۵۰٬۰۰۰"}]},
+  {k:"dining",title:"غذاخوری و سرو",note:"ظروف سرو و غذاخوری بر اساس تعداد مهمانان تنظیم می‌شود تا برای همه کفایت کند.",items:[
+     {n:"بشقاب غذاخوری",qty:g=>g,price:"۱۸۰٬۰۰۰"},
+     {n:"پیش‌دستی",qty:g=>g,price:"۱۲۰٬۰۰۰"},
+     {n:"لیوان آب",qty:g=>g,price:"۸۰٬۰۰۰"},
+     {n:"استکان و نعلبکی چای",qty:g=>g,price:"۹۰٬۰۰۰"},
+     {n:"قاشق / چنگال / کارد (ست)",qty:g=>g,price:"۱۵۰٬۰۰۰"},
+     {n:"پارچ آب",qty:()=>1,price:"۲۲۰٬۰۰۰"},
+     {n:"سینی پذیرایی",qty:()=>2,price:"۳۰۰٬۰۰۰"}]},
+  {k:"kitchen",title:"آشپزخانه و پخت‌وپز",note:"یخچال، اجاق و وسایل پخت‌وپز. این تجهیزات مستقل از تعداد مهمان باید کامل و سالم باشند.",items:[
+     {n:"یخچال",qty:()=>1,price:"۲۵٬۰۰۰٬۰۰۰"},
+     {n:"اجاق گاز",qty:()=>1,price:"۸٬۰۰۰٬۰۰۰"},
+     {n:"کتری و قوری",qty:()=>1,price:"۹۰۰٬۰۰۰"},
+     {n:"قابلمه (ست)",qty:()=>1,price:"۲٬۵۰۰٬۰۰۰"},
+     {n:"ماهیتابه",qty:()=>1,price:"۸۰۰٬۰۰۰"},
+     {n:"چاقوی آشپزخانه / تخته",qty:()=>1,price:"۴۰۰٬۰۰۰"},
+     {n:"سطل زباله",qty:()=>1,price:"۳۵۰٬۰۰۰"}]},
+  {k:"bathroom",title:"حمام و سرویس بهداشتی",note:"وسایل بهداشتی پایه و حوله بر اساس تعداد مهمان. شیرآلات و تجهیزات ثابت باید سالم تحویل شوند.",items:[
+     {n:"حوله",qty:g=>g,price:"۳۵۰٬۰۰۰"},
+     {n:"شیرآلات سالم (حمام و روشویی)",qty:()=>1,price:"۳٬۰۰۰٬۰۰۰"},
+     {n:"دوش حمام",qty:()=>1,price:"۸۰۰٬۰۰۰"},
+     {n:"آینه",qty:()=>1,price:"۹۰۰٬۰۰۰"},
+     {n:"سطل و فرچه سرویس",qty:()=>1,price:"۲۵۰٬۰۰۰"}]},
+  {k:"hvac",title:"سرمایش، گرمایش و روشنایی",note:"کارکرد صحیح تأسیسات از مهم‌ترین عوامل رضایت مهمان است و باید هنگام تحویل بررسی شود.",items:[
+     {n:"کولر / سیستم سرمایش",qty:()=>1,price:"۱۲٬۰۰۰٬۰۰۰"},
+     {n:"بخاری / سیستم گرمایش",qty:()=>1,price:"۶٬۰۰۰٬۰۰۰"},
+     {n:"کنترل / ولوم سالم",qty:()=>1,price:"۴۰۰٬۰۰۰"},
+     {n:"لامپ و روشنایی (کامل)",qty:()=>1,price:"۱٬۰۰۰٬۰۰۰"}]},
+  {k:"safety",title:"ایمنی و کلیدها",note:"اقلام ایمنی و کلیدها برای مدیریت امن اقامتگاه ضروری‌اند و باید کامل تحویل و عودت داده شوند.",items:[
+     {n:"کلید اصلی و یدک",qty:()=>1,price:"۵۰۰٬۰۰۰"},
+     {n:"قفل سالم درها",qty:()=>1,price:"۱٬۲۰۰٬۰۰۰"},
+     {n:"کپسول آتش‌نشانی کوچک",qty:()=>1,price:"۱٬۵۰۰٬۰۰۰"},
+     {n:"جعبه کمک‌های اولیه",qty:()=>1,price:"۴۰۰٬۰۰۰"}]},
+  {k:"outdoor",title:"فضای بیرونی و حیاط",note:"روشنایی، نشیمن و نظافت محوطه. این موارد برای استفادهٔ بیرونی مهمان اهمیت دارند.",items:[
+     {n:"صندلی فضای باز",qty:g=>g,price:"۱٬۲۰۰٬۰۰۰"},
+     {n:"میز فضای باز",qty:()=>1,price:"۲٬۵۰۰٬۰۰۰"},
+     {n:"روشنایی حیاط (سالم)",qty:()=>1,price:"۸۰۰٬۰۰۰"},
+     {n:"شلنگ و وسایل نظافت حیاط",qty:()=>1,price:"۴۰۰٬۰۰۰"}]},
+];
+const clState={};
+function renderList(){
+  const el=document.getElementById("clList");
+  el.innerHTML=SECTIONS.map((sec,si)=>{
+    const rows=sec.items.map((it,ii)=>{
+      const key=sec.k+"_"+ii;
+      const st=clState[key]||{status:"ok",note:""};
+      const q=it.qty(guestCount);
+      if(q<=0)return "";
+      const qtyTxt="تعداد لازم: "+toFa(q);
+      const showNote=st.status==="bad"?" show":"";
+      return `<div class="item"><div class="item-top"><div class="item-info"><div class="item-name">${it.n}</div><div class="item-meta">${qtyTxt}</div></div><div class="item-price">جبران: ${it.price} ت</div><div class="item-btns"><button class="ib${st.status==="ok"?" ok":""}" onclick="setSt('${key}','ok',this)">✓ سالم</button><button class="ib${st.status==="bad"?" bad":""}" onclick="setSt('${key}','bad',this)">✗ مشکل</button></div></div><div class="item-notebox${showNote}" id="nb_${key}"><input placeholder="توضیح مشکل / کسری…" value="${st.note||""}" onchange="setNt('${key}',this.value)"></div></div>`;
+    }).join("");
+    return `<div class="clsec" id="sec_${si}"><div class="clsec-head" onclick="toggleSec(${si})"><span class="clsec-num">${toFa(si+1)}</span><span class="clsec-title">${sec.title}</span><span class="clsec-arrow">▾</span></div><div class="clsec-body"><div class="clsec-note">${sec.note}</div>${rows}</div></div>`;
+  }).join("");
+}
+function toggleSec(si){document.getElementById("sec_"+si).classList.toggle("open");}
+function setSt(key,v,btn){
+  if(!clState[key])clState[key]={status:"ok",note:""};
+  clState[key].status=v;
+  const wrap=btn.closest(".item-btns");
+  wrap.querySelectorAll(".ib").forEach(b=>b.classList.remove("ok","bad"));
+  btn.classList.add(v);
+  const nb=document.getElementById("nb_"+key);
+  if(nb){if(v==="bad")nb.classList.add("show");else nb.classList.remove("show");}
+}
+function setNt(key,v){if(!clState[key])clState[key]={status:"ok"};clState[key].note=v;}
+const sigs={};
+function initSig(id){
+  const c=document.getElementById("sig_"+id);
+  const ctx=c.getContext("2d");
+  let drawing=false;
+  function fit(){const r=c.getBoundingClientRect();c.width=r.width||400;c.height=150;ctx.strokeStyle="#111";ctx.lineWidth=2.2;ctx.lineCap="round";}
+  function pos(e){const r=c.getBoundingClientRect();const p=e.touches?e.touches[0]:e;return{x:p.clientX-r.left,y:p.clientY-r.top};}
+  function start(e){drawing=true;sigs[id]=true;const{x,y}=pos(e);ctx.beginPath();ctx.moveTo(x,y);e.preventDefault();}
+  function move(e){if(!drawing)return;const{x,y}=pos(e);ctx.lineTo(x,y);ctx.stroke();e.preventDefault();}
+  function end(){drawing=false;}
+  c.addEventListener("mousedown",start);c.addEventListener("mousemove",move);window.addEventListener("mouseup",end);
+  c.addEventListener("touchstart",start,{passive:false});c.addEventListener("touchmove",move,{passive:false});c.addEventListener("touchend",end);
+  window.addEventListener("resize",fit);
+  fit();
+}
+function clearSig(id){const c=document.getElementById("sig_"+id);const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);sigs[id]=false;}
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+async function submitForm(){
+  const msg=document.getElementById("fMsg");
+  msg.className="msg";
+
+  // اعتبارسنجی فیلد به فیلد با پیام فارسی
+  function fail(text, elId){
+    msg.className="msg err";
+    msg.textContent=text;
+    if(elId){
+      const el=document.getElementById(elId);
+      if(el){ el.scrollIntoView({behavior:"smooth",block:"center"}); try{el.focus();}catch(e){} }
+    }
+    return false;
+  }
+
+  const gname=document.getElementById("g_name").value.trim();
+  if(!gname) return fail("نام و نام خانوادگی مهمان را وارد کنید.", "g_name");
+
+  const gphone=document.getElementById("g_phone").value.trim();
+  if(!gphone) return fail("شماره تماس (واتساپ) مهمان را وارد کنید.", "g_phone");
+
+  if(!jVals.g_in) return fail("تاریخ ورود را انتخاب کنید.", "g_in");
+  if(!jVals.g_out) return fail("تاریخ خروج را انتخاب کنید.", "g_out");
+
+  const idType=document.getElementById("g_id_type").value;
+  if(!idType) return fail("نوع مدرک شناسایی را انتخاب کنید.", "g_id_type");
+
+  const idNum=document.getElementById("g_id_num").value.trim();
+  if(!idNum) return fail("شماره مدرک شناسایی را وارد کنید.", "g_id_num");
+
+  if(!document.getElementById("c_id").checked)
+    return fail("لطفاً تأییدیهٔ «بررسی مدرک شناسایی» را علامت بزنید.", "c_id");
+  if(!document.getElementById("c_count").checked)
+    return fail("لطفاً تأییدیهٔ «تعداد مهمانان» را علامت بزنید.", "c_count");
+  if(!document.getElementById("c_rules").checked)
+    return fail("لطفاً تأییدیهٔ «قوانین اقامت» را علامت بزنید.", "c_rules");
+
+  if(!sigs.admin) return fail("امضای مسئول اقامتگاه را ثبت کنید.", "sig_admin");
+  if(!sigs.guest) return fail("امضای مهمان را ثبت کنید.", "sig_guest");
+
+  const record={
+    guest_name: gname,
+    phone: gphone,
+    checkin_date: jVals.g_in,
+    guests: guestCount,
+    id_type: idType,
+    id_number: idNum,
+    condition: {guests:guestCount, checkout:jVals.g_out, items:clState},
+    checkin_items: clState,
+    id_confirmed: true,
+    rules_accepted: true,
+    notes: document.getElementById("c_notes").value.trim()||null,
+    extra_notes: document.getElementById("c_notes").value.trim()||null,
+    signature: document.getElementById("sig_guest").toDataURL("image/png"),
+    admin_signature: document.getElementById("sig_admin").toDataURL("image/png"),
+    checkin_date_signed: jVals.f_date||null,
+    locale:"fa"
+  };
+  const{error}=await sb.from("checkins").insert(record);
+  if(error) return fail("خطا در ثبت فرم: "+error.message);
+  msg.className="msg ok";
+  msg.textContent="✅ فرم تحویل با موفقیت ثبت شد.";
+  window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+}
+(function(){
+  initSig("admin");initSig("guest");
+  renderGuestPick();
+  renderList();
+  const t=new Date();
+  const iso=t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0");
+  const j=toJalali(t);
+  const fa=toFa(j.jy)+"/"+toFa(j.jm)+"/"+toFa(j.jd)+"  ("+FA_MONTHS[j.jm-1]+")";
+  jVals.g_in=iso; document.getElementById("g_in").value=fa;
+  jVals.f_date=iso; document.getElementById("f_date").value=fa;
+  document.getElementById("sec_0").classList.add("open");
+})();
+</script>
+</body>
+</html>
