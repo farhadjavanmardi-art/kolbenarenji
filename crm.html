@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<title>مدیریت مشتریان · کلبه نارنجی</title>
+<script>
+  const SUPABASE_URL      = "https://ajkmagdcoxpqhfknmmmk.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_WQVbekgoKZFSkB7Fw1rfOw_pPaDzd2G";
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A0A0B;--s:#141416;--s2:#1C1C1F;--line:#2A2A2E;--orange:#FF7A1A;--amber:#FFB454;--green:#28aa5a;--gold:#FFD24A;--text:#F4EFE7;--muted:#9A9AA0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Vazirmatn",system-ui,sans-serif;line-height:1.7;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+img,canvas,table{max-width:100%}
+.wrap{max-width:1000px;margin:0 auto;padding:18px}
+header{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(10,10,11,.92);backdrop-filter:blur(12px);z-index:50}
+.topbar{display:flex;align-items:center;gap:12px;height:62px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1rem}
+.mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--orange),#C24E00);display:grid;place-items:center;color:#0A0A0B;font-weight:900}
+.brand .sub{color:var(--muted);font-weight:500;font-size:.85rem}
+.back{margin-inline-start:auto;color:var(--muted);text-decoration:none;font-size:.85rem;border:1px solid var(--line);border-radius:999px;padding:7px 16px}
+.back:hover{color:var(--text);border-color:var(--orange)}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}
+@media(max-width:720px){.stats{grid-template-columns:1fr 1fr}}
+.stat{background:var(--s);border:1px solid var(--line);border-radius:14px;padding:16px}
+.stat .v{font-size:1.5rem;font-weight:900;color:var(--orange)}
+.stat .l{font-size:.8rem;color:var(--muted);margin-top:2px}
+
+/* search */
+.search{width:100%;background:var(--s);border:1px solid var(--line);border-radius:12px;color:var(--text);padding:13px 16px;font:inherit;font-size:16px;margin-bottom:16px}
+.search:focus{outline:none;border-color:var(--orange)}
+
+/* customer card */
+.cust{background:var(--s);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:13px}
+.cust.reward{border-color:var(--gold);box-shadow:0 0 0 1px rgba(255,210,74,.3),0 4px 24px rgba(255,210,74,.08)}
+.cust-top{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--orange),#C24E00);display:grid;place-items:center;font-weight:800;font-size:1.2rem;color:#0A0A0B;flex:none}
+.cust-id{flex:1;min-width:140px}
+.cust-name{font-weight:800;font-size:1.05rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cust-phone{font-size:.85rem;color:var(--muted);direction:ltr;text-align:right}
+.tier{font-size:.7rem;font-weight:800;padding:3px 10px;border-radius:999px}
+.tier.gold{background:rgba(255,210,74,.15);color:var(--gold);border:1px solid rgba(255,210,74,.4)}
+.tier.silver{background:rgba(190,200,210,.12);color:#cdd5dd;border:1px solid rgba(190,200,210,.3)}
+.tier.new{background:rgba(40,170,90,.12);color:#74e0a0;border:1px solid rgba(40,170,90,.3)}
+.wa-btn{background:var(--green);color:#fff;border:0;border-radius:999px;padding:9px 16px;font:inherit;font-weight:700;font-size:.82rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;flex:none}
+
+/* metrics row */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+@media(max-width:560px){.metrics{grid-template-columns:1fr 1fr}}
+.metric{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px;text-align:center}
+.metric .mv{font-weight:800;font-size:1.05rem}
+.metric .ml{font-size:.72rem;color:var(--muted);margin-top:2px}
+
+/* reward progress */
+.reward-row{margin-top:14px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+.reward-head{display:flex;justify-content:space-between;align-items:center;font-size:.83rem;margin-bottom:9px}
+.reward-head .lbl{color:var(--amber);font-weight:700}
+.reward-head .cnt{color:var(--muted)}
+.dots{display:flex;gap:7px;align-items:center}
+.dot{flex:1;height:9px;border-radius:5px;background:var(--s2);border:1px solid var(--line)}
+.dot.on{background:var(--orange);border-color:var(--orange)}
+.dot.gold{background:var(--gold);border-color:var(--gold)}
+.reward-msg{margin-top:9px;font-size:.82rem;color:var(--gold);font-weight:700;display:flex;align-items:center;gap:6px}
+.reward-msg.muted{color:var(--muted);font-weight:500}
+
+.empty{text-align:center;color:var(--muted);padding:50px 20px}
+.loading{text-align:center;color:var(--muted);padding:40px}
+.contact-extra{font-size:.78rem;color:var(--muted);margin-top:6px;display:flex;gap:14px;flex-wrap:wrap}
+.contact-extra span{display:inline-flex;align-items:center;gap:4px}
+
+@viewport{width:device-width;zoom:1;min-zoom:1;max-zoom:1;user-zoom:fixed}
+html{touch-action:manipulation}
+input{font-size:16px!important}
+</style>
+</head>
+<body>
+<header><div class="wrap topbar">
+  <div class="brand"><span class="mark">ک</span><div>کلبه نارنجی<div class="sub">مدیریت مشتریان (CRM)</div></div></div>
+  <a href="panel.html" class="back">← بازگشت</a>
+</div></header>
+
+<div class="wrap">
+  <div class="stats" id="stats">
+    <div class="stat"><div class="v" id="st_total">—</div><div class="l">کل مشتریان</div></div>
+    <div class="stat"><div class="v" id="st_repeat">—</div><div class="l">مشتری تکراری</div></div>
+    <div class="stat"><div class="v" id="st_reward">—</div><div class="l">واجد جایزه</div></div>
+    <div class="stat"><div class="v" id="st_revenue">—</div><div class="l">مجموع درآمد (ت)</div></div>
+  </div>
+
+  <input class="search" id="search" placeholder="🔍 جستجو بر اساس نام یا شماره واتساپ…">
+
+  <div id="list"><div class="loading">در حال بارگذاری مشتریان…</div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{persistSession:false}});
+let customers = [];
+
+function toFa(n){ return String(n).replace(/[0-9]/g,d=>"۰۱۲۳۴۵۶۷۸۹"[d]); }
+function money(n){ return toFa(Number(n||0).toLocaleString("en-US")); }
+function initials(name){
+  const p=(name||"").trim().split(/\s+/);
+  return ((p[0]||"")[0]||"؟")+((p[1]||"")[0]||"");
+}
+function waLink(phone){
+  let p=(phone||"").replace(/[^0-9]/g,"");
+  if(p.startsWith("0")) p="98"+p.slice(1);
+  return "https://wa.me/"+p;
+}
+
+async function load(){
+  const { data, error } = await sb.rpc("crm_customers");
+  if(error){
+    document.getElementById("list").innerHTML=`<div class="empty">خطا در بارگذاری: ${error.message}</div>`;
+    return;
+  }
+  customers = data||[];
+  renderStats();
+  render();
+}
+
+function renderStats(){
+  const total = customers.length;
+  const repeat = customers.filter(c=>c.confirmed_reservations>=2).length;
+  const reward = customers.filter(c=>c.has_reward).length;
+  const revenue = customers.reduce((s,c)=>s+Number(c.total_paid||0),0);
+  document.getElementById("st_total").textContent=toFa(total);
+  document.getElementById("st_repeat").textContent=toFa(repeat);
+  document.getElementById("st_reward").textContent=toFa(reward);
+  document.getElementById("st_revenue").textContent=money(revenue);
+}
+
+function tierBadge(c){
+  if(c.confirmed_reservations>=5) return '<span class="tier gold">★ مشتری طلایی</span>';
+  if(c.confirmed_reservations>=2) return '<span class="tier silver">مشتری وفادار</span>';
+  return '<span class="tier new">مشتری جدید</span>';
+}
+
+function rewardBlock(c){
+  const done = c.confirmed_reservations % 5; // چند تا از ۵ تای دور فعلی
+  const inCycle = (c.confirmed_reservations>0 && done===0) ? 5 : done;
+  let dots="";
+  for(let i=1;i<=5;i++){
+    const cls = i<=inCycle ? (i===5?"dot on gold":"dot on") : "dot";
+    dots+=`<div class="${cls}"></div>`;
+  }
+  let msg;
+  if(c.has_reward){
+    msg=`<div class="reward-msg">🎁 این مشتری واجد یک شب با ۶۰٪ تخفیف است!</div>`;
+  } else if(c.confirmed_reservations===0){
+    msg=`<div class="reward-msg muted">هنوز رزرو تأییدشده‌ای ندارد</div>`;
+  } else {
+    msg=`<div class="reward-msg muted">${toFa(c.reservations_until_reward)} رزرو دیگر تا جایزهٔ ۶۰٪</div>`;
+  }
+  return `
+    <div class="reward-row">
+      <div class="reward-head">
+        <span class="lbl">🍊 پیشرفت جایزهٔ وفاداری</span>
+        <span class="cnt">${toFa(c.confirmed_reservations)} رزرو تأییدشده</span>
+      </div>
+      <div class="dots">${dots}</div>
+      ${msg}
+    </div>`;
+}
+
+function render(){
+  const q=(document.getElementById("search").value||"").trim().toLowerCase();
+  let list=customers;
+  if(q) list=list.filter(c=>((c.full_name||"")+" "+(c.phone||"")).toLowerCase().includes(q));
+  const box=document.getElementById("list");
+  if(!list.length){
+    box.innerHTML=`<div class="empty">${q?"مشتری‌ای با این مشخصات پیدا نشد.":"هنوز مشتری‌ای ثبت نشده است."}</div>`;
+    return;
+  }
+  box.innerHTML=list.map(c=>`
+    <div class="cust ${c.has_reward?'reward':''}">
+      <div class="cust-top">
+        <div class="avatar">${initials(c.full_name)}</div>
+        <div class="cust-id">
+          <div class="cust-name">${c.full_name||"بدون نام"} ${tierBadge(c)}</div>
+          <div class="cust-phone">${toFa(c.phone||"")}</div>
+          <div class="contact-extra">
+            ${c.email?`<span>📧 ${c.email}</span>`:""}
+            ${c.telegram?`<span>✈️ ${c.telegram}</span>`:""}
+          </div>
+        </div>
+        <a class="wa-btn" href="${waLink(c.phone)}" target="_blank" rel="noopener">📱 واتساپ</a>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="mv">${toFa(c.total_reservations)}</div><div class="ml">کل رزرو</div></div>
+        <div class="metric"><div class="mv">${toFa(c.total_nights)}</div><div class="ml">شب اقامت</div></div>
+        <div class="metric"><div class="mv">${money(c.total_paid)}</div><div class="ml">پرداختی (ت)</div></div>
+        <div class="metric"><div class="mv">${c.last_visit?faDate(c.last_visit):"—"}</div><div class="ml">آخرین اقامت</div></div>
+      </div>
+      ${rewardBlock(c)}
+    </div>`).join("");
+}
+
+/* تاریخ شمسی ساده */
+function jdiv(a,b){return~~(a/b);}function jmod(a,b){return a-~~(a/b)*b;}
+function jalCal(jy){var breaks=[-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178],bl=breaks.length,gy=jy+621,leapJ=-14,jp=breaks[0],jm,jump=0,leap,leapG,march,n,i;for(i=1;i<bl;i++){jm=breaks[i];jump=jm-jp;if(jy<jm)break;leapJ=leapJ+jdiv(jump,33)*8+jdiv(jmod(jump,33),4);jp=jm;}n=jy-jp;leapJ=leapJ+jdiv(n,33)*8+jdiv(jmod(n,33)+3,4);if(jmod(jump,33)===4&&jump-n===4)leapJ+=1;leapG=jdiv(gy,4)-jdiv((jdiv(gy,100)+1)*3,4)-150;march=20+leapJ-leapG;if(jump-n<6)n=n-jump+jdiv(jump+4,33)*33;leap=jmod(jmod(n+1,33)-1,4);if(leap===-1)leap=4;return{leap:leap,gy:gy,march:march};}
+function g2d(gy,gm,gd){var d=jdiv((gy+jdiv(gm-8,6)+100100)*1461,4)+jdiv(153*jmod(gm+9,12)+2,5)+gd-34840408;d=d-jdiv(jdiv(gy+100100+jdiv(gm-8,6),100)*3,4)+752;return d;}
+function d2g(jdn){var j,i,gd,gm,gy;j=4*jdn+139361631;j=j+jdiv(jdiv(4*jdn+183187720,146097)*3,4)*4-3908;i=jdiv(jmod(j,1461),4)*5+308;gd=jdiv(jmod(i,153),5)+1;gm=jmod(jdiv(i,153),12)+1;gy=jdiv(j,1461)-100100+jdiv(8-gm,6);return{gy:gy,gm:gm,gd:gd};}
+function d2j(jdn){var gy=d2g(jdn).gy,jy=gy-621,r=jalCal(jy),jdn1f=g2d(gy,3,r.march),jd,jm,k;k=jdn-jdn1f;if(k>=0){if(k<=185){jm=1+jdiv(k,31);jd=jmod(k,31)+1;return{jy:jy,jm:jm,jd:jd};}else{k-=186;}}else{jy-=1;k+=179;if(r.leap===1)k+=1;}jm=7+jdiv(k,30);jd=jmod(k,30)+1;return{jy:jy,jm:jm,jd:jd};}
+const FA_MON=["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
+function faDate(iso){
+  if(!iso) return "—";
+  const dt=new Date(iso+"T00:00:00");
+  const j=d2j(g2d(dt.getFullYear(),dt.getMonth()+1,dt.getDate()));
+  return toFa(j.jd)+" "+FA_MON[j.jm-1];
+}
+
+document.getElementById("search").addEventListener("input", render);
+load();
+</script>
+</body>
+</html>
