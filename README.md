@@ -2,6 +2,8 @@
 
 سایت رزرو ویلای کلبه نارنجی در روستای قلات شیراز.
 
+🌐 **آدرس سایت:** [kolbenarenji.com](https://kolbenarenji.com)
+
 ## فایل‌ها
 - `index.html` — صفحه اصلی و فرم رزرو
 - `admin.html` — پنل مدیریت
@@ -9,9 +11,9 @@
 - `panel.html` — صفحه لانچر
 - `crm.html` — مدیریت مشتریان (CRM)
 
-## آدرس‌ها (بعد از deploy)
-- صفحه اصلی: `/`
-- پنل مدیریت: `/admin`
-- فرم تحویل: `/checkin`
-- لانچر: `/panel`
-- CRM: `/crm`
+## آدرس‌ها
+- صفحه اصلی: [kolbenarenji.com](https://kolbenarenji.com)
+- پنل مدیریت: [kolbenarenji.com/admin](https://kolbenarenji.com/admin)
+- فرم تحویل: [kolbenarenji.com/checkin](https://kolbenarenji.com/checkin)
+- لانچر: [kolbenarenji.com/panel](https://kolbenarenji.com/panel)
+- CRM: [kolbenarenji.com/crm](https://kolbenarenji.com/crm)
