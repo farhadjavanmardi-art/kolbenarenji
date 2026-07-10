@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<title>داشبورد 6P — خانه‌باغ / کلبه نارنجی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0A0B; --panel:#141416; --panel2:#1B1B1E; --border:rgba(255,255,255,.08);
+    --orange:#FF7A1A; --text:#F4EFE7; --muted:#9A9A9E; --green:#3ecf8e; --red:#e2585d;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html{-webkit-text-size-adjust:100%; touch-action:manipulation}
+  body{background:var(--bg); color:var(--text); font-family:'Vazirmatn',sans-serif; min-height:100vh; padding-bottom:60px}
+  header{padding:22px 18px 14px; border-bottom:1px solid var(--border); position:sticky; top:0; background:rgba(10,10,11,.9); backdrop-filter:blur(10px); z-index:10}
+  header h1{font-size:1.25rem; font-weight:800}
+  header h1 span{color:var(--orange)}
+  header p{color:var(--muted); font-size:.82rem; margin-top:4px}
+  nav{display:flex; gap:6px; overflow-x:auto; padding:14px 18px 0; scrollbar-width:none}
+  nav::-webkit-scrollbar{display:none}
+  nav button{flex:0 0 auto; background:var(--panel); border:1px solid var(--border); color:var(--muted);
+    padding:9px 16px; border-radius:999px; font-family:inherit; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap}
+  nav button.active{background:var(--orange); color:#0A0A0B; border-color:var(--orange)}
+  main{padding:20px 18px; max-width:960px; margin:0 auto}
+  .tab{display:none} .tab.active{display:block}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:18px}
+  .card{background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:16px}
+  .card .lbl{color:var(--muted); font-size:.75rem; margin-bottom:8px}
+  .card .val{font-size:1.5rem; font-weight:800}
+  .card .sub{font-size:.72rem; color:var(--muted); margin-top:6px}
+  .card .sub.pos{color:var(--green)} .card .sub.neg{color:var(--red)}
+  h2.sect{font-size:1.02rem; font-weight:800; margin:22px 0 10px; color:var(--orange)}
+  .note{background:var(--panel2); border:1px dashed var(--border); border-radius:12px; padding:12px 14px; font-size:.8rem; color:var(--muted); line-height:1.9}
+  table{width:100%; border-collapse:collapse; background:var(--panel); border-radius:12px; overflow:hidden; margin-top:10px}
+  th,td{padding:10px 12px; text-align:right; font-size:.82rem; border-bottom:1px solid var(--border)}
+  th{color:var(--muted); font-weight:700}
+  .manual-form{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-top:12px}
+  .manual-form label{font-size:.72rem; color:var(--muted); display:block; margin-bottom:5px}
+  .manual-form input{width:100%; background:var(--panel2); border:1px solid var(--border); border-radius:8px;
+    padding:9px 10px; color:var(--text); font-family:inherit; font-size:16px}
+  .btn{background:var(--orange); color:#0A0A0B; border:none; border-radius:10px; padding:10px 20px;
+    font-family:inherit; font-weight:800; font-size:.85rem; cursor:pointer; margin-top:12px}
+  .checklist label{display:flex; align-items:center; gap:8px; padding:9px 0; font-size:.85rem; border-bottom:1px solid var(--border)}
+  .checklist input{width:17px; height:17px; accent-color:var(--orange)}
+  .status{font-size:.72rem; padding:8px 12px; border-radius:8px; margin-top:10px}
+  .status.ok{background:rgba(62,207,142,.1); color:var(--green)}
+  .status.err{background:rgba(226,88,93,.1); color:var(--red)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>داشبورد <span>6P</span> — تحلیل کسب‌وکار</h1>
+  <p>خانه‌باغ (کلبه نارنجی) · قلات، شیراز</p>
+</header>
+
+<nav id="nav"></nav>
+<main id="main"></main>
+
+<script>
+/* ====== تنظیمات اتصال — از CREDENTIALS_SECRET.md پروژه کلبه نارنجی ====== */
+const SUPABASE_URL = "https://ajkmagdcoxpqhfknmmmk.supabase.co";
+const SUPABASE_KEY  = "sb_publishable_WQVbekgoKZFSkB7Fw1rfOw_pPaDzd2G";
+
+const P = [
+  {id:'feas', title:'۱. امکان‌سنجی'},
+  {id:'biz',  title:'۲. کسب‌وکار'},
+  {id:'mkt',  title:'۳. بازاریابی'},
+  {id:'cx',   title:'۴. تجربه مشتری'},
+  {id:'ai',   title:'۵. هوش مصنوعی'},
+  {id:'dig',  title:'۶. دیجیتال'},
+];
+
+const nav = document.getElementById('nav');
+const main = document.getElementById('main');
+P.forEach((p,i)=>{
+  const b=document.createElement('button');
+  b.textContent=p.title; b.dataset.tab=p.id; if(i===0)b.classList.add('active');
+  b.onclick=()=>switchTab(p.id);
+  nav.appendChild(b);
+});
+
+function switchTab(id){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===id));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.id==='tab-'+id));
+}
+
+function fmt(n){ return new Intl.NumberFormat('fa-IR').format(Math.round(n||0)); }
+function saveLS(key,val){ try{ localStorage.setItem('6p_'+key, JSON.stringify(val)); }catch(e){} }
+function loadLS(key,def){ try{ const v=localStorage.getItem('6p_'+key); return v?JSON.parse(v):def; }catch(e){ return def; } }
+
+/* ---------- بخش ۱: امکان‌سنجی ---------- */
+main.innerHTML += `
+<section class="tab active" id="tab-feas">
+  <div class="grid">
+    <div class="card"><div class="lbl">اشغال فعلی</div><div class="val">۲۰٪</div><div class="sub">هدف: ۸۰٪</div></div>
+    <div class="card"><div class="lbl">سود ماهانه</div><div class="val">۸.۵م</div><div class="sub">هدف: ۴۲ میلیون</div></div>
+    <div class="card"><div class="lbl">ROI سالانه</div><div class="val">۴۵٪</div><div class="sub">هدف: ۹۰٪</div></div>
+    <div class="card"><div class="lbl">بازگشت سرمایه</div><div class="val">۲ سال</div><div class="sub">هدف: ۱.۲ سال</div></div>
+  </div>
+  <div class="note">این اعداد از گزارش امکان‌سنجی ۱۴۰۳ ثابت‌اند. برای مقایسه با وضعیت زندهٔ رزروها به تب «کسب‌وکار» بروید.</div>
+</section>`;
+
+/* ---------- بخش ۲: کسب‌وکار (زنده از Supabase) ---------- */
+main.innerHTML += `
+<section class="tab" id="tab-biz">
+  <div class="grid" id="biz-cards">
+    <div class="card"><div class="lbl">در حال بارگذاری…</div></div>
+  </div>
+  <div id="biz-status"></div>
+  <h2 class="sect">۵ رزرو اخیر</h2>
+  <table id="biz-table"><thead><tr><th>مهمان</th><th>ورود</th><th>شب</th><th>مبلغ</th><th>وضعیت</th></tr></thead><tbody></tbody></table>
+</section>`;
+
+async function loadBusiness(){
+  const statusEl = document.getElementById('biz-status');
+  try{
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/reservations?check_in=gte.${monthStart}&select=*`, {
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const rows = await res.json();
+    const confirmed = rows.filter(r=>r.status==='confirmed');
+    const nights = confirmed.reduce((s,r)=>s+(r.nights||0),0);
+    const revenue = confirmed.reduce((s,r)=>s+(r.total_price||0),0);
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+    const occ = Math.round((nights/daysInMonth)*100);
+
+    document.getElementById('biz-cards').innerHTML = `
+      <div class="card"><div class="lbl">شب رزروشده این ماه</div><div class="val">${fmt(nights)}</div><div class="sub">هدف: ۲۰ شب</div></div>
+      <div class="card"><div class="lbl">درآمد این ماه</div><div class="val">${fmt(revenue)} ت</div><div class="sub">هدف: ۶۰,۰۰۰,۰۰۰ ت</div></div>
+      <div class="card"><div class="lbl">درصد اشغال</div><div class="val">${occ}٪</div><div class="sub ${occ>=80?'pos':'neg'}">هدف: ۸۰٪</div></div>
+      <div class="card"><div class="lbl">تعداد رزرو تأییدشده</div><div class="val">${confirmed.length}</div><div class="sub">نقطه سر‌به‌سر: ۷ رزرو</div></div>
+    `;
+    const tbody = document.querySelector('#biz-table tbody');
+    tbody.innerHTML = rows.slice(0,5).map(r=>`
+      <tr><td>${(r.first_name||'')+' '+(r.last_name||'')}</td><td>${r.check_in||'-'}</td>
+      <td>${r.nights||0}</td><td>${fmt(r.total_price)} ت</td><td>${r.status}</td></tr>`).join('') || '<tr><td colspan="5">رزروی ثبت نشده</td></tr>';
+    statusEl.innerHTML = `<div class="status ok">✅ متصل به دیتابیس زنده کلبه نارنجی</div>`;
+  }catch(e){
+    document.getElementById('biz-cards').innerHTML = `<div class="card"><div class="lbl">خطا در اتصال</div><div class="val" style="font-size:.9rem">${e.message}</div></div>`;
+    statusEl.innerHTML = `<div class="status err">اتصال برقرار نشد — کلید/URL Supabase یا policy جدول reservations را بررسی کنید.</div>`;
+  }
+}
+
+/* ---------- بخش ۳ تا ۵: ورود دستی + localStorage ---------- */
+function manualSection(key, fields, targets){
+  const saved = loadLS(key, {});
+  const inputs = fields.map(f=>`
+    <div><label>${f.label}</label><input type="number" id="${key}-${f.k}" value="${saved[f.k]??''}" placeholder="${f.hint||''}"></div>
+  `).join('');
+  return `<div class="manual-form">${inputs}</div>
+    <button class="btn" onclick="saveManual('${key}', [${fields.map(f=>`'${f.k}'`).join(',')}])">ذخیرهٔ این ماه</button>
+    <div class="note" style="margin-top:14px">${targets}</div>`;
+}
+function saveManual(key, keys){
+  const data={}; keys.forEach(k=> data[k]=document.getElementById(key+'-'+k).value);
+  saveLS(key, data);
+  alert('ذخیره شد ✅ (روی همین مرورگر ذخیره می‌ماند تا جدول marketing_kpi/guest_feedback/ai_usage_log در Supabase ساخته شود)');
+}
+
+main.innerHTML += `
+<section class="tab" id="tab-mkt">
+  <h2 class="sect">KPI بازاریابی این ماه</h2>
+  ${manualSection('mkt', [
+    {k:'followers', label:'تعداد فالوور'},
+    {k:'engagement', label:'نرخ تعامل (٪)'},
+    {k:'reach', label:'ریچ ماهانه'},
+    {k:'adspend', label:'بودجه تبلیغ (ت)'},
+    {k:'conv', label:'نرخ تبدیل پیام به رزرو (٪)'},
+  ], 'هدف‌های سند 6P: رشد فالوور +۱۵٪ ماهانه · تعامل ≥۵٪ · نرخ تبدیل ۲۰٪')}
+</section>
+
+<section class="tab" id="tab-cx">
+  <h2 class="sect">تجربه مشتری این ماه</h2>
+  ${manualSection('cx', [
+    {k:'csat', label:'رضایت مشتری (از ۱۰)'},
+    {k:'nps', label:'شاخص توصیه NPS'},
+    {k:'response', label:'میانگین پاسخ‌گویی (دقیقه)'},
+    {k:'returning', label:'٪ مهمانان بازگشتی'},
+  ], 'هدف‌های سند 6P: CSAT ≥ ۹.۵ · NPS ≥ ۸۰ · پاسخ‌گویی زیر ۱۵ دقیقه')}
+</section>
+
+<section class="tab" id="tab-ai">
+  <h2 class="sect">مصرف هوش مصنوعی این ماه</h2>
+  ${manualSection('ai', [
+    {k:'tokens', label:'کل توکن مصرفی'},
+    {k:'cost', label:'هزینه ($)'},
+    {k:'accuracy', label:'دقت پاسخ‌ها (٪)'},
+    {k:'satisfaction', label:'رضایت از دستیار (از ۱۰)'},
+  ], 'هدف‌های سند 6P: دقت ≥۹۲٪ · رضایت ≥۹ · زمان پاسخ ≤۳ ثانیه')}
+</section>
+
+<section class="tab" id="tab-dig">
+  <h2 class="sect">چک‌لیست زیرساخت دیجیتال</h2>
+  <div class="checklist" id="dig-check"></div>
+  <div class="note" style="margin-top:14px">
+    برای مدیریت کامل رزرو/حسابداری/تخفیف به <a href="admin.html" style="color:var(--orange)">admin.html</a> و برای CRM به <a href="crm.html" style="color:var(--orange)">crm.html</a> بروید.
+  </div>
+</section>`;
+
+const digItems = [
+  'سایت رزرو (index.html) فعال',
+  'پنل مدیریت (admin.html) فعال',
+  'فرم تحویل (checkin.html) فعال',
+  'CRM (crm.html) فعال',
+  'دستیار چت هوشمند وصل به Edge Function',
+  '۶ workflow n8n فعال و تست‌شده',
+  'اینستاگرام (پست/استوری/آفر خودکار) فعال',
+  'دامنه + SSL روی Vercel متصل',
+];
+document.getElementById('dig-check').innerHTML = digItems.map((t,i)=>{
+  const checked = loadLS('dig', {})[i];
+  return `<label><input type="checkbox" data-i="${i}" ${checked?'checked':''} onchange="toggleDig(${i}, this.checked)"> ${t}</label>`;
+}).join('');
+function toggleDig(i, val){ const d=loadLS('dig',{}); d[i]=val; saveLS('dig', d); }
+
+loadBusiness();
+</script>
+</body>
+</html>
