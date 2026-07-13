@@ -148,20 +148,7 @@ html{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;text-size-adjust:10
 input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
 @media(max-width:600px){
   input[type=text],input[type=tel],input[type=email],input[type=number],input[type=date],input[type=time],select,textarea{font-size:16px!important}
-  /* جلوگیری از بیرون‌زدن محتوا از کادرها */
-  .card-acc,.card,.exp-form{max-width:100%;overflow-x:hidden}
-  .exp-form{grid-template-columns:1fr!important}
-  /* تقویم بازشونده وسط صفحه به‌جای بیرون‌زدن از کادر */
-  .sdp-cal{position:fixed;top:50%;left:50%;right:auto;transform:translate(-50%,-50%);
-    width:min(92vw,310px);min-width:0;max-height:80vh;overflow:auto;z-index:1000}
-  .sdp-cal.open{display:block}
-  /* پوشش تیره پشت تقویم در موبایل */
-  .sdp-cal.open::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:-1;
-    left:-50vw;top:-50vh;width:200vw;height:200vh}
 }
-*{box-sizing:border-box}
-img,canvas,table{max-width:100%}
-.wrap,.card,.card-acc{overflow-wrap:break-word}
 </style>
 </head>
 <body>
@@ -305,7 +292,7 @@ img,canvas,table{max-width:100%}
 <div id="ciModal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.75);overflow-y:auto">
   <div style="max-width:780px;margin:30px auto 60px;background:#141416;border:1px solid #2A2A2E;border-radius:20px;padding:28px 24px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-      <b style="font-size:1rem;color:#FFB454">📋 فرم تحویل اقامتگاه</b>
+      <b style="font-size:1rem;color:#FFB454" id="ciModalTitle">📋 فرم تحویل اقامتگاه</b>
       <button onclick="closeCi()" style="background:none;border:1px solid #2A2A2E;color:#9A9AA0;cursor:pointer;border-radius:8px;padding:6px 14px;font:inherit">✕ بستن</button>
     </div>
 
@@ -329,7 +316,15 @@ img,canvas,table{max-width:100%}
     .cib-g.bad{border-color:#d84545;color:#f0a0a0;background:rgba(220,60,60,.1)}
     .ci-cnt{display:flex;align-items:center;gap:8px;margin-top:7px}
     .ci-cnt input{width:80px;text-align:center}
-    .ci-note-in{margin-top:6px}
+    .ci-note-in{margin-top:6px;display:flex;gap:6px;align-items:center}
+    .ci-note-in input{flex:1}
+    .cib-g.mic{padding:4px 9px;flex:none}
+    .cib-g.mic.rec{background:#d84545;color:#fff;border-color:#d84545}
+    .ci-photos-g{display:flex;flex-wrap:wrap;margin-top:6px}
+    .photo-thumb-g{width:46px;height:46px;object-fit:cover;border-radius:6px;border:1px solid #2A2A2E;margin:0 4px 4px 0}
+    .ph-status-g{font-size:.72rem;color:#9A9AA0;margin-inline-start:6px}
+    .ci-pair-g{background:#1C1C1F;border:1px solid #2A2A2E;border-radius:10px;padding:9px;margin-bottom:8px}
+    .ci-pair-label-g{font-size:.72rem;color:#9A9AA0;margin-bottom:4px}
     .sig-c{background:#fff;border:2px dashed #2A2A2E;border-radius:8px;touch-action:none;display:block;width:100%;height:140px}
     </style>
 
@@ -353,7 +348,8 @@ img,canvas,table{max-width:100%}
 
     <!-- وضعیت اقامتگاه -->
     <div class="ci-card">
-      <h4>② وضعیت اقامتگاه</h4>
+      <h4 id="ci_items_title">② وضعیت اقامتگاه</h4>
+      <p id="ci_items_hint" style="font-size:.78rem;color:#9A9AA0;margin-bottom:10px">هر مورد را بررسی، توضیح (با تایپ یا میکروفون) و در صورت نیاز عکس ثبت کنید.</p>
       <div id="ci_items_list"></div>
     </div>
 
@@ -390,7 +386,7 @@ img,canvas,table{max-width:100%}
         <div class="ci-fl"><label>تاریخ تنظیم فرم</label><div class="sdp-wrap"><button type="button" class="sdp-input" onclick="sdpOpen('ci_fdate')"><span id="sdp_ci_fdate_lbl">انتخاب تاریخ 📅</span></button><div class="sdp-cal" id="sdp_cal_ci_fdate"></div></div><input type="hidden" id="ci_fdate"></div>
       </div>
       <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn" onclick="submitCi()">💾 ثبت فرم</button>
+        <button class="btn" id="ciSubmitBtn" onclick="submitCi()">💾 ثبت فرم</button>
         <button class="btn ghost" onclick="printCi()">🖨️ چاپ</button>
       </div>
       <div class="err" id="ci_msg" style="margin-top:10px"></div>
@@ -722,19 +718,8 @@ function renderCheckins(){
         <button class="btn sm" onclick="chkPdf('${r.id}')">🖨️ ${t.pdf_btn}</button>
         <button class="btn wa sm" onclick="chkWa('${r.id}')">📱 ${t.wa_btn}</button>
         <button class="btn ghost sm" id="chkCopy_${r.id}" onclick="chkCopy('${r.id}')">${t.copy_btn}</button>
-        <button class="btn ghost sm" style="border-color:rgba(220,60,60,.4);color:#f0a0a0" onclick="delCheckin('${r.id}')">🗑️ حذف</button>
       </div>
     </div>`).join("");
-}
-async function delCheckin(id){
-  const rec = checkins.find(c=>c.id===id);
-  const name = rec ? (rec.guest_name||"") : "";
-  if(!confirm("فرم تحویل «"+name+"» کاملاً حذف شود؟ این کار قابل بازگشت نیست.")) return;
-  if(!sb){ alert("اتصال به دیتابیس برقرار نیست."); return; }
-  const { error } = await sb.from("checkins").delete().eq("id", id);
-  if(error){ alert("خطا در حذف: "+error.message); return; }
-  checkins = checkins.filter(c=>c.id!==id);
-  renderCheckins();
 }
 function chkText(r){
   const t=T[lang];
@@ -847,6 +832,7 @@ function render(){
         ${r.telegram?`<a class="btn ghost sm" href="https://t.me/${esc((r.telegram||'').replace(/^@/,''))}" target="_blank" style="text-decoration:none">✈️ تلگرام</a>`:""}
         <button class="btn ghost sm" id="copyBtn_${r.id}" onclick="copyMsg('${r.id}')">${t.copy_btn}</button>
         <button class="btn ghost sm" onclick="openCi('${r.id}','${esc((r.first_name||'')+' '+(r.last_name||''))}','${esc(r.phone||'')}','${r.check_in||''}','${r.check_out||''}')">📋 فرم تحویل</button>
+        <button class="btn ghost sm" onclick="openCiOut('${r.id}','${esc((r.first_name||'')+' '+(r.last_name||''))}','${esc(r.phone||'')}','${r.check_in||''}','${r.check_out||''}')">🔑 چک‌اوت مشتری</button>
         ${r.status!=="confirmed"?`<button class="btn sm" onclick="setStatus('${r.id}','confirmed')">${t.confirm}</button>`:""}
         ${r.status!=="cancelled"?`<button class="btn ghost sm" onclick="setStatus('${r.id}','cancelled')">${t.cancel}</button>`:""}
         ${r.status!=="pending"?`<button class="btn ghost sm" onclick="setStatus('${r.id}','pending')">${t.repending}</button>`:""}
@@ -949,9 +935,20 @@ const CI_ITEMS=[
   {k:"ac",        l:"سرمایش / گرمایش",       type:"status"},
 ];
 const ciState={};
+const ciOutState={};
 const ciSigs={admin:false,guest:false};
+let ciMode="in";        // 'in' یا 'out'
+let ciResId=null;
+let ciLoadedRecord=null;
+const ciDraftId=(crypto.randomUUID?crypto.randomUUID():String(Date.now()));
 
 function openCi(resId, name, phone, checkin, checkout){
+  ciMode="in"; ciResId=resId; ciLoadedRecord=null;
+  document.getElementById("ciModalTitle").textContent="📋 فرم تحویل اقامتگاه";
+  document.getElementById("ci_items_title").textContent="② وضعیت اقامتگاه";
+  document.getElementById("ci_items_hint").textContent="هر مورد را بررسی، توضیح (با تایپ یا میکروفون) و در صورت نیاز عکس ثبت کنید.";
+  document.getElementById("ciSubmitBtn").textContent="💾 ثبت فرم";
+  ["ci_name","ci_phone","ci_id_type","ci_id_num"].forEach(id=>document.getElementById(id).disabled=false);
   // پیش‌پر کردن اطلاعات
   document.getElementById("ci_name").value  = name||"";
   document.getElementById("ci_phone").value = phone||"";
@@ -964,7 +961,7 @@ function openCi(resId, name, phone, checkin, checkout){
   document.getElementById("ci_msg").className = "err";
   document.getElementById("ci_msg").textContent = "";
   // ریست وضعیت آیتم‌ها
-  CI_ITEMS.forEach(it=>ciState[it.k]={status:"ok",note:"",count:0});
+  CI_ITEMS.forEach(it=>ciState[it.k]={status:"ok",note:"",count:0,photos:[]});
   renderCiItems();
   // ریست امضاها
   ["admin","guest"].forEach(id=>{
@@ -977,37 +974,144 @@ function openCi(resId, name, phone, checkin, checkout){
   // init signatures once modal is visible
   setTimeout(()=>{initSigM("admin");initSigM("guest");},100);
 }
+
+function openCiOut(resId, name, phone, checkin, checkout){
+  const rec=(checkins||[]).find(c=>c.reservation_id===resId) || (checkins||[]).find(c=>phone && c.phone===phone);
+  if(!rec){ alert("هنوز فرم تحویل (چک‌این) برای این مهمان ثبت نشده — ابتدا «📋 فرم تحویل» را تکمیل کنید."); return; }
+  ciMode="out"; ciResId=resId; ciLoadedRecord=rec;
+  document.getElementById("ciModalTitle").textContent="🔑 چک‌اوت مشتری";
+  document.getElementById("ci_items_title").textContent="② وضعیت اقامتگاه — مقایسه قبل/بعد";
+  document.getElementById("ci_items_hint").textContent="ستون «قبل» فقط نمایشی است. ستون «بعد» را بررسی، توضیح و عکس ثبت کنید.";
+  document.getElementById("ciSubmitBtn").textContent="💾 ثبت چک‌اوت";
+  document.getElementById("ci_name").value  = rec.guest_name||name||"";
+  document.getElementById("ci_phone").value = rec.phone||phone||"";
+  ["ci_name","ci_phone","ci_id_type","ci_id_num"].forEach(id=>document.getElementById(id).disabled=true);
+  sdpSetToday('ci_fdate');
+  document.getElementById("ci_id_ok").checked  = !!rec.id_confirmed;
+  document.getElementById("ci_rules").checked  = !!rec.rules_accepted;
+  document.getElementById("ci_notes").value = "";
+  document.getElementById("ci_notes").placeholder = "توضیحات چک‌اوت (خسارت، کسورات، نکات مهم)…";
+  document.getElementById("ci_msg").className = "err";
+  document.getElementById("ci_msg").textContent = "";
+  CI_ITEMS.forEach(it=>ciOutState[it.k]={status:"ok",note:"",count:0,photos:[]});
+  renderCiItems();
+  ["admin","guest"].forEach(id=>{
+    const c=document.getElementById("sig_"+id+"_m");
+    if(c){const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);}
+    ciSigs[id]=false;
+  });
+  document.getElementById("ciModal").style.display="block";
+  document.body.style.overflow="hidden";
+  setTimeout(()=>{initSigM("admin");initSigM("guest");},100);
+}
+
 function closeCi(){
   document.getElementById("ciModal").style.display="none";
   document.body.style.overflow="";
+  document.getElementById("ci_notes").placeholder="";
 }
 
-function renderCiItems(){
-  const el=document.getElementById("ci_items_list");
-  el.innerHTML=CI_ITEMS.map(it=>{
-    const s=ciState[it.k]||{status:"ok"};
-    const countHtml = it.type==="count" ? `<div class="ci-cnt"><span style="font-size:.8rem;color:#9A9AA0">${it.label}</span><input type="number" min="0" value="${s.count||0}" onchange="ciSetCount('${it.k}',this.value)"></div>` : "";
-    return `<div class="ci-item">
+function ciPhotosHtml(stage,k,photos){
+  const thumbs=(photos||[]).map(u=>`<img class="photo-thumb-g" src="${u}">`).join("");
+  return `<div class="ci-photos-g" id="ci_thumbs_${stage}_${k}">${thumbs}</div>
+    <button type="button" class="cib-g" onclick="document.getElementById('ci_pf_${stage}_${k}').click()">📷 افزودن عکس</button>
+    <input type="file" accept="image/*" capture="environment" multiple style="display:none" id="ci_pf_${stage}_${k}" onchange="ciHandlePhotos('${stage}','${k}',this.files)">
+    <span class="ph-status-g" id="ci_ph_status_${stage}_${k}"></span>`;
+}
+function ciItemEditableHtml(it,stage){
+  const st=stage==="in"?ciState:ciOutState;
+  const s=st[it.k]||{status:"ok",note:"",count:0,photos:[]};
+  const countHtml = it.type==="count" ? `<div class="ci-cnt"><span style="font-size:.8rem;color:#9A9AA0">${it.label}</span><input type="number" min="0" value="${s.count||0}" onchange="ciSetField('${stage}','${it.k}','count',this.value)"></div>` : "";
+  return `<div class="ci-item">
       <div class="ci-item-head">
         <span class="ci-item-name">${it.l}</span>
         <div class="ci-btns-g">
-          <button class="cib-g${s.status==="ok"?" ok":""}" onclick="ciSetS('${it.k}','ok',this)">✓ سالم</button>
-          <button class="cib-g${s.status==="bad"?" bad":""}" onclick="ciSetS('${it.k}','bad',this)">✗ مشکل</button>
+          <button type="button" class="cib-g${s.status==="ok"?" ok":""}" onclick="ciSetS('${stage}','${it.k}','ok',this)">✓ سالم</button>
+          <button type="button" class="cib-g${s.status==="bad"?" bad":""}" onclick="ciSetS('${stage}','${it.k}','bad',this)">✗ مشکل</button>
         </div>
       </div>
       ${countHtml}
-      <div class="ci-note-in"><input placeholder="توضیح (اختیاری)" value="${s.note||""}" onchange="ciSetNote('${it.k}',this.value)"></div>
+      <div class="ci-note-in">
+        <input id="ci_note_${stage}_${it.k}" placeholder="توضیح (اختیاری)" value="${s.note||""}" onchange="ciSetField('${stage}','${it.k}','note',this.value)">
+        <button type="button" class="cib-g mic" onclick="ciToggleMic('${stage}','${it.k}',this)" title="ضبط صدا">🎤</button>
+      </div>
+      ${ciPhotosHtml(stage,it.k,s.photos)}
     </div>`;
-  }).join("");
 }
-function ciSetS(k,v,btn){
-  if(!ciState[k])ciState[k]={};ciState[k].status=v;
+function ciItemReadonlyHtml(it,s){
+  const cnt = it.type==="count" ? `<div class="ci-cnt" style="color:#9A9AA0">${it.label} ${s.count||0}</div>` : "";
+  return `<div class="ci-item">
+    <div class="ci-item-head"><span class="ci-item-name">${it.l}</span><span class="cib-g${s.status==="bad"?" bad":" ok"}" style="pointer-events:none">${s.status==="bad"?"✗ مشکل":"✓ سالم"}</span></div>
+    ${cnt}
+    ${s.note?`<div class="ci-note-in" style="color:#9A9AA0">${s.note}</div>`:""}
+    <div class="ci-photos-g">${(s.photos||[]).map(u=>`<img class="photo-thumb-g" src="${u}">`).join("")||'<span style="font-size:.75rem;color:#9A9AA0">بدون عکس</span>'}</div>
+  </div>`;
+}
+function renderCiItems(){
+  const el=document.getElementById("ci_items_list");
+  if(ciMode==="in"){
+    el.innerHTML=CI_ITEMS.map(it=>ciItemEditableHtml(it,"in")).join("");
+  }else{
+    const beforeData=(ciLoadedRecord&&(ciLoadedRecord.checkin_items||ciLoadedRecord.condition))||{};
+    el.innerHTML=CI_ITEMS.map(it=>{
+      const before=beforeData[it.k]||{status:"ok",note:"",count:0,photos:[]};
+      return `<div class="ci-pair-g">
+        <div class="ci-pair-label-g">قبل (تحویل)</div>
+        ${ciItemReadonlyHtml(it,before)}
+        <div class="ci-pair-label-g" style="margin-top:6px">بعد (چک‌اوت)</div>
+        ${ciItemEditableHtml(it,"out")}
+      </div>`;
+    }).join("");
+  }
+}
+function ciSetS(stage,k,v,btn){
+  const st=stage==="in"?ciState:ciOutState;
+  if(!st[k])st[k]={photos:[]};
+  st[k].status=v;
   const p=btn.closest(".ci-btns-g");
   p.querySelectorAll(".cib-g").forEach(b=>{b.classList.remove("ok","bad");});
   btn.classList.add(v);
 }
-function ciSetNote(k,v){if(!ciState[k])ciState[k]={status:"ok"};ciState[k].note=v;}
-function ciSetCount(k,v){if(!ciState[k])ciState[k]={status:"ok"};ciState[k].count=parseInt(v)||0;}
+function ciSetField(stage,k,field,v){
+  const st=stage==="in"?ciState:ciOutState;
+  if(!st[k])st[k]={status:"ok",note:"",count:0,photos:[]};
+  st[k][field]=field==="count"?(parseInt(v)||0):v;
+}
+async function ciHandlePhotos(stage,k,files){
+  const st=stage==="in"?ciState:ciOutState;
+  if(!st[k])st[k]={status:"ok",note:"",count:0,photos:[]};
+  if(!st[k].photos)st[k].photos=[];
+  const statusEl=document.getElementById(`ci_ph_status_${stage}_${k}`);
+  const folder=(stage==="out"&&ciLoadedRecord)?ciLoadedRecord.id:ciDraftId;
+  for(const f of files){
+    if(statusEl)statusEl.textContent="در حال آپلود…";
+    try{
+      const path=`${folder}/${k}/${stage}_${Date.now()}_${Math.random().toString(36).slice(2,7)}.jpg`;
+      const{error}=await sb.storage.from("checkin-photos").upload(path,f,{contentType:f.type||"image/jpeg"});
+      if(error)throw error;
+      const{data}=sb.storage.from("checkin-photos").getPublicUrl(path);
+      st[k].photos.push(data.publicUrl);
+    }catch(e){ if(statusEl)statusEl.textContent="خطا: "+e.message; }
+  }
+  if(statusEl)statusEl.textContent="";
+  const thumbEl=document.getElementById(`ci_thumbs_${stage}_${k}`);
+  if(thumbEl)thumbEl.innerHTML=st[k].photos.map(u=>`<img class="photo-thumb-g" src="${u}">`).join("");
+}
+function ciToggleMic(stage,k,btn){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ alert("مرورگر شما از تبدیل صدا به متن پشتیبانی نمی‌کند."); return; }
+  if(btn._rec){ btn._rec.stop(); btn._rec=null; btn.classList.remove("rec"); return; }
+  const rec=new SR();
+  rec.lang="fa-IR"; rec.interimResults=false; rec.maxAlternatives=1;
+  rec.onresult=(e)=>{
+    const text=e.results[0][0].transcript;
+    const input=document.getElementById(`ci_note_${stage}_${k}`);
+    if(input){ input.value=(input.value?input.value+" ":"")+text; ciSetField(stage,k,"note",input.value); }
+  };
+  rec.onend=()=>{btn.classList.remove("rec");btn._rec=null;};
+  rec.onerror=()=>{btn.classList.remove("rec");btn._rec=null;};
+  btn._rec=rec; btn.classList.add("rec"); rec.start();
+}
 
 /* امضا modal */
 const _sigCtx={};
@@ -1032,29 +1136,47 @@ function clearSigM(id){
 
 async function submitCi(){
   const msgEl=document.getElementById("ci_msg");msgEl.className="err";
-  const name=document.getElementById("ci_name").value.trim();
-  if(!name){msgEl.textContent="نام مهمان الزامی است.";return;}
   if(!sb){msgEl.textContent="Supabase متصل نیست.";return;}
-  const rec={
-    guest_name:name, phone:document.getElementById("ci_phone").value.trim()||null,
-    checkin_date:document.getElementById("ci_in").value||null,
-    id_type:document.getElementById("ci_id_type").value||null,
-    id_number:document.getElementById("ci_id_num").value.trim()||null,
-    condition:ciState, checkin_items:ciState,
-    id_confirmed:document.getElementById("ci_id_ok").checked,
-    rules_accepted:document.getElementById("ci_rules").checked,
-    notes:document.getElementById("ci_notes").value.trim()||null,
-    extra_notes:document.getElementById("ci_notes").value.trim()||null,
-    checkin_date_signed:document.getElementById("ci_fdate").value||null,
-    signature:ciSigs.guest?document.getElementById("sig_guest_m").toDataURL("image/png"):null,
-    admin_signature:ciSigs.admin?document.getElementById("sig_admin_m").toDataURL("image/png"):null,
-    locale:"fa"
-  };
-  const{error}=await sb.from("checkins").insert(rec);
-  if(error){msgEl.textContent="خطا: "+error.message;return;}
-  msgEl.style.cssText="display:block;background:rgba(40,170,90,.12);border:1px solid rgba(40,170,90,.4);color:#74e0a0;border-radius:8px;padding:10px";
-  msgEl.textContent="✅ فرم با موفقیت ثبت شد.";
-  loadCheckins();
+  if(ciMode==="in"){
+    const name=document.getElementById("ci_name").value.trim();
+    if(!name){msgEl.textContent="نام مهمان الزامی است.";return;}
+    const rec={
+      guest_name:name, phone:document.getElementById("ci_phone").value.trim()||null,
+      checkin_date:document.getElementById("ci_in").value||null,
+      id_type:document.getElementById("ci_id_type").value||null,
+      id_number:document.getElementById("ci_id_num").value.trim()||null,
+      condition:ciState, checkin_items:ciState,
+      reservation_id: ciResId||null,
+      id_confirmed:document.getElementById("ci_id_ok").checked,
+      rules_accepted:document.getElementById("ci_rules").checked,
+      notes:document.getElementById("ci_notes").value.trim()||null,
+      extra_notes:document.getElementById("ci_notes").value.trim()||null,
+      checkin_date_signed:document.getElementById("ci_fdate").value||null,
+      signature:ciSigs.guest?document.getElementById("sig_guest_m").toDataURL("image/png"):null,
+      admin_signature:ciSigs.admin?document.getElementById("sig_admin_m").toDataURL("image/png"):null,
+      locale:"fa"
+    };
+    const{error}=await sb.from("checkins").insert(rec);
+    if(error){msgEl.textContent="خطا: "+error.message;return;}
+    msgEl.style.cssText="display:block;background:rgba(40,170,90,.12);border:1px solid rgba(40,170,90,.4);color:#74e0a0;border-radius:8px;padding:10px";
+    msgEl.textContent="✅ فرم با موفقیت ثبت شد.";
+    loadCheckins();
+  }else{
+    if(!ciLoadedRecord){msgEl.textContent="رزرو چک‌اوت مشخص نیست.";return;}
+    const rec={
+      checkout_items: ciOutState,
+      checkout_notes: document.getElementById("ci_notes").value.trim()||null,
+      checkout_date_signed: document.getElementById("ci_fdate").value||null,
+      checkout_signature: ciSigs.guest?document.getElementById("sig_guest_m").toDataURL("image/png"):null,
+      checkout_admin_signature: ciSigs.admin?document.getElementById("sig_admin_m").toDataURL("image/png"):null,
+      checked_out: true
+    };
+    const{error}=await sb.from("checkins").update(rec).eq("id",ciLoadedRecord.id);
+    if(error){msgEl.textContent="خطا: "+error.message;return;}
+    msgEl.style.cssText="display:block;background:rgba(40,170,90,.12);border:1px solid rgba(40,170,90,.4);color:#74e0a0;border-radius:8px;padding:10px";
+    msgEl.textContent="✅ چک‌اوت با موفقیت ثبت شد.";
+    loadCheckins();
+  }
 }
 
 function printCi(){
