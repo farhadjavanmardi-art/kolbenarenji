@@ -514,43 +514,75 @@ async function handlePhotos(stage,k,files){
 function toggleMic(stage,k,btn){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){alert("مرورگر شما از تبدیل صدا به متن پشتیبانی نمی‌کند.");return;}
-  if(btn._rec){btn._rec.stop();btn._rec=null;btn.classList.remove("rec");return;}
-  const rec=new SR();
-  rec.lang="fa-IR";rec.interimResults=true;rec.maxAlternatives=1;
-  rec.continuous=true;
 
-  // Prevent auto-stop by restarting on end
+  // If already recording, stop it
+  if(btn._rec){ 
+    try{btn._rec.stop();}catch(e){}
+    btn._rec=null;
+    btn.classList.remove("rec");
+    return;
+  }
+
+  const rec=new SR();
+  rec.lang="fa-IR";
+  rec.interimResults=true;  // Show results while speaking
+  rec.maxAlternatives=1;
+  rec.continuous=false;     // Don't auto-restart - let user control
+
+  let finalText="";
+
   rec.onresult=(e)=>{
-    let text="";
+    let interim="";
     for(let i=e.resultIndex;i<e.results.length;i++){
-      text+=e.results[i][0].transcript;
+      if(e.results[i].isFinal){
+        finalText+=e.results[i][0].transcript;
+      }else{
+        interim+=e.results[i][0].transcript;
+      }
     }
     const input=document.getElementById(`note_${stage}_${k}`);
     if(input){
-      // Append new text to existing
-      const existing=input.value;
-      const lastSpace=existing.length>0&&!existing.endsWith(" ")?" ":"";
-      input.value=existing+lastSpace+text;
+      const base=input.value.replace(/\s*\.\.\.$/,""); // remove trailing ...
+      const spacer=base.length>0&&!base.endsWith(" ")?" ":"";
+      if(finalText){
+        input.value=base+spacer+finalText;
+        setField(stage,k,"note",input.value);
+        finalText=""; // reset for next chunk
+      }else if(interim){
+        input.value=base+spacer+interim+" ...";
+      }
+    }
+  };
+
+  rec.onend=()=>{
+    // Clean up trailing ...
+    const input=document.getElementById(`note_${stage}_${k}`);
+    if(input){
+      input.value=input.value.replace(/\s*\.\.\.$/,"");
       setField(stage,k,"note",input.value);
     }
+    btn.classList.remove("rec");
+    btn._rec=null;
   };
-  rec.onend=()=>{
-    // Restart if still recording (user hasn't clicked stop)
-    if(btn._rec===rec){
-      try{rec.start();}catch(e){btn.classList.remove("rec");btn._rec=null;}
-    }else{
-      btn.classList.remove("rec");btn._rec=null;
-    }
-  };
+
   rec.onerror=(e)=>{
-    // On error, try to restart unless user stopped
-    if(e.error==="no-speech"||e.error==="audio-capture"||e.error==="not-allowed"){
-      btn.classList.remove("rec");btn._rec=null;
-    }else if(btn._rec===rec){
-      try{rec.start();}catch(err){btn.classList.remove("rec");btn._rec=null;}
+    console.error("Speech error:",e.error);
+    if(e.error==="not-allowed"){
+      alert("لطفاً دسترسی میکروفون را بدهید.");
     }
+    btn.classList.remove("rec");
+    btn._rec=null;
   };
-  btn._rec=rec;btn.classList.add("rec");rec.start();
+
+  btn._rec=rec;
+  btn.classList.add("rec");
+  try{
+    rec.start();
+  }catch(e){
+    console.error("Start error:",e);
+    btn.classList.remove("rec");
+    btn._rec=null;
+  }
 }
 
 /* signatures */
@@ -578,13 +610,19 @@ function clearSig(id){
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 
 async function submitForm(){
-  const msg=document.getElementById("fMsg");msg.className="msg";
+  console.log("submitForm called");
+  const msg=document.getElementById("fMsg");
+  msg.className="msg";
+  msg.style.display="none";
+
   const gname=document.getElementById("g_name").value.trim();
-  if(!gname){msg.className="msg err";msg.textContent="نام مهمان الزامی است.";return;}
+  if(!gname){msg.className="msg err";msg.style.display="block";msg.textContent="نام مهمان الزامی است.";return;}
+
   const inV=document.getElementById("g_in").value;
   const outV=document.getElementById("g_out").value;
-  if(!inV||!outV){msg.className="msg err";msg.textContent="تاریخ ورود و خروج را انتخاب کنید.";return;}
-  if(new Date(outV)<=new Date(inV)){msg.className="msg err";msg.textContent="تاریخ خروج باید بعد از تاریخ ورود باشد.";return;}
+  if(!inV||!outV){msg.className="msg err";msg.style.display="block";msg.textContent="تاریخ ورود و خروج را انتخاب کنید.";return;}
+  if(new Date(outV)<=new Date(inV)){msg.className="msg err";msg.style.display="block";msg.textContent="تاریخ خروج باید بعد از تاریخ ورود باشد.";return;}
+
   const record={
     guest_name:gname,
     phone:document.getElementById("g_phone").value.trim()||null,
@@ -603,19 +641,35 @@ async function submitForm(){
     checkin_date_signed:document.getElementById("f_date").value||null,
     locale:"fa"
   };
-  const{error}=await sb.from("checkins").insert(record);
-  if(error){msg.className="msg err";msg.textContent="خطا: "+error.message;return;}
-  msg.className="msg ok";msg.textContent="✅ فرم با موفقیت ثبت شد.";
+
+  console.log("Inserting record:",record);
+  try{
+    const{error}=await sb.from("checkins").insert(record);
+    if(error){
+      console.error("Insert error:",error);
+      msg.className="msg err";msg.style.display="block";msg.textContent="خطا: "+error.message;return;
+    }
+    console.log("Insert successful");
+    msg.className="msg ok";msg.style.display="block";msg.textContent="✅ فرم با موفقیت ثبت شد.";
+  }catch(e){
+    console.error("Exception:",e);
+    msg.className="msg err";msg.style.display="block";msg.textContent="خطای سیستم: "+e.message;
+  }
 }
 
 async function submitCheckout(){
-  const msg=document.getElementById("fMsg");msg.className="msg";
+  console.log("submitCheckout called");
+  const msg=document.getElementById("fMsg");
+  msg.className="msg";
+  msg.style.display="none";
+
   const gname=document.getElementById("g_name").value.trim();
-  if(!gname){msg.className="msg err";msg.textContent="نام مهمان الزامی است.";return;}
+  if(!gname){msg.className="msg err";msg.style.display="block";msg.textContent="نام مهمان الزامی است.";return;}
+
   const inV=document.getElementById("g_in").value;
   const outV=document.getElementById("g_out").value;
-  if(!inV||!outV){msg.className="msg err";msg.textContent="تاریخ ورود و خروج را انتخاب کنید.";return;}
-  if(new Date(outV)<=new Date(inV)){msg.className="msg err";msg.textContent="تاریخ خروج باید بعد از تاریخ ورود باشد.";return;}
+  if(!inV||!outV){msg.className="msg err";msg.style.display="block";msg.textContent="تاریخ ورود و خروج را انتخاب کنید.";return;}
+  if(new Date(outV)<=new Date(inV)){msg.className="msg err";msg.style.display="block";msg.textContent="تاریخ خروج باید بعد از تاریخ ورود باشد.";return;}
 
   const record={
     guest_name:gname,
@@ -642,15 +696,21 @@ async function submitCheckout(){
     locale:"fa"
   };
 
-  // If we have a loaded record, update it; otherwise insert new
-  if(loadedRecord){
-    const{error}=await sb.from("checkins").update(record).eq("id",loadedRecord.id);
-    if(error){msg.className="msg err";msg.textContent="خطا: "+error.message;return;}
-  }else{
-    const{error}=await sb.from("checkins").insert(record);
-    if(error){msg.className="msg err";msg.textContent="خطا: "+error.message;return;}
+  console.log("Saving checkout record:",record);
+  try{
+    if(loadedRecord){
+      const{error}=await sb.from("checkins").update(record).eq("id",loadedRecord.id);
+      if(error){console.error("Update error:",error);msg.className="msg err";msg.style.display="block";msg.textContent="خطا: "+error.message;return;}
+    }else{
+      const{error}=await sb.from("checkins").insert(record);
+      if(error){console.error("Insert error:",error);msg.className="msg err";msg.style.display="block";msg.textContent="خطا: "+error.message;return;}
+    }
+    console.log("Checkout saved successfully");
+    msg.className="msg ok";msg.style.display="block";msg.textContent="✅ چک‌اوت با موفقیت ثبت شد.";
+  }catch(e){
+    console.error("Exception:",e);
+    msg.className="msg err";msg.style.display="block";msg.textContent="خطای سیستم: "+e.message;
   }
-  msg.className="msg ok";msg.textContent="✅ چک‌اوت با موفقیت ثبت شد.";
 }
 
 /* init */
