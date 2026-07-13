@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-<title>فرم تحویل و تحول اقامتگاه · کلبه نارنجی</title>
+<title>فرم تحویل اقامتگاه · کلبه نارنجی</title>
 <script>
   const SUPABASE_URL      = "https://ajkmagdcoxpqhfknmmmk.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_WQVbekgoKZFSkB7Fw1rfOw_pPaDzd2G";
@@ -12,112 +12,108 @@
 <style>
 :root{--bg:#0A0A0B;--s:#141416;--s2:#1C1C1F;--line:#2A2A2E;--orange:#FF7A1A;--amber:#FFB454;--text:#F4EFE7;--muted:#9A9AA0;--r:14px}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:"Vazirmatn",system-ui,sans-serif;line-height:1.75;-webkit-text-size-adjust:100%;text-size-adjust:100%}
-.wrap{max-width:820px;margin:0 auto;padding:18px}
-header{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(10,10,11,.92);backdrop-filter:blur(12px);z-index:50}
-.topbar{display:flex;align-items:center;gap:12px;height:60px}
-.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:.98rem}
+body{background:var(--bg);color:var(--text);font-family:"Vazirmatn",system-ui,sans-serif;line-height:1.7}
+.wrap{max-width:800px;margin:0 auto;padding:22px}
+header{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(10,10,11,.9);backdrop-filter:blur(12px);z-index:10}
+.topbar{display:flex;align-items:center;gap:12px;height:62px;justify-content:space-between;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1rem}
 .mark{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--orange),#C24E00);display:grid;place-items:center;color:#0A0A0B;font-weight:800;font-size:.85rem}
-.btn{background:var(--orange);color:#0A0A0B;border:0;cursor:pointer;padding:11px 22px;border-radius:999px;font:inherit;font-weight:700;font-size:.92rem}
+.btn{background:var(--orange);color:#0A0A0B;border:0;cursor:pointer;padding:10px 20px;border-radius:999px;font:inherit;font-weight:700}
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
-h2{font-size:1.02rem;color:var(--amber);margin:0 0 6px;display:flex;align-items:center;gap:8px}
-.sec-desc{font-size:.83rem;color:var(--muted);margin-bottom:14px;line-height:1.7}
-.card{background:var(--s);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:14px}
-input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:11px 12px;font:inherit;font-size:16px;width:100%;touch-action:manipulation}
+h2{font-size:1.05rem;color:var(--amber);margin:22px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.card{background:var(--s);border:1px solid var(--line);border-radius:var(--r);padding:20px;margin-bottom:16px}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:10px 12px;font:inherit;font-size:.9rem;width:100%}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--orange)}
-textarea{resize:vertical;min-height:64px}
+input:disabled{opacity:.6}
+textarea{resize:vertical;min-height:70px}
 label{font-size:.85rem;font-weight:600;display:block;margin-bottom:6px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-@media(max-width:600px){.grid2{grid-template-columns:1fr}}
-.fld{display:flex;flex-direction:column;gap:5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:580px){.grid2,.grid3{grid-template-columns:1fr}}
+.fld{display:flex;flex-direction:column;gap:6px}
 .fld.full{grid-column:1/-1}
-.req{color:var(--orange)}
-.guest-pick{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
-.gp-btn{flex:1;min-width:62px;background:var(--s2);border:1px solid var(--line);border-radius:10px;padding:12px 4px;cursor:pointer;font:inherit;font-size:16px;font-weight:700;color:var(--muted);text-align:center;transition:.12s}
-.gp-btn.active{border-color:var(--orange);background:rgba(255,122,26,.14);color:var(--orange)}
-.clsec{border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden;background:var(--bg)}
-.clsec-head{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;background:var(--s2);user-select:none}
-.clsec-head:hover{background:#232327}
-.clsec-num{width:26px;height:26px;border-radius:8px;background:rgba(255,122,26,.16);color:var(--orange);display:grid;place-items:center;font-weight:800;font-size:.85rem;flex:none}
-.clsec-title{font-weight:700;font-size:.95rem;flex:1}
-.clsec-arrow{color:var(--muted);transition:transform .2s;flex:none}
-.clsec.open .clsec-arrow{transform:rotate(180deg)}
-.clsec-body{display:none;padding:6px 14px 14px}
-.clsec.open .clsec-body{display:block}
-.clsec-note{font-size:.8rem;color:var(--muted);padding:10px 2px 12px;line-height:1.7;border-bottom:1px dashed var(--line);margin-bottom:10px}
-.item{padding:11px 0;border-bottom:1px solid rgba(42,42,46,.5)}
-.item:last-child{border-bottom:0}
-.item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.item-info{flex:1;min-width:140px}
-.item-name{font-weight:600;font-size:.9rem}
-.item-meta{font-size:.76rem;color:var(--muted);margin-top:2px}
-.item-price{font-size:.74rem;color:var(--amber);background:rgba(255,180,84,.1);border:1px solid rgba(255,180,84,.25);border-radius:7px;padding:2px 8px;white-space:nowrap;align-self:flex-start;margin-top:2px}
-.item-btns{display:flex;gap:6px;flex:none}
-.ib{background:var(--s2);border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer;font:inherit;font-size:.8rem;color:var(--muted);touch-action:manipulation}
-.ib.ok{border-color:#28aa5a;color:#74e0a0;background:rgba(40,170,90,.12)}
-.ib.bad{border-color:#d84545;color:#f0a0a0;background:rgba(220,60,60,.12)}
-.item-notebox{margin-top:8px;display:none}
-.item-notebox.show{display:block}
-.item-notebox input{font-size:16px;padding:8px 10px}
-.legal{background:rgba(255,122,26,.06);border:1px solid rgba(255,122,26,.3);border-radius:10px;padding:16px 18px;margin-top:4px}
-.legal p{font-size:.85rem;line-height:1.9;margin-bottom:10px}
-.legal .danger{background:rgba(220,60,60,.08);border:1px solid rgba(220,60,60,.3);border-radius:8px;padding:12px 14px;margin:10px 0}
-.legal .danger p{color:#f0a0a0;margin:0;font-weight:700}
-.chk{display:flex;gap:11px;align-items:flex-start;margin-bottom:13px;cursor:pointer}
-.chk input{width:21px;height:21px;margin-top:2px;accent-color:var(--orange);flex:none}
-.chk span{font-size:.87rem;line-height:1.7}
+/* mode tabs */
+.mode-tabs{display:flex;gap:8px}
+.mode-tab{background:var(--s2);border:1px solid var(--line);border-radius:999px;padding:8px 16px;cursor:pointer;font:inherit;font-size:.82rem;color:var(--muted)}
+.mode-tab.on{background:var(--orange);color:#0A0A0B;border-color:var(--orange);font-weight:700}
+/* checklist items */
+.ci{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.ci-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ci-name{font-weight:600;font-size:.93rem}
+.ci-btns{display:flex;gap:6px}
+.cib{background:var(--s2);border:1px solid var(--line);border-radius:999px;padding:5px 14px;cursor:pointer;font:inherit;font-size:.82rem;color:var(--muted)}
+.cib.ok{border-color:#28aa5a;color:#74e0a0;background:rgba(40,170,90,.12)}
+.cib.bad{border-color:#d84545;color:#f0a0a0;background:rgba(220,60,60,.12)}
+.cib.mic{padding:6px 10px;flex:none}
+.cib.mic.rec{background:#d84545;color:#fff;border-color:#d84545}
+.ci-note{margin-top:8px;display:flex;gap:6px;align-items:center}
+.ci-note input{flex:1}
+.ci-count{display:flex;align-items:center;gap:8px;margin-top:8px}
+.ci-count input{width:80px;text-align:center}
+.ci-photos{display:flex;flex-wrap:wrap;margin-top:8px}
+.photo-thumb{width:52px;height:52px;object-fit:cover;border-radius:6px;border:1px solid var(--line);margin:0 4px 4px 0}
+.ph-status{font-size:.75rem;color:var(--muted);margin-inline-start:6px}
+.ci-pair{background:var(--s2);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px}
+.ci-pair-label{font-size:.75rem;color:var(--muted);margin-bottom:4px}
+.muted{color:var(--muted)}
+/* search */
+.search-row{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line);gap:10px;flex-wrap:wrap}
+/* signatures */
 .sig-wrap{border:2px dashed var(--line);border-radius:10px;background:#fff;touch-action:none}
-canvas{display:block;width:100%;height:150px;border-radius:8px}
+canvas{display:block;width:100%;height:160px;border-radius:8px}
 .sig-bar{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-.jdate{position:relative}
-.jdate-pop{position:absolute;top:calc(100% + 6px);right:0;left:0;background:var(--s);border:1px solid var(--line);border-radius:12px;padding:12px;z-index:100;box-shadow:0 12px 40px rgba(0,0,0,.6);display:none}
-.jdate-pop.show{display:block}
-.jdate-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px}
-.jdate-nav{background:var(--s2);border:1px solid var(--line);border-radius:8px;width:34px;height:34px;cursor:pointer;color:var(--text);font-size:1.1rem;display:grid;place-items:center}
-.jdate-title{font-weight:700;font-size:.9rem}
-.jdate-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.jdate-wd{text-align:center;font-size:.72rem;color:var(--muted);padding:4px 0;font-weight:700}
-.jdate-day{text-align:center;padding:8px 0;border-radius:8px;cursor:pointer;font-size:.86rem;border:1px solid transparent}
-.jdate-day:hover{background:var(--s2)}
-.jdate-day.sel{background:var(--orange);color:#0A0A0B;font-weight:800}
-.jdate-day.empty{cursor:default}
-.msg{border-radius:10px;padding:13px 15px;margin-top:14px;font-size:.9rem;display:none}
-.msg.ok{display:block;background:rgba(40,170,90,.12);border:1px solid rgba(40,170,90,.4);color:#74e0a0}
-.msg.err{display:block;background:rgba(220,60,60,.12);border:1px solid rgba(220,60,60,.4);color:#f0a0a0}
-@viewport{width:device-width;zoom:1;min-zoom:1;max-zoom:1;user-zoom:fixed}
-html{touch-action:manipulation}
+/* print */
 @media print{
-  header,.no-print,.jdate-pop{display:none!important}
+  header,.no-print{display:none!important}
   body{background:#fff;color:#000}
-  .card,.clsec{border:1px solid #ccc;background:#fff;break-inside:avoid}
-  .clsec-body{display:block!important}
-  .clsec-head{background:#f0f0f0}
+  .card{border:1px solid #ccc;background:#fff;break-inside:avoid}
   input,select,textarea{border:1px solid #ccc!important;background:#fff!important;color:#000!important}
   canvas{border:1px solid #ccc;border-radius:4px}
-  .item-price{color:#a06000}
+}
+.msg{border-radius:10px;padding:12px 14px;margin-top:14px;font-size:.9rem;display:none}
+.msg.ok{display:block;background:rgba(40,170,90,.12);border:1px solid rgba(40,170,90,.4);color:#74e0a0}
+.msg.err{display:block;background:rgba(220,60,60,.12);border:1px solid rgba(220,60,60,.4);color:#f0a0a0}
+
+/* جلوگیری از zoom در iOS Safari */
+@viewport{width:device-width;zoom:1.0;min-zoom:1.0;max-zoom:1.0;user-zoom:fixed}
+html{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
+input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
+@media(max-width:600px){
+  input[type=text],input[type=tel],input[type=email],input[type=number],input[type=date],input[type=time],select,textarea{font-size:16px!important}
 }
 </style>
 </head>
 <body>
+
 <header><div class="wrap topbar">
-  <div class="brand"><span class="mark">ک</span><span>کلبه نارنجی · فرم تحویل و تحول</span></div>
+  <div class="brand"><span class="mark">ک</span><span>کلبه نارنجی · فرم تحویل</span></div>
+  <div class="mode-tabs no-print">
+    <button type="button" class="mode-tab on" id="tab_in" onclick="setMode('in')">🏠 تحویل (چک‌این)</button>
+    <button type="button" class="mode-tab" id="tab_out" onclick="setMode('out')">🔑 چک‌اوت مشتری</button>
+  </div>
 </div></header>
+
 <div class="wrap">
+
+<!-- جستجوی رزرو برای چک‌اوت -->
+<div class="card no-print" id="searchBox" style="display:none">
+  <h2>جستجوی مهمان برای چک‌اوت</h2>
+  <div class="fld"><label>نام یا شماره تماس مهمان</label><input id="searchQ" placeholder="نام یا شماره…"></div>
+  <div style="margin-top:10px"><button type="button" class="btn" onclick="searchCheckins()">🔍 جستجو</button></div>
+  <div id="searchResults" style="margin-top:12px"></div>
+</div>
+
+<div id="mainForm">
+
+<!-- اطلاعات مهمان -->
 <div class="card">
-  <h2>① اطلاعات مهمان و اقامت</h2>
-  <p class="sec-desc">اطلاعات هویتی مهمان و مدت اقامت در این بخش ثبت می‌شود. ارائه و بررسی مدرک شناسایی معتبر هنگام ورود الزامی است.</p>
+  <h2>① اطلاعات مهمان</h2>
   <div class="grid2">
-    <div class="fld"><label>نام و نام خانوادگی مهمان <span class="req">*</span></label><input id="g_name" placeholder="نام کامل"></div>
-    <div class="fld"><label>شماره تماس (واتساپ) <span class="req">*</span></label><input id="g_phone" inputmode="tel" placeholder="۰۹…"></div>
-    <div class="fld jdate"><label>تاریخ ورود <span class="req">*</span></label>
-      <input id="g_in" readonly placeholder="انتخاب تاریخ" onclick="openJ('g_in')">
-      <div class="jdate-pop" id="pop_g_in"></div>
-    </div>
-    <div class="fld jdate"><label>تاریخ خروج <span class="req">*</span></label>
-      <input id="g_out" readonly placeholder="انتخاب تاریخ" onclick="openJ('g_out')">
-      <div class="jdate-pop" id="pop_g_out"></div>
-    </div>
-    <div class="fld"><label>نوع مدرک شناسایی تحویلی <span class="req">*</span></label>
+    <div class="fld"><label>نام و نام خانوادگی مهمان *</label><input id="g_name" placeholder="نام کامل"></div>
+    <div class="fld"><label>شماره تماس</label><input id="g_phone" inputmode="tel" placeholder="09…"></div>
+    <div class="fld"><label>تاریخ ورود</label><input type="date" id="g_in"></div>
+    <div class="fld"><label>تاریخ خروج</label><input type="date" id="g_out"></div>
+    <div class="fld"><label>نوع مدرک شناسایی تحویلی</label>
       <select id="g_id_type">
         <option value="">— انتخاب کنید —</option>
         <option value="کارت ملی">کارت ملی</option>
@@ -126,218 +122,279 @@ html{touch-action:manipulation}
         <option value="سایر">سایر</option>
       </select>
     </div>
-    <div class="fld"><label>شماره مدرک <span class="req">*</span></label><input id="g_id_num" placeholder="شماره کارت ملی / پاسپورت"></div>
-  </div>
-  <div class="fld full" style="margin-top:13px">
-    <label>تعداد مهمانان</label>
-    <div class="guest-pick" id="guestPick"></div>
+    <div class="fld"><label>شماره مدرک</label><input id="g_id_num" placeholder="شماره کارت / پاسپورت"></div>
   </div>
 </div>
+
+<!-- وضعیت اقامتگاه -->
 <div class="card">
-  <h2>② فهرست وسایل و وضعیت اقامتگاه</h2>
-  <p class="sec-desc">فهرست زیر بر اساس تعداد مهمانان اعلام‌شده تنظیم شده است. هر بخش را باز کنید، تعداد و وضعیت هر مورد را هنگام تحویل بررسی و در صورت وجود مشکل، توضیح آن را ثبت کنید. ستون نارنجی، قیمت تقریبی جایگزینی هر مورد بر اساس بازار است که مبنای محاسبهٔ خسارت احتمالی قرار می‌گیرد.</p>
-  <div id="clList"></div>
+  <h2 id="h2Items">② وضعیت اقامتگاه هنگام تحویل</h2>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px" id="itemsHint">هر مورد را بررسی، توضیح (با تایپ یا میکروفون) و در صورت نیاز عکس ثبت کنید.</p>
+  <div id="ciList"></div>
 </div>
-<div class="card">
-  <h2>③ تعهد و مسئولیت قانونی</h2>
-  <div class="legal">
-    <p style="font-weight:800;color:var(--orange)">⚠️ مهم — لطفاً پیش از امضا با دقت بخوانید</p>
-    <p>بر اساس <strong>ماده ۴۹۰ قانون مدنی جمهوری اسلامی ایران</strong>، مستأجر موظف است در استفاده از مورد اجاره به نحو متعارف رفتار نموده و در حفظ و نگهداری آن کوشش کند. در صورت ورود هرگونه خسارت ناشی از <strong>تعدی یا تفریط</strong>، مسئولیت جبران کامل آن بر عهدهٔ مستأجر خواهد بود.</p>
-    <div class="danger">
-      <p>📌 چنانچه مجموع خسارات وارده از مبلغ ودیعه (۱٬۵۰۰٬۰۰۰ تومان) تجاوز نماید، تسویه‌حساب نهایی و استرداد مدرک شناسایی، پس از محاسبه و پرداخت کامل مابه‌التفاوت خسارت بر اساس قیمت‌های روز بازار انجام خواهد شد.</p>
+
+<!-- تأییدیه‌ها — فقط چک‌این -->
+<div class="card" id="inOnlySections">
+  <h2>③ تأییدیه‌ها و قوانین</h2>
+  <label style="display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;cursor:pointer">
+    <input type="checkbox" id="c_id" style="width:20px;height:20px;margin-top:3px;accent-color:var(--orange);flex:none">
+    <span>مدرک شناسایی مهمان به‌صورت حضوری ارائه و بررسی شد.</span>
+  </label>
+  <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer">
+    <input type="checkbox" id="c_rules" style="width:20px;height:20px;margin-top:3px;accent-color:var(--orange);flex:none">
+    <span>قوانین اقامت (خروج ساعت ۱۲، احترام به محیط، جبران خسارت در صورت آسیب، عدم تدخین داخل ویلا) خوانده و پذیرفته شد.</span>
+  </label>
+  <div class="fld" style="margin-top:14px"><label>توضیحات اضافه</label><textarea id="c_notes" placeholder="هر نکته‌ای که لازم است ثبت شود…"></textarea></div>
+</div>
+
+<!-- تأییدیه — فقط چک‌اوت -->
+<div class="card" id="outOnlySections" style="display:none">
+  <h2>③ تسویه و تأییدیه چک‌اوت</h2>
+  <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer">
+    <input type="checkbox" id="c_settled" style="width:20px;height:20px;margin-top:3px;accent-color:var(--orange);flex:none">
+    <span>تسویه‌حساب نهایی و تحویل‌گیری اقامتگاه از مهمان انجام شد.</span>
+  </label>
+  <div class="fld" style="margin-top:14px"><label>توضیحات اضافه چک‌اوت</label><textarea id="c_notes_out" placeholder="خسارت، کسورات، نکات مهم…"></textarea></div>
+</div>
+
+<!-- امضاها — چک‌این -->
+<div id="inSigSection">
+  <div class="card">
+    <h2>④ امضای مالک</h2>
+    <div class="sig-wrap"><canvas id="sig_admin"></canvas></div>
+    <div class="sig-bar">
+      <span style="font-size:.78rem;color:var(--muted)">با انگشت یا ماوس امضا کنید</span>
+      <button type="button" class="btn ghost" style="padding:6px 14px;font-size:.8rem" onclick="clearSig('admin')">پاک کردن</button>
     </div>
-    <p style="color:var(--muted)">مهمان با امضای این فرم اقرار می‌نماید که فهرست وسایل و وضعیت آن‌ها را مشاهده و تأیید کرده و در صورت بروز هرگونه کمبود یا خسارت بیش از مبلغ ودیعه، متعهد به پرداخت مابه‌التفاوت می‌باشد.</p>
+  </div>
+  <div class="card">
+    <h2>⑤ امضای مهمان</h2>
+    <div class="sig-wrap"><canvas id="sig_guest"></canvas></div>
+    <div class="sig-bar">
+      <span style="font-size:.78rem;color:var(--muted)">با انگشت یا ماوس امضا کنید</span>
+      <button type="button" class="btn ghost" style="padding:6px 14px;font-size:.8rem" onclick="clearSig('guest')">پاک کردن</button>
+    </div>
   </div>
 </div>
-<div class="card">
-  <h2>④ تأییدیه‌ها و قوانین اقامت</h2>
-  <p class="sec-desc">موارد زیر باید پیش از تحویل کلید توسط مهمان مطالعه و تأیید شود.</p>
-  <label class="chk"><input type="checkbox" id="c_id"><span>مدرک شناسایی معتبر مهمان به‌صورت حضوری ارائه و بررسی شد و اطلاعات آن در فرم ثبت گردید.</span></label>
-  <label class="chk"><input type="checkbox" id="c_count"><span>تعداد واقعی مهمانان مطابق با عدد اعلام‌شده در این فرم است. مهمان آگاه است که در صورت حضور نفرات بیش از تعداد اعلامی، هزینهٔ نفرات اضافه (هر نفر ۵۰۰٬۰۰۰ تومان در هر شب) از ودیعه کسر می‌گردد.</span></label>
-  <label class="chk"><input type="checkbox" id="c_rules"><span>قوانین اقامت شامل خروج تا ساعت ۱۲ ظهر، احترام به محیط و همسایگان، جبران خسارت در صورت آسیب، و ممنوعیت استعمال دخانیات در فضای بستهٔ ویلا، خوانده و پذیرفته شد.</span></label>
-  <div class="fld full" style="margin-top:12px"><label>توضیحات اضافه</label><textarea id="c_notes" placeholder="هر نکته‌ای که لازم است ثبت شود…"></textarea></div>
-</div>
-<div class="card">
-  <h2>⑤ امضای مسئول اقامتگاه</h2>
-  <p class="sec-desc">مسئول تحویل، با امضای زیر صحت اطلاعات و تحویل اقامتگاه را تأیید می‌کند.</p>
-  <div class="sig-wrap"><canvas id="sig_admin"></canvas></div>
-  <div class="sig-bar no-print">
-    <span style="font-size:.78rem;color:var(--muted)">با انگشت یا ماوس امضا کنید</span>
-    <button type="button" class="btn ghost" style="padding:6px 14px;font-size:.8rem" onclick="clearSig('admin')">پاک کردن</button>
+
+<!-- امضاها — چک‌اوت -->
+<div id="outSigSection" style="display:none">
+  <div class="card">
+    <h2>④ امضای مالک (چک‌اوت)</h2>
+    <div class="sig-wrap"><canvas id="sig_admin_out"></canvas></div>
+    <div class="sig-bar">
+      <span style="font-size:.78rem;color:var(--muted)">با انگشت یا ماوس امضا کنید</span>
+      <button type="button" class="btn ghost" style="padding:6px 14px;font-size:.8rem" onclick="clearSig('admin_out')">پاک کردن</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>⑤ امضای مهمان (چک‌اوت)</h2>
+    <div class="sig-wrap"><canvas id="sig_guest_out"></canvas></div>
+    <div class="sig-bar">
+      <span style="font-size:.78rem;color:var(--muted)">با انگشت یا ماوس امضا کنید</span>
+      <button type="button" class="btn ghost" style="padding:6px 14px;font-size:.8rem" onclick="clearSig('guest_out')">پاک کردن</button>
+    </div>
   </div>
 </div>
+
+<!-- تاریخ -->
 <div class="card">
-  <h2>⑥ امضای مهمان</h2>
-  <p class="sec-desc">مهمان با امضای زیر، فهرست وسایل، وضعیت اقامتگاه و تمام تعهدات مندرج در این فرم را می‌پذیرد.</p>
-  <div class="sig-wrap"><canvas id="sig_guest"></canvas></div>
-  <div class="sig-bar no-print">
-    <span style="font-size:.78rem;color:var(--muted)">با انگشت یا ماوس امضا کنید</span>
-    <button type="button" class="btn ghost" style="padding:6px 14px;font-size:.8rem" onclick="clearSig('guest')">پاک کردن</button>
-  </div>
-</div>
-<div class="card">
-  <h2>⑦ تاریخ تنظیم و ثبت نهایی</h2>
+  <h2>⑥ تاریخ و ثبت</h2>
   <div class="grid2">
-    <div class="fld jdate"><label>تاریخ تنظیم فرم</label>
-      <input id="f_date" readonly placeholder="انتخاب تاریخ" onclick="openJ('f_date')">
-      <div class="jdate-pop" id="pop_f_date"></div>
-    </div>
+    <div class="fld"><label>تاریخ تنظیم فرم</label><input type="date" id="f_date"></div>
   </div>
   <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap" class="no-print">
-    <button class="btn" onclick="submitForm()">💾 ثبت فرم</button>
-    <button class="btn ghost" onclick="window.print()">🖨️ چاپ / ذخیره PDF</button>
+    <button class="btn" id="submitBtn" onclick="mode==='in'?submitForm():submitCheckout()">💾 ثبت فرم</button>
+    <button class="btn ghost" onclick="window.print()">🖨️ چاپ</button>
+    <button class="btn ghost" id="backBtn" style="display:none" onclick="backToSearch()">↩ رزرو دیگر</button>
   </div>
   <div class="msg" id="fMsg"></div>
 </div>
+
+</div><!-- /mainForm -->
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-function jdiv(a,b){return~~(a/b);}function jmod(a,b){return a-~~(a/b)*b;}
-function jalCal(jy){var breaks=[-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178],bl=breaks.length,gy=jy+621,leapJ=-14,jp=breaks[0],jm,jump=0,leap,leapG,march,n,i;for(i=1;i<bl;i++){jm=breaks[i];jump=jm-jp;if(jy<jm)break;leapJ=leapJ+jdiv(jump,33)*8+jdiv(jmod(jump,33),4);jp=jm;}n=jy-jp;leapJ=leapJ+jdiv(n,33)*8+jdiv(jmod(n,33)+3,4);if(jmod(jump,33)===4&&jump-n===4)leapJ+=1;leapG=jdiv(gy,4)-jdiv((jdiv(gy,100)+1)*3,4)-150;march=20+leapJ-leapG;if(jump-n<6)n=n-jump+jdiv(jump+4,33)*33;leap=jmod(jmod(n+1,33)-1,4);if(leap===-1)leap=4;return{leap:leap,gy:gy,march:march};}
-function g2d(gy,gm,gd){var d=jdiv((gy+jdiv(gm-8,6)+100100)*1461,4)+jdiv(153*jmod(gm+9,12)+2,5)+gd-34840408;d=d-jdiv(jdiv(gy+100100+jdiv(gm-8,6),100)*3,4)+752;return d;}
-function d2g(jdn){var j,i,gd,gm,gy;j=4*jdn+139361631;j=j+jdiv(jdiv(4*jdn+183187720,146097)*3,4)*4-3908;i=jdiv(jmod(j,1461),4)*5+308;gd=jdiv(jmod(i,153),5)+1;gm=jmod(jdiv(i,153),12)+1;gy=jdiv(j,1461)-100100+jdiv(8-gm,6);return{gy:gy,gm:gm,gd:gd};}
-function j2d(jy,jm,jd){var r=jalCal(jy);return g2d(r.gy,3,r.march)+(jm-1)*31-jdiv(jm,7)*(jm-7)+jd-1;}
-function d2j(jdn){var gy=d2g(jdn).gy,jy=gy-621,r=jalCal(jy),jdn1f=g2d(gy,3,r.march),jd,jm,k;k=jdn-jdn1f;if(k>=0){if(k<=185){jm=1+jdiv(k,31);jd=jmod(k,31)+1;return{jy:jy,jm:jm,jd:jd};}else{k-=186;}}else{jy-=1;k+=179;if(r.leap===1)k+=1;}jm=7+jdiv(k,30);jd=jmod(k,30)+1;return{jy:jy,jm:jm,jd:jd};}
-function toJalali(dt){return d2j(g2d(dt.getFullYear(),dt.getMonth()+1,dt.getDate()));}
-function toGreg(jy,jm,jd){var r=d2g(j2d(jy,jm,jd));return new Date(r.gy,r.gm-1,r.gd);}
-function jMonLen(jy,jm){if(jm<=6)return 31;if(jm<=11)return 30;return jalCal(jy).leap===0?30:29;}
-function toFa(n){return String(n).replace(/[0-9]/g,d=>"۰۱۲۳۴۵۶۷۸۹"[d]);}
-const FA_MONTHS=["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
-const FA_WEEK=["ش","ی","د","س","چ","پ","ج"];
-const jVals={};
-let jOpenField=null, jViewY, jViewM;
-function openJ(fieldId){
-  document.querySelectorAll(".jdate-pop").forEach(p=>p.classList.remove("show"));
-  jOpenField=fieldId;
-  let base;
-  if(jVals[fieldId]){const d=new Date(jVals[fieldId]+"T00:00:00");base=toJalali(d);}
-  else{base=toJalali(new Date());}
-  jViewY=base.jy; jViewM=base.jm;
-  renderJ();
-  document.getElementById("pop_"+fieldId).classList.add("show");
-}
-function renderJ(){
-  const pop=document.getElementById("pop_"+jOpenField);
-  const len=jMonLen(jViewY,jViewM);
-  const firstGreg=toGreg(jViewY,jViewM,1);
-  let offset=(firstGreg.getDay()+1)%7;
-  let cells="";
-  for(let i=0;i<offset;i++)cells+='<div class="jdate-day empty"></div>';
-  const sel=jVals[jOpenField]?toJalali(new Date(jVals[jOpenField]+"T00:00:00")):null;
-  for(let d=1;d<=len;d++){
-    const isSel=sel&&sel.jy===jViewY&&sel.jm===jViewM&&sel.jd===d;
-    cells+=`<div class="jdate-day${isSel?' sel':''}" onclick="pickJ(${d})">${toFa(d)}</div>`;
-  }
-  pop.innerHTML=`<div class="jdate-head"><button class="jdate-nav" onclick="navJ(-1)">‹</button><span class="jdate-title">${FA_MONTHS[jViewM-1]} ${toFa(jViewY)}</span><button class="jdate-nav" onclick="navJ(1)">›</button></div><div class="jdate-grid">${FA_WEEK.map(w=>`<div class="jdate-wd">${w}</div>`).join("")}${cells}</div>`;
-}
-function navJ(dir){jViewM+=dir;if(jViewM>12){jViewM=1;jViewY++;}if(jViewM<1){jViewM=12;jViewY--;}renderJ();}
-function pickJ(d){
-  const greg=toGreg(jViewY,jViewM,d);
-  const iso=greg.getFullYear()+"-"+String(greg.getMonth()+1).padStart(2,"0")+"-"+String(greg.getDate()).padStart(2,"0");
-  jVals[jOpenField]=iso;
-  document.getElementById(jOpenField).value=toFa(jViewY)+"/"+toFa(jViewM)+"/"+toFa(d)+"  ("+FA_MONTHS[jViewM-1]+")";
-  document.getElementById("pop_"+jOpenField).classList.remove("show");
-}
-document.addEventListener("click",e=>{if(!e.target.closest(".jdate"))document.querySelectorAll(".jdate-pop").forEach(p=>p.classList.remove("show"));});
-let guestCount=2;
-function renderGuestPick(){
-  const el=document.getElementById("guestPick");
-  el.innerHTML="";
-  for(let n=2;n<=6;n++){
-    const b=document.createElement("button");
-    b.type="button";
-    b.className="gp-btn"+(n===guestCount?" active":"");
-    b.textContent=toFa(n)+" نفر";
-    b.onclick=()=>{guestCount=n;renderGuestPick();renderList();};
-    el.appendChild(b);
-  }
-}
-const SECTIONS=[
-  {k:"sleep",title:"خواب و استراحت",note:"تخت، تشک و وسایل خواب از اجزای اصلی اقامتگاه مبله است. تعداد ست‌های رختخواب بر اساس ظرفیت مهمانان تنظیم می‌شود.",items:[
-     {n:"تخت دو نفره با تشک",qty:()=>1,price:"۱۲٬۰۰۰٬۰۰۰"},
-     {n:"بالش",qty:g=>g,price:"۲۵۰٬۰۰۰"},
-     {n:"روبالشی",qty:g=>g,price:"۸۰٬۰۰۰"},
-     {n:"ست ملحفه و رختخواب",qty:g=>Math.ceil(g/2),price:"۹۰۰٬۰۰۰"},
-     {n:"پتو / لحاف",qty:g=>g,price:"۷۰۰٬۰۰۰"},
-     {n:"تشک اضافه (مهمان)",qty:g=>Math.max(0,g-2),price:"۲٬۵۰۰٬۰۰۰"}]},
-  {k:"living",title:"پذیرایی و نشیمن",note:"مبلمان، میز و وسایل سرگرمی فضای نشیمن. این موارد مستقل از تعداد مهمان، باید کامل و سالم تحویل شوند.",items:[
-     {n:"مبل / نشیمن",qty:()=>1,price:"۱۸٬۰۰۰٬۰۰۰"},
-     {n:"میز جلومبلی",qty:()=>1,price:"۲٬۵۰۰٬۰۰۰"},
-     {n:"فرش / قالیچه",qty:()=>1,price:"۸٬۰۰۰٬۰۰۰"},
-     {n:"تلویزیون",qty:()=>1,price:"۱۵٬۰۰۰٬۰۰۰"},
-     {n:"کنترل تلویزیون / گیرنده",qty:()=>2,price:"۳۵۰٬۰۰۰"},
-     {n:"چندراهی برق",qty:()=>1,price:"۲۵۰٬۰۰۰"}]},
-  {k:"dining",title:"غذاخوری و سرو",note:"ظروف سرو و غذاخوری بر اساس تعداد مهمانان تنظیم می‌شود تا برای همه کفایت کند.",items:[
-     {n:"بشقاب غذاخوری",qty:g=>g,price:"۱۸۰٬۰۰۰"},
-     {n:"پیش‌دستی",qty:g=>g,price:"۱۲۰٬۰۰۰"},
-     {n:"لیوان آب",qty:g=>g,price:"۸۰٬۰۰۰"},
-     {n:"استکان و نعلبکی چای",qty:g=>g,price:"۹۰٬۰۰۰"},
-     {n:"قاشق / چنگال / کارد (ست)",qty:g=>g,price:"۱۵۰٬۰۰۰"},
-     {n:"پارچ آب",qty:()=>1,price:"۲۲۰٬۰۰۰"},
-     {n:"سینی پذیرایی",qty:()=>2,price:"۳۰۰٬۰۰۰"}]},
-  {k:"kitchen",title:"آشپزخانه و پخت‌وپز",note:"یخچال، اجاق و وسایل پخت‌وپز. این تجهیزات مستقل از تعداد مهمان باید کامل و سالم باشند.",items:[
-     {n:"یخچال",qty:()=>1,price:"۲۵٬۰۰۰٬۰۰۰"},
-     {n:"اجاق گاز",qty:()=>1,price:"۸٬۰۰۰٬۰۰۰"},
-     {n:"کتری و قوری",qty:()=>1,price:"۹۰۰٬۰۰۰"},
-     {n:"قابلمه (ست)",qty:()=>1,price:"۲٬۵۰۰٬۰۰۰"},
-     {n:"ماهیتابه",qty:()=>1,price:"۸۰۰٬۰۰۰"},
-     {n:"چاقوی آشپزخانه / تخته",qty:()=>1,price:"۴۰۰٬۰۰۰"},
-     {n:"سطل زباله",qty:()=>1,price:"۳۵۰٬۰۰۰"}]},
-  {k:"bathroom",title:"حمام و سرویس بهداشتی",note:"وسایل بهداشتی پایه و حوله بر اساس تعداد مهمان. شیرآلات و تجهیزات ثابت باید سالم تحویل شوند.",items:[
-     {n:"حوله",qty:g=>g,price:"۳۵۰٬۰۰۰"},
-     {n:"شیرآلات سالم (حمام و روشویی)",qty:()=>1,price:"۳٬۰۰۰٬۰۰۰"},
-     {n:"دوش حمام",qty:()=>1,price:"۸۰۰٬۰۰۰"},
-     {n:"آینه",qty:()=>1,price:"۹۰۰٬۰۰۰"},
-     {n:"سطل و فرچه سرویس",qty:()=>1,price:"۲۵۰٬۰۰۰"}]},
-  {k:"hvac",title:"سرمایش، گرمایش و روشنایی",note:"کارکرد صحیح تأسیسات از مهم‌ترین عوامل رضایت مهمان است و باید هنگام تحویل بررسی شود.",items:[
-     {n:"کولر / سیستم سرمایش",qty:()=>1,price:"۱۲٬۰۰۰٬۰۰۰"},
-     {n:"بخاری / سیستم گرمایش",qty:()=>1,price:"۶٬۰۰۰٬۰۰۰"},
-     {n:"کنترل / ولوم سالم",qty:()=>1,price:"۴۰۰٬۰۰۰"},
-     {n:"لامپ و روشنایی (کامل)",qty:()=>1,price:"۱٬۰۰۰٬۰۰۰"}]},
-  {k:"safety",title:"ایمنی و کلیدها",note:"اقلام ایمنی و کلیدها برای مدیریت امن اقامتگاه ضروری‌اند و باید کامل تحویل و عودت داده شوند.",items:[
-     {n:"کلید اصلی و یدک",qty:()=>1,price:"۵۰۰٬۰۰۰"},
-     {n:"قفل سالم درها",qty:()=>1,price:"۱٬۲۰۰٬۰۰۰"},
-     {n:"کپسول آتش‌نشانی کوچک",qty:()=>1,price:"۱٬۵۰۰٬۰۰۰"},
-     {n:"جعبه کمک‌های اولیه",qty:()=>1,price:"۴۰۰٬۰۰۰"}]},
-  {k:"outdoor",title:"فضای بیرونی و حیاط",note:"روشنایی، نشیمن و نظافت محوطه. این موارد برای استفادهٔ بیرونی مهمان اهمیت دارند.",items:[
-     {n:"صندلی فضای باز",qty:g=>g,price:"۱٬۲۰۰٬۰۰۰"},
-     {n:"میز فضای باز",qty:()=>1,price:"۲٬۵۰۰٬۰۰۰"},
-     {n:"روشنایی حیاط (سالم)",qty:()=>1,price:"۸۰۰٬۰۰۰"},
-     {n:"شلنگ و وسایل نظافت حیاط",qty:()=>1,price:"۴۰۰٬۰۰۰"}]},
+/* checklist items */
+const ITEMS=[
+  {k:"cleaning",  l:"نظافت اقامتگاه",       type:"status"},
+  {k:"living",    l:"نشیمن و پذیرایی",       type:"status"},
+  {k:"kitchen",   l:"آشپزخانه",              type:"status"},
+  {k:"bedroom",   l:"اتاق‌خواب",             type:"status"},
+  {k:"bathroom",  l:"سرویس بهداشتی",         type:"status"},
+  {k:"appliances",l:"لوازم برقی",            type:"status"},
+  {k:"furniture", l:"مبلمان و وسایل",        type:"status"},
+  {k:"dishes",    l:"ظروف آشپزخانه",         type:"count", label:"تعداد موجود:"},
+  {k:"bedding",   l:"ملحفه و رخت‌خواب",      type:"count", label:"ست موجود:"},
+  {k:"towels",    l:"حوله",                  type:"count", label:"عدد موجود:"},
+  {k:"garden",    l:"باغ و محوطه",           type:"status"},
+  {k:"burns",     l:"سوختگی یا آسیب سطحی",  type:"status"},
+  {k:"doors",     l:"درب‌ها و قفل‌ها",       type:"status"},
+  {k:"ac",        l:"سرمایش / گرمایش",       type:"status"},
 ];
-const clState={};
+const state={};    // وضعیت چک‌این (قبل)
+const outState={}; // وضعیت چک‌اوت (بعد)
+ITEMS.forEach(it=>{ state[it.k]={status:"ok",note:"",count:0,photos:[]}; outState[it.k]={status:"ok",note:"",count:0,photos:[]}; });
+
+let mode="in";
+let loadedRecord=null;
+const draftId=(crypto.randomUUID?crypto.randomUUID():String(Date.now()));
+
+function setMode(m){
+  mode=m;
+  document.getElementById("tab_in").classList.toggle("on",m==="in");
+  document.getElementById("tab_out").classList.toggle("on",m==="out");
+  if(m==="out"){
+    document.getElementById("searchBox").style.display = loadedRecord?"none":"block";
+    document.getElementById("mainForm").style.display = loadedRecord?"block":"none";
+    document.getElementById("h2Items").textContent="② وضعیت اقامتگاه — مقایسه قبل/بعد";
+    document.getElementById("itemsHint").textContent="ستون «قبل» فقط نمایشی است. ستون «بعد» را بررسی، توضیح و عکس ثبت کنید.";
+    document.getElementById("submitBtn").textContent="💾 ثبت چک‌اوت";
+    document.getElementById("inOnlySections").style.display="none";
+    document.getElementById("outOnlySections").style.display="block";
+    document.getElementById("inSigSection").style.display="none";
+    document.getElementById("outSigSection").style.display="block";
+    document.getElementById("backBtn").style.display="inline-block";
+  }else{
+    document.getElementById("searchBox").style.display="none";
+    document.getElementById("mainForm").style.display="block";
+    document.getElementById("h2Items").textContent="② وضعیت اقامتگاه هنگام تحویل";
+    document.getElementById("itemsHint").textContent="هر مورد را بررسی، توضیح (با تایپ یا میکروفون) و در صورت نیاز عکس ثبت کنید.";
+    document.getElementById("submitBtn").textContent="💾 ثبت فرم";
+    document.getElementById("inOnlySections").style.display="block";
+    document.getElementById("outOnlySections").style.display="none";
+    document.getElementById("inSigSection").style.display="block";
+    document.getElementById("outSigSection").style.display="none";
+    document.getElementById("backBtn").style.display="none";
+  }
+  renderList();
+}
+function backToSearch(){
+  loadedRecord=null;
+  ["g_name","g_phone","g_id_type","g_id_num"].forEach(id=>document.getElementById(id).disabled=false);
+  document.getElementById("g_name").value="";document.getElementById("g_phone").value="";
+  document.getElementById("g_id_type").value="";document.getElementById("g_id_num").value="";
+  document.getElementById("searchResults").innerHTML="";
+  document.getElementById("searchQ").value="";
+  setMode("out");
+}
+
+/* رندر آیتم قابل‌ویرایش (چک‌این یا سمت «بعد» چک‌اوت) */
+function itemPhotosHtml(stage,k,photos){
+  const thumbs=(photos||[]).map(u=>`<img class="photo-thumb" src="${u}">`).join("");
+  return `<div class="ci-photos" id="thumbs_${stage}_${k}">${thumbs}</div>
+    <button type="button" class="cib" onclick="document.getElementById('pf_${stage}_${k}').click()">📷 افزودن عکس</button>
+    <input type="file" accept="image/*" capture="environment" multiple style="display:none" id="pf_${stage}_${k}" onchange="handlePhotos('${stage}','${k}',this.files)">
+    <span class="ph-status" id="ph_status_${stage}_${k}"></span>`;
+}
+function renderItemEditable(it,stage){
+  const st=stage==="in"?state:outState;
+  const s=st[it.k];
+  const countHtml=it.type==="count"?`<div class="ci-count"><span style="font-size:.82rem;color:var(--muted)">${it.label}</span><input type="number" min="0" value="${s.count||0}" onchange="setField('${stage}','${it.k}','count',this.value)"></div>`:"";
+  return `<div class="ci">
+    <div class="ci-head">
+      <span class="ci-name">${it.l}</span>
+      <div class="ci-btns">
+        <button type="button" class="cib${s.status==="ok"?" ok":""}" onclick="setStatus('${stage}','${it.k}','ok',this)">✓ سالم</button>
+        <button type="button" class="cib${s.status==="bad"?" bad":""}" onclick="setStatus('${stage}','${it.k}','bad',this)">✗ مشکل</button>
+      </div>
+    </div>
+    ${countHtml}
+    <div class="ci-note">
+      <input id="note_${stage}_${it.k}" placeholder="توضیح (اختیاری)" value="${s.note||""}" onchange="setField('${stage}','${it.k}','note',this.value)">
+      <button type="button" class="cib mic" onclick="toggleMic('${stage}','${it.k}',this)" title="ضبط صدا">🎤</button>
+    </div>
+    ${itemPhotosHtml(stage,it.k,s.photos)}
+  </div>`;
+}
+function renderItemReadonly(it,s){
+  const cnt=it.type==="count"?`<div class="ci-count muted" style="margin-top:6px">${it.label} ${s.count||0}</div>`:"";
+  return `<div class="ci">
+    <div class="ci-head"><span class="ci-name">${it.l}</span><span class="cib${s.status==="bad"?" bad":" ok"}" style="pointer-events:none">${s.status==="bad"?"✗ مشکل":"✓ سالم"}</span></div>
+    ${cnt}
+    ${s.note?`<div class="ci-note muted" style="margin-top:6px">${s.note}</div>`:""}
+    <div class="ci-photos">${(s.photos||[]).map(u=>`<img class="photo-thumb" src="${u}">`).join("")||'<span class="muted" style="font-size:.78rem">بدون عکس</span>'}</div>
+  </div>`;
+}
 function renderList(){
-  const el=document.getElementById("clList");
-  el.innerHTML=SECTIONS.map((sec,si)=>{
-    const rows=sec.items.map((it,ii)=>{
-      const key=sec.k+"_"+ii;
-      const st=clState[key]||{status:"ok",note:""};
-      const q=it.qty(guestCount);
-      if(q<=0)return "";
-      const qtyTxt="تعداد لازم: "+toFa(q);
-      const showNote=st.status==="bad"?" show":"";
-      return `<div class="item"><div class="item-top"><div class="item-info"><div class="item-name">${it.n}</div><div class="item-meta">${qtyTxt}</div></div><div class="item-price">جبران: ${it.price} ت</div><div class="item-btns"><button class="ib${st.status==="ok"?" ok":""}" onclick="setSt('${key}','ok',this)">✓ سالم</button><button class="ib${st.status==="bad"?" bad":""}" onclick="setSt('${key}','bad',this)">✗ مشکل</button></div></div><div class="item-notebox${showNote}" id="nb_${key}"><input placeholder="توضیح مشکل / کسری…" value="${st.note||""}" onchange="setNt('${key}',this.value)"></div></div>`;
+  const el=document.getElementById("ciList");
+  if(mode==="in"){
+    el.innerHTML=ITEMS.map(it=>renderItemEditable(it,"in")).join("");
+  }else{
+    const beforeData=(loadedRecord&&(loadedRecord.checkin_items||loadedRecord.condition))||{};
+    el.innerHTML=ITEMS.map(it=>{
+      const before=beforeData[it.k]||{status:"ok",note:"",count:0,photos:[]};
+      return `<div class="ci-pair">
+        <div class="ci-pair-label">قبل (تحویل)</div>
+        ${renderItemReadonly(it,before)}
+        <div class="ci-pair-label" style="margin-top:8px">بعد (چک‌اوت)</div>
+        ${renderItemEditable(it,"out")}
+      </div>`;
     }).join("");
-    return `<div class="clsec" id="sec_${si}"><div class="clsec-head" onclick="toggleSec(${si})"><span class="clsec-num">${toFa(si+1)}</span><span class="clsec-title">${sec.title}</span><span class="clsec-arrow">▾</span></div><div class="clsec-body"><div class="clsec-note">${sec.note}</div>${rows}</div></div>`;
-  }).join("");
+  }
 }
-function toggleSec(si){document.getElementById("sec_"+si).classList.toggle("open");}
-function setSt(key,v,btn){
-  if(!clState[key])clState[key]={status:"ok",note:""};
-  clState[key].status=v;
-  const wrap=btn.closest(".item-btns");
-  wrap.querySelectorAll(".ib").forEach(b=>b.classList.remove("ok","bad"));
+function setStatus(stage,k,v,btn){
+  const st=stage==="in"?state:outState;
+  if(!st[k])st[k]={photos:[]};
+  st[k].status=v;
+  const parent=btn.closest(".ci-btns");
+  parent.querySelectorAll(".cib").forEach(b=>b.classList.remove("ok","bad"));
   btn.classList.add(v);
-  const nb=document.getElementById("nb_"+key);
-  if(nb){if(v==="bad")nb.classList.add("show");else nb.classList.remove("show");}
 }
-function setNt(key,v){if(!clState[key])clState[key]={status:"ok"};clState[key].note=v;}
+function setField(stage,k,field,v){
+  const st=stage==="in"?state:outState;
+  if(!st[k])st[k]={status:"ok",note:"",count:0,photos:[]};
+  st[k][field]=field==="count"?(parseInt(v)||0):v;
+}
+
+/* عکس هر آیتم */
+async function handlePhotos(stage,k,files){
+  const st=stage==="in"?state:outState;
+  if(!st[k])st[k]={status:"ok",note:"",count:0,photos:[]};
+  if(!st[k].photos)st[k].photos=[];
+  const statusEl=document.getElementById(`ph_status_${stage}_${k}`);
+  const folder=(stage==="out"&&loadedRecord)?loadedRecord.id:draftId;
+  for(const f of files){
+    if(statusEl)statusEl.textContent="در حال آپلود…";
+    try{
+      const path=`${folder}/${k}/${stage}_${Date.now()}_${Math.random().toString(36).slice(2,7)}.jpg`;
+      const{error}=await sb.storage.from("checkin-photos").upload(path,f,{contentType:f.type||"image/jpeg"});
+      if(error)throw error;
+      const{data}=sb.storage.from("checkin-photos").getPublicUrl(path);
+      st[k].photos.push(data.publicUrl);
+    }catch(e){ if(statusEl)statusEl.textContent="خطا: "+e.message; }
+  }
+  if(statusEl)statusEl.textContent="";
+  const thumbEl=document.getElementById(`thumbs_${stage}_${k}`);
+  if(thumbEl)thumbEl.innerHTML=st[k].photos.map(u=>`<img class="photo-thumb" src="${u}">`).join("");
+}
+
+/* میکروفون — تبدیل صدا به متن، فقط کنار توضیح هر آیتم */
+function toggleMic(stage,k,btn){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ alert("مرورگر شما از تبدیل صدا به متن پشتیبانی نمی‌کند."); return; }
+  if(btn._rec){ btn._rec.stop(); btn._rec=null; btn.classList.remove("rec"); return; }
+  const rec=new SR();
+  rec.lang="fa-IR"; rec.interimResults=false; rec.maxAlternatives=1;
+  rec.onresult=(e)=>{
+    const text=e.results[0][0].transcript;
+    const input=document.getElementById(`note_${stage}_${k}`);
+    if(input){ input.value=(input.value?input.value+" ":"")+text; setField(stage,k,"note",input.value); }
+  };
+  rec.onend=()=>{btn.classList.remove("rec");btn._rec=null;};
+  rec.onerror=()=>{btn.classList.remove("rec");btn._rec=null;};
+  btn._rec=rec; btn.classList.add("rec"); rec.start();
+}
+
+/* signatures */
 const sigs={};
 function initSig(id){
   const c=document.getElementById("sig_"+id);
+  if(!c||c._init)return; c._init=true;
   const ctx=c.getContext("2d");
   let drawing=false;
-  function fit(){const r=c.getBoundingClientRect();c.width=r.width||400;c.height=150;ctx.strokeStyle="#111";ctx.lineWidth=2.2;ctx.lineCap="round";}
+  function fit(){const r=c.getBoundingClientRect();c.width=r.width;c.height=160;ctx.strokeStyle="#111";ctx.lineWidth=2.2;ctx.lineCap="round";}
   function pos(e){const r=c.getBoundingClientRect();const p=e.touches?e.touches[0]:e;return{x:p.clientX-r.left,y:p.clientY-r.top};}
   function start(e){drawing=true;sigs[id]=true;const{x,y}=pos(e);ctx.beginPath();ctx.moveTo(x,y);e.preventDefault();}
   function move(e){if(!drawing)return;const{x,y}=pos(e);ctx.lineTo(x,y);ctx.stroke();e.preventDefault();}
@@ -346,84 +403,89 @@ function initSig(id){
   c.addEventListener("touchstart",start,{passive:false});c.addEventListener("touchmove",move,{passive:false});c.addEventListener("touchend",end);
   window.addEventListener("resize",fit);
   fit();
+  return c;
 }
-function clearSig(id){const c=document.getElementById("sig_"+id);const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);sigs[id]=false;}
+function clearSig(id){
+  const c=document.getElementById("sig_"+id);const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);sigs[id]=false;
+}
+
+/* supabase */
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+
 async function submitForm(){
-  const msg=document.getElementById("fMsg");
-  msg.className="msg";
-
-  // اعتبارسنجی فیلد به فیلد با پیام فارسی
-  function fail(text, elId){
-    msg.className="msg err";
-    msg.textContent=text;
-    if(elId){
-      const el=document.getElementById(elId);
-      if(el){ el.scrollIntoView({behavior:"smooth",block:"center"}); try{el.focus();}catch(e){} }
-    }
-    return false;
-  }
-
+  const msg=document.getElementById("fMsg");msg.className="msg";
   const gname=document.getElementById("g_name").value.trim();
-  if(!gname) return fail("نام و نام خانوادگی مهمان را وارد کنید.", "g_name");
-
-  const gphone=document.getElementById("g_phone").value.trim();
-  if(!gphone) return fail("شماره تماس (واتساپ) مهمان را وارد کنید.", "g_phone");
-
-  if(!jVals.g_in) return fail("تاریخ ورود را انتخاب کنید.", "g_in");
-  if(!jVals.g_out) return fail("تاریخ خروج را انتخاب کنید.", "g_out");
-
-  const idType=document.getElementById("g_id_type").value;
-  if(!idType) return fail("نوع مدرک شناسایی را انتخاب کنید.", "g_id_type");
-
-  const idNum=document.getElementById("g_id_num").value.trim();
-  if(!idNum) return fail("شماره مدرک شناسایی را وارد کنید.", "g_id_num");
-
-  if(!document.getElementById("c_id").checked)
-    return fail("لطفاً تأییدیهٔ «بررسی مدرک شناسایی» را علامت بزنید.", "c_id");
-  if(!document.getElementById("c_count").checked)
-    return fail("لطفاً تأییدیهٔ «تعداد مهمانان» را علامت بزنید.", "c_count");
-  if(!document.getElementById("c_rules").checked)
-    return fail("لطفاً تأییدیهٔ «قوانین اقامت» را علامت بزنید.", "c_rules");
-
-  if(!sigs.admin) return fail("امضای مسئول اقامتگاه را ثبت کنید.", "sig_admin");
-  if(!sigs.guest) return fail("امضای مهمان را ثبت کنید.", "sig_guest");
-
+  if(!gname){msg.className="msg err";msg.textContent="نام مهمان الزامی است.";return;}
   const record={
     guest_name: gname,
-    phone: gphone,
-    checkin_date: jVals.g_in,
-    guests: guestCount,
-    id_type: idType,
-    id_number: idNum,
-    condition: {guests:guestCount, checkout:jVals.g_out, items:clState},
-    checkin_items: clState,
-    id_confirmed: true,
-    rules_accepted: true,
+    phone: document.getElementById("g_phone").value.trim()||null,
+    checkin_date: document.getElementById("g_in").value||null,
+    id_type: document.getElementById("g_id_type").value||null,
+    id_number: document.getElementById("g_id_num").value.trim()||null,
+    condition: state,
+    checkin_items: state,
+    id_confirmed: document.getElementById("c_id").checked,
+    rules_accepted: document.getElementById("c_rules").checked,
     notes: document.getElementById("c_notes").value.trim()||null,
     extra_notes: document.getElementById("c_notes").value.trim()||null,
-    signature: document.getElementById("sig_guest").toDataURL("image/png"),
-    admin_signature: document.getElementById("sig_admin").toDataURL("image/png"),
-    checkin_date_signed: jVals.f_date||null,
+    signature: sigs.guest ? document.getElementById("sig_guest").toDataURL("image/png") : null,
+    admin_signature: sigs.admin ? document.getElementById("sig_admin").toDataURL("image/png") : null,
+    checkin_date_signed: document.getElementById("f_date").value||null,
     locale:"fa"
   };
   const{error}=await sb.from("checkins").insert(record);
-  if(error) return fail("خطا در ثبت فرم: "+error.message);
-  msg.className="msg ok";
-  msg.textContent="✅ فرم تحویل با موفقیت ثبت شد.";
-  window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+  if(error){msg.className="msg err";msg.textContent="خطا: "+error.message;return;}
+  msg.className="msg ok";msg.textContent="✅ فرم با موفقیت ثبت شد.";
 }
+
+/* جستجو برای چک‌اوت */
+async function searchCheckins(){
+  const q=document.getElementById("searchQ").value.trim();
+  const resEl=document.getElementById("searchResults");
+  resEl.innerHTML="در حال جستجو…";
+  let query=sb.from("checkins").select("*").eq("checked_out",false).order("created_at",{ascending:false}).limit(20);
+  if(q) query=query.or(`guest_name.ilike.%${q}%,phone.ilike.%${q}%`);
+  const{data,error}=await query;
+  if(error){resEl.innerHTML="خطا: "+error.message;return;}
+  if(!data||!data.length){resEl.innerHTML='<div class="muted">موردی یافت نشد.</div>';return;}
+  window._searchData=data;
+  resEl.innerHTML=data.map(r=>`<div class="search-row"><span>${r.guest_name} — ${r.phone||""} — ${r.checkin_date||""}</span><button type="button" class="btn ghost" style="padding:6px 14px;font-size:.8rem" onclick="pickCheckin('${r.id}')">انتخاب</button></div>`).join("");
+}
+function pickCheckin(id){
+  const r=(window._searchData||[]).find(x=>x.id===id);
+  if(!r)return;
+  loadedRecord=r;
+  document.getElementById("g_name").value=r.guest_name||"";
+  document.getElementById("g_phone").value=r.phone||"";
+  document.getElementById("g_in").value=r.checkin_date||"";
+  document.getElementById("g_id_type").value=r.id_type||"";
+  document.getElementById("g_id_num").value=r.id_number||"";
+  ["g_name","g_phone","g_id_type","g_id_num"].forEach(fid=>document.getElementById(fid).disabled=true);
+  ITEMS.forEach(it=>outState[it.k]={status:"ok",note:"",count:0,photos:[]});
+  setMode("out");
+}
+async function submitCheckout(){
+  const msg=document.getElementById("fMsg");msg.className="msg";
+  if(!loadedRecord){msg.className="msg err";msg.textContent="ابتدا مهمان را از طریق جستجو انتخاب کنید.";return;}
+  const rec={
+    checkout_items: outState,
+    checkout_notes: document.getElementById("c_notes_out").value.trim()||null,
+    checkout_signature: sigs.guest_out ? document.getElementById("sig_guest_out").toDataURL("image/png") : null,
+    checkout_admin_signature: sigs.admin_out ? document.getElementById("sig_admin_out").toDataURL("image/png") : null,
+    checkout_date_signed: document.getElementById("f_date").value||null,
+    checked_out: true
+  };
+  const{error}=await sb.from("checkins").update(rec).eq("id",loadedRecord.id);
+  if(error){msg.className="msg err";msg.textContent="خطا: "+error.message;return;}
+  msg.className="msg ok";msg.textContent="✅ چک‌اوت با موفقیت ثبت شد.";
+}
+
+/* init */
 (function(){
-  initSig("admin");initSig("guest");
-  renderGuestPick();
+  initSig("admin");initSig("guest");initSig("admin_out");initSig("guest_out");
   renderList();
-  const t=new Date();
-  const iso=t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0");
-  const j=toJalali(t);
-  const fa=toFa(j.jy)+"/"+toFa(j.jm)+"/"+toFa(j.jd)+"  ("+FA_MONTHS[j.jm-1]+")";
-  jVals.g_in=iso; document.getElementById("g_in").value=fa;
-  jVals.f_date=iso; document.getElementById("f_date").value=fa;
-  document.getElementById("sec_0").classList.add("open");
+  document.getElementById("g_in").value=new Date().toISOString().split("T")[0];
+  document.getElementById("f_date").value=new Date().toISOString().split("T")[0];
 })();
 </script>
 </body>
