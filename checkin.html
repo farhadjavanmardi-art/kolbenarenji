@@ -28,8 +28,7 @@ input:disabled{opacity:.6}
 textarea{resize:vertical;min-height:70px}
 label{font-size:.85rem;font-weight:600;display:block;margin-bottom:6px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-@media(max-width:580px){.grid2,.grid3{grid-template-columns:1fr}}
+@media(max-width:580px){.grid2{grid-template-columns:1fr}}
 .fld{display:flex;flex-direction:column;gap:6px}
 .fld.full{grid-column:1/-1}
 
@@ -50,8 +49,6 @@ label{font-size:.85rem;font-weight:600;display:block;margin-bottom:6px}
 .ci-photos{display:flex;flex-wrap:wrap;margin-top:8px}
 .photo-thumb{width:52px;height:52px;object-fit:cover;border-radius:6px;border:1px solid var(--line);margin:0 4px 4px 0}
 .ph-status{font-size:.75rem;color:var(--muted);margin-inline-start:6px}
-.ci-pair{background:var(--s2);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px}
-.ci-pair-label{font-size:.75rem;color:var(--muted);margin-bottom:4px}
 .muted{color:var(--muted)}
 
 /* signatures */
@@ -71,7 +68,7 @@ canvas{display:block;width:100%;height:160px;border-radius:8px}
 .msg.ok{display:block;background:rgba(40,170,90,.12);border:1px solid rgba(40,170,90,.4);color:#74e0a0}
 .msg.err{display:block;background:rgba(220,60,60,.12);border:1px solid rgba(220,60,60,.4);color:#f0a0a0}
 
-/* ===== تقویم شمسی ===== */
+/* ===== Shamsi Date Picker ===== */
 .sdp-wrap{position:relative;width:100%}
 .sdp-input{background:var(--bg);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:10px 12px;font:inherit;font-size:.88rem;width:100%;cursor:pointer;text-align:right;display:flex;align-items:center;justify-content:space-between}
 .sdp-input:hover,.sdp-input:focus{border-color:var(--orange);outline:none}
@@ -91,12 +88,11 @@ canvas{display:block;width:100%;height:160px;border-radius:8px}
 .sdp-sel{background:var(--orange)!important;color:#0A0A0B!important;font-weight:700}
 .sdp-today{border-color:var(--line)}
 
-/* جلوگیری از zoom در iOS Safari */
 @viewport{width:device-width;zoom:1.0;min-zoom:1.0;max-zoom:1.0;user-zoom:fixed}
 html{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
 input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
 @media(max-width:600px){
-  input[type=text],input[type=tel],input[type=email],input[type=number],input[type=date],input[type=time],select,textarea{font-size:16px!important}
+  input[type=text],input[type=tel],input[type=email],input[type=number],select,textarea{font-size:16px!important}
 }
 </style>
 <base target="_blank">
@@ -111,7 +107,6 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
 
 <div id="mainForm">
 
-<!-- اطلاعات مهمان -->
 <div class="card">
   <h2>① اطلاعات مهمان</h2>
   <div class="grid2">
@@ -135,7 +130,7 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
       </div>
       <input type="hidden" id="g_out">
     </div>
-    <div class="fld"><label>نوع مدرک شناسایی تحویلی</label>
+    <div class="fld"><label>نوع مدرک شناسایی</label>
       <select id="g_id_type">
         <option value="">— انتخاب کنید —</option>
         <option value="کارت ملی">کارت ملی</option>
@@ -148,21 +143,18 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
   </div>
 </div>
 
-<!-- وضعیت اقامتگاه — چک‌این -->
 <div class="card" id="checkinSection">
   <h2>② وضعیت اقامتگاه هنگام تحویل</h2>
   <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px">هر مورد را بررسی، توضیح (با تایپ یا میکروفون) و در صورت نیاز عکس ثبت کنید.</p>
   <div id="ciList"></div>
 </div>
 
-<!-- وضعیت اقامتگاه — چک‌اوت -->
 <div class="card" id="checkoutSection" style="display:none">
   <h2>② وضعیت اقامتگاه هنگام تحویل‌گیری</h2>
   <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px">هر مورد را بررسی، توضیح (با تایپ یا میکروفون) و در صورت نیاز عکس ثبت کنید.</p>
   <div id="coList"></div>
 </div>
 
-<!-- تأییدیه‌ها — چک‌این -->
 <div class="card" id="inOnlySections">
   <h2>③ تأییدیه‌ها و قوانین</h2>
   <label style="display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;cursor:pointer">
@@ -176,7 +168,6 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
   <div class="fld" style="margin-top:14px"><label>توضیحات اضافه</label><textarea id="c_notes" placeholder="هر نکته‌ای که لازم است ثبت شود…"></textarea></div>
 </div>
 
-<!-- تأییدیه — چک‌اوت -->
 <div class="card" id="outOnlySections" style="display:none">
   <h2>③ تسویه و تأییدیه چک‌اوت</h2>
   <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer">
@@ -186,7 +177,6 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
   <div class="fld" style="margin-top:14px"><label>توضیحات اضافه چک‌اوت</label><textarea id="c_notes_out" placeholder="خسارت، کسورات، نکات مهم…"></textarea></div>
 </div>
 
-<!-- امضاها — چک‌این -->
 <div id="inSigSection">
   <div class="card">
     <h2>④ امضای مالک</h2>
@@ -206,7 +196,6 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
   </div>
 </div>
 
-<!-- امضاها — چک‌اوت -->
 <div id="outSigSection" style="display:none">
   <div class="card">
     <h2>④ امضای مالک (چک‌اوت)</h2>
@@ -226,7 +215,6 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
   </div>
 </div>
 
-<!-- تاریخ -->
 <div class="card">
   <h2>⑥ تاریخ و ثبت</h2>
   <div class="grid2">
@@ -240,13 +228,10 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
       <input type="hidden" id="f_date">
     </div>
   </div>
-
-  <!-- دکمه‌های حالت -->
   <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap" class="no-print">
     <button type="button" class="btn" id="btnCheckin" onclick="setMode('in')">🏠 تحویل (چک‌این)</button>
     <button type="button" class="btn ghost" id="btnCheckout" onclick="setMode('out')">🔑 چک‌اوت</button>
   </div>
-
   <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap" class="no-print">
     <button class="btn" id="submitBtn" onclick="mode==='in'?submitForm():submitCheckout()">💾 ثبت فرم</button>
     <button class="btn ghost" onclick="window.print()">🖨️ چاپ</button>
@@ -254,12 +239,12 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
   <div class="msg" id="fMsg"></div>
 </div>
 
-</div><!-- /mainForm -->
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* ===== Jalali Calendar Functions ===== */
+/* ===== Jalali Calendar ===== */
 function jdiv(a,b){return ~~(a/b);}
 function jmod(a,b){return a-~~(a/b)*b;}
 function jalCal(jy){
@@ -291,7 +276,6 @@ function toJalali(dt){return d2j(g2d(dt.getFullYear(),dt.getMonth()+1,dt.getDate
 function toGreg(jy,jm,jd){var r=d2g(j2d(jy,jm,jd));return new Date(r.gy,r.gm-1,r.gd);}
 function jMonLen(jy,jm){if(jm<=6)return 31;if(jm<=11)return 30;return jalCal(jy).leap===0?30:29;}
 function toFa(n){return String(n).replace(/[0-9]/g,d=>"۰۱۲۳۴۵۶۷۸۹"[d]);}
-function jymd(jy,jm,jd){return jy+'-'+String(jm).padStart(2,'0')+'-'+String(jd).padStart(2,'0');}
 function gregISO(jy,jm,jd){const g=toGreg(jy,jm,jd);return g.getFullYear()+'-'+String(g.getMonth()+1).padStart(2,'0')+'-'+String(g.getDate()).padStart(2,'0');}
 function jymdf(iso){if(!iso)return "—";const d=new Date(iso+"T00:00:00");const j=toJalali(d);return toFa(j.jd)+" "+FA_MONTHS[j.jm-1]+" "+toFa(j.jy);}
 
@@ -368,12 +352,9 @@ function sdpSetToday(id){
   const iso=TODAY_G.toISOString().split('T')[0];
   sdpSetVal(id,iso);
 }
-
-// Validate dates: check_out must be after check_in
 document.addEventListener('click',e=>{
   if(!e.target.closest('.sdp-wrap'))document.querySelectorAll('.sdp-cal.open').forEach(el=>el.classList.remove('open'));
 });
-
 function validateDates(){
   const inV=document.getElementById('g_in').value;
   const outV=document.getElementById('g_out').value;
@@ -418,7 +399,6 @@ function setMode(m){
   document.getElementById("btnCheckin").classList.toggle("ghost",m!=="in");
   document.getElementById("btnCheckout").classList.toggle("btn",m==="out");
   document.getElementById("btnCheckout").classList.toggle("ghost",m!=="out");
-
   if(m==="out"){
     document.getElementById("checkinSection").style.display="none";
     document.getElementById("checkoutSection").style.display="block";
@@ -440,7 +420,6 @@ function setMode(m){
   }
 }
 
-/* رندر آیتم قابل‌ویرایش */
 function itemPhotosHtml(stage,k,photos){
   const thumbs=(photos||[]).map(u=>`<img class="photo-thumb" src="${u}">`).join("");
   return `<div class="ci-photos" id="thumbs_${stage}_${k}">${thumbs}</div>
@@ -488,7 +467,6 @@ function setField(stage,k,field,v){
   st[k][field]=field==="count"?(parseInt(v)||0):v;
 }
 
-/* عکس هر آیتم */
 async function handlePhotos(stage,k,files){
   const st=stage==="in"?state:outState;
   if(!st[k])st[k]={status:"ok",note:"",count:0,photos:[]};
@@ -510,13 +488,12 @@ async function handlePhotos(stage,k,files){
   if(thumbEl)thumbEl.innerHTML=st[k].photos.map(u=>`<img class="photo-thumb" src="${u}">`).join("");
 }
 
-/* میکروفون — تبدیل صدا به متن با زمان نامحدود */
+/* ===== MICROPHONE - NO DUPLICATE TEXT ===== */
 function toggleMic(stage,k,btn){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){alert("مرورگر شما از تبدیل صدا به متن پشتیبانی نمی‌کند.");return;}
 
-  // If already recording, stop it
-  if(btn._rec){ 
+  if(btn._rec){
     try{btn._rec.stop();}catch(e){}
     btn._rec=null;
     btn.classList.remove("rec");
@@ -529,47 +506,48 @@ function toggleMic(stage,k,btn){
   rec.maxAlternatives=1;
   rec.continuous=false;
 
-  // Track which results we've already processed (to avoid duplicates)
-  let lastFinalIndex=0;
+  // Save the text that was in the input BEFORE starting speech
+  const inputEl=document.getElementById(`note_${stage}_${k}`);
+  const baseText=inputEl?inputEl.value:"";
+
+  // Accumulates only NEW final results
+  let finalTranscript="";
 
   rec.onresult=(e)=>{
-    const input=document.getElementById(`note_${stage}_${k}`);
-    if(!input)return;
+    const inp=document.getElementById(`note_${stage}_${k}`);
+    if(!inp)return;
 
-    let newFinalText="";
-    let interimText="";
+    let interimTranscript="";
 
-    for(let i=0;i<e.results.length;i++){
-      if(e.results[i].isFinal){
-        if(i>=lastFinalIndex){
-          newFinalText+=e.results[i][0].transcript;
-          lastFinalIndex=i+1;
-        }
+    // event.resultIndex tells us which results are NEW since last call
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const result=e.results[i];
+      if(result.isFinal){
+        finalTranscript+=result[0].transcript;
       }else{
-        interimText=e.results[i][0].transcript;
+        interimTranscript=result[0].transcript;
       }
     }
 
-    // Get current base (without any interim "...")
-    let base=input.value.replace(/\s*\.\.\.$/,"");
-
-    if(newFinalText){
-      // Append new final text
-      const spacer=base.length>0&&!base.endsWith(" ")?" ":"";
-      input.value=base+spacer+newFinalText;
-      setField(stage,k,"note",input.value);
-    }else if(interimText){
-      // Show interim preview with ...
-      const spacer=base.length>0&&!base.endsWith(" ")?" ":"";
-      input.value=base+spacer+interimText+" ...";
+    // Build display: base + all final so far + current interim preview
+    let display=baseText;
+    if(finalTranscript){
+      const spacer=display.length>0&&!display.endsWith(" ")?" ":"";
+      display=display+spacer+finalTranscript;
     }
+    if(interimTranscript){
+      const spacer=display.length>0&&!display.endsWith(" ")?" ":"";
+      display=display+spacer+interimTranscript+" ...";
+    }
+
+    inp.value=display;
   };
 
   rec.onend=()=>{
-    const input=document.getElementById(`note_${stage}_${k}`);
-    if(input){
-      input.value=input.value.replace(/\s*\.\.\.$/,"");
-      setField(stage,k,"note",input.value);
+    const inp=document.getElementById(`note_${stage}_${k}`);
+    if(inp){
+      inp.value=inp.value.replace(/\s*\.\.\.$/,"");
+      setField(stage,k,"note",inp.value);
     }
     btn.classList.remove("rec");
     btn._rec=null;
@@ -622,17 +600,13 @@ const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{pers
 async function submitForm(){
   console.log("submitForm called");
   const msg=document.getElementById("fMsg");
-  msg.className="msg";
-  msg.style.display="none";
-
+  msg.className="msg";msg.style.display="none";
   const gname=document.getElementById("g_name").value.trim();
   if(!gname){msg.className="msg err";msg.style.display="block";msg.textContent="نام مهمان الزامی است.";return;}
-
   const inV=document.getElementById("g_in").value;
   const outV=document.getElementById("g_out").value;
   if(!inV||!outV){msg.className="msg err";msg.style.display="block";msg.textContent="تاریخ ورود و خروج را انتخاب کنید.";return;}
   if(new Date(outV)<=new Date(inV)){msg.className="msg err";msg.style.display="block";msg.textContent="تاریخ خروج باید بعد از تاریخ ورود باشد.";return;}
-
   const record={
     guest_name:gname,
     phone:document.getElementById("g_phone").value.trim()||null,
@@ -651,36 +625,25 @@ async function submitForm(){
     checkin_date_signed:document.getElementById("f_date").value||null,
     locale:"fa"
   };
-
-  console.log("Inserting record:",record);
+  console.log("Inserting:",record);
   try{
     const{error}=await sb.from("checkins").insert(record);
-    if(error){
-      console.error("Insert error:",error);
-      msg.className="msg err";msg.style.display="block";msg.textContent="خطا: "+error.message;return;
-    }
-    console.log("Insert successful");
+    if(error){console.error("Error:",error);msg.className="msg err";msg.style.display="block";msg.textContent="خطا: "+error.message;return;}
+    console.log("Success!");
     msg.className="msg ok";msg.style.display="block";msg.textContent="✅ فرم با موفقیت ثبت شد.";
-  }catch(e){
-    console.error("Exception:",e);
-    msg.className="msg err";msg.style.display="block";msg.textContent="خطای سیستم: "+e.message;
-  }
+  }catch(e){console.error("Exception:",e);msg.className="msg err";msg.style.display="block";msg.textContent="خطای سیستم: "+e.message;}
 }
 
 async function submitCheckout(){
   console.log("submitCheckout called");
   const msg=document.getElementById("fMsg");
-  msg.className="msg";
-  msg.style.display="none";
-
+  msg.className="msg";msg.style.display="none";
   const gname=document.getElementById("g_name").value.trim();
   if(!gname){msg.className="msg err";msg.style.display="block";msg.textContent="نام مهمان الزامی است.";return;}
-
   const inV=document.getElementById("g_in").value;
   const outV=document.getElementById("g_out").value;
   if(!inV||!outV){msg.className="msg err";msg.style.display="block";msg.textContent="تاریخ ورود و خروج را انتخاب کنید.";return;}
   if(new Date(outV)<=new Date(inV)){msg.className="msg err";msg.style.display="block";msg.textContent="تاریخ خروج باید بعد از تاریخ ورود باشد.";return;}
-
   const record={
     guest_name:gname,
     phone:document.getElementById("g_phone").value.trim()||null,
@@ -705,22 +668,18 @@ async function submitCheckout(){
     checked_out:true,
     locale:"fa"
   };
-
-  console.log("Saving checkout record:",record);
+  console.log("Saving checkout:",record);
   try{
     if(loadedRecord){
       const{error}=await sb.from("checkins").update(record).eq("id",loadedRecord.id);
-      if(error){console.error("Update error:",error);msg.className="msg err";msg.style.display="block";msg.textContent="خطا: "+error.message;return;}
+      if(error){console.error("Error:",error);msg.className="msg err";msg.style.display="block";msg.textContent="خطا: "+error.message;return;}
     }else{
       const{error}=await sb.from("checkins").insert(record);
-      if(error){console.error("Insert error:",error);msg.className="msg err";msg.style.display="block";msg.textContent="خطا: "+error.message;return;}
+      if(error){console.error("Error:",error);msg.className="msg err";msg.style.display="block";msg.textContent="خطا: "+error.message;return;}
     }
-    console.log("Checkout saved successfully");
+    console.log("Success!");
     msg.className="msg ok";msg.style.display="block";msg.textContent="✅ چک‌اوت با موفقیت ثبت شد.";
-  }catch(e){
-    console.error("Exception:",e);
-    msg.className="msg err";msg.style.display="block";msg.textContent="خطای سیستم: "+e.message;
-  }
+  }catch(e){console.error("Exception:",e);msg.className="msg err";msg.style.display="block";msg.textContent="خطای سیستم: "+e.message;}
 }
 
 /* init */
