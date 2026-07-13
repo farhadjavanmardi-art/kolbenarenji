@@ -525,37 +525,47 @@ function toggleMic(stage,k,btn){
 
   const rec=new SR();
   rec.lang="fa-IR";
-  rec.interimResults=true;  // Show results while speaking
+  rec.interimResults=true;
   rec.maxAlternatives=1;
-  rec.continuous=false;     // Don't auto-restart - let user control
+  rec.continuous=false;
 
-  let finalText="";
+  // Track which results we've already processed (to avoid duplicates)
+  let lastFinalIndex=0;
 
   rec.onresult=(e)=>{
-    let interim="";
-    for(let i=e.resultIndex;i<e.results.length;i++){
+    const input=document.getElementById(`note_${stage}_${k}`);
+    if(!input)return;
+
+    let newFinalText="";
+    let interimText="";
+
+    for(let i=0;i<e.results.length;i++){
       if(e.results[i].isFinal){
-        finalText+=e.results[i][0].transcript;
+        if(i>=lastFinalIndex){
+          newFinalText+=e.results[i][0].transcript;
+          lastFinalIndex=i+1;
+        }
       }else{
-        interim+=e.results[i][0].transcript;
+        interimText=e.results[i][0].transcript;
       }
     }
-    const input=document.getElementById(`note_${stage}_${k}`);
-    if(input){
-      const base=input.value.replace(/\s*\.\.\.$/,""); // remove trailing ...
+
+    // Get current base (without any interim "...")
+    let base=input.value.replace(/\s*\.\.\.$/,"");
+
+    if(newFinalText){
+      // Append new final text
       const spacer=base.length>0&&!base.endsWith(" ")?" ":"";
-      if(finalText){
-        input.value=base+spacer+finalText;
-        setField(stage,k,"note",input.value);
-        finalText=""; // reset for next chunk
-      }else if(interim){
-        input.value=base+spacer+interim+" ...";
-      }
+      input.value=base+spacer+newFinalText;
+      setField(stage,k,"note",input.value);
+    }else if(interimText){
+      // Show interim preview with ...
+      const spacer=base.length>0&&!base.endsWith(" ")?" ":"";
+      input.value=base+spacer+interimText+" ...";
     }
   };
 
   rec.onend=()=>{
-    // Clean up trailing ...
     const input=document.getElementById(`note_${stage}_${k}`);
     if(input){
       input.value=input.value.replace(/\s*\.\.\.$/,"");
