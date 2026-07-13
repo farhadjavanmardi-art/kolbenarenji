@@ -28,10 +28,14 @@ input:disabled{opacity:.6}
 textarea{resize:vertical;min-height:70px}
 label{font-size:.85rem;font-weight:600;display:block;margin-bottom:6px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:580px){.grid2{grid-template-columns:1fr}}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:580px){.grid2,.grid3{grid-template-columns:1fr}}
 .fld{display:flex;flex-direction:column;gap:6px}
 .fld.full{grid-column:1/-1}
-
+/* mode tabs */
+.mode-tabs{display:flex;gap:8px}
+.mode-tab{background:var(--s2);border:1px solid var(--line);border-radius:999px;padding:8px 16px;cursor:pointer;font:inherit;font-size:.82rem;color:var(--muted)}
+.mode-tab.on{background:var(--orange);color:#0A0A0B;border-color:var(--orange);font-weight:700}
 /* checklist items */
 .ci{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px}
 .ci-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -49,13 +53,15 @@ label{font-size:.85rem;font-weight:600;display:block;margin-bottom:6px}
 .ci-photos{display:flex;flex-wrap:wrap;margin-top:8px}
 .photo-thumb{width:52px;height:52px;object-fit:cover;border-radius:6px;border:1px solid var(--line);margin:0 4px 4px 0}
 .ph-status{font-size:.75rem;color:var(--muted);margin-inline-start:6px}
+.ci-pair{background:var(--s2);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px}
+.ci-pair-label{font-size:.75rem;color:var(--muted);margin-bottom:4px}
 .muted{color:var(--muted)}
-
+/* search */
+.search-row{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line);gap:10px;flex-wrap:wrap}
 /* signatures */
 .sig-wrap{border:2px dashed var(--line);border-radius:10px;background:#fff;touch-action:none}
 canvas{display:block;width:100%;height:160px;border-radius:8px}
 .sig-bar{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-
 /* print */
 @media print{
   header,.no-print{display:none!important}
@@ -68,69 +74,46 @@ canvas{display:block;width:100%;height:160px;border-radius:8px}
 .msg.ok{display:block;background:rgba(40,170,90,.12);border:1px solid rgba(40,170,90,.4);color:#74e0a0}
 .msg.err{display:block;background:rgba(220,60,60,.12);border:1px solid rgba(220,60,60,.4);color:#f0a0a0}
 
-/* ===== Shamsi Date Picker ===== */
-.sdp-wrap{position:relative;width:100%}
-.sdp-input{background:var(--bg);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:10px 12px;font:inherit;font-size:.88rem;width:100%;cursor:pointer;text-align:right;display:flex;align-items:center;justify-content:space-between}
-.sdp-input:hover,.sdp-input:focus{border-color:var(--orange);outline:none}
-.sdp-cal{position:absolute;z-index:300;top:calc(100% + 4px);right:0;background:#1A1A1F;border:1px solid var(--line);border-radius:14px;padding:14px;min-width:270px;box-shadow:0 8px 32px rgba(0,0,0,.6);display:none}
-.sdp-cal.open{display:block}
-.sdp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.sdp-nav{background:var(--s2);border:1px solid var(--line);color:var(--text);width:30px;height:30px;border-radius:7px;cursor:pointer;font:inherit;font-size:1rem;display:grid;place-items:center}
-.sdp-nav:hover{border-color:var(--orange);color:var(--orange)}
-.sdp-title{font-weight:700;font-size:.88rem}
-.sdp-week{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:3px}
-.sdp-week span{text-align:center;font-size:.68rem;color:var(--muted);padding:3px 0}
-.sdp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
-.sdp-d{aspect-ratio:1;display:grid;place-items:center;border-radius:6px;font-size:.8rem;cursor:pointer;border:1px solid transparent}
-.sdp-d:hover:not(.sdp-e):not(.sdp-dis){background:rgba(255,122,26,.18)}
-.sdp-e{cursor:default}
-.sdp-dis{color:#2e2e36;cursor:not-allowed}
-.sdp-sel{background:var(--orange)!important;color:#0A0A0B!important;font-weight:700}
-.sdp-today{border-color:var(--line)}
-
+/* جلوگیری از zoom در iOS Safari */
 @viewport{width:device-width;zoom:1.0;min-zoom:1.0;max-zoom:1.0;user-zoom:fixed}
 html{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
 input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
 @media(max-width:600px){
-  input[type=text],input[type=tel],input[type=email],input[type=number],select,textarea{font-size:16px!important}
+  input[type=text],input[type=tel],input[type=email],input[type=number],input[type=date],input[type=time],select,textarea{font-size:16px!important}
 }
 </style>
-<base target="_blank">
 </head>
 <body>
 
 <header><div class="wrap topbar">
   <div class="brand"><span class="mark">ک</span><span>کلبه نارنجی · فرم تحویل</span></div>
+  <div class="mode-tabs no-print">
+    <button type="button" class="mode-tab on" id="tab_in" onclick="setMode('in')">🏠 تحویل (چک‌این)</button>
+    <button type="button" class="mode-tab" id="tab_out" onclick="setMode('out')">🔑 چک‌اوت مشتری</button>
+  </div>
 </div></header>
 
 <div class="wrap">
 
+<!-- جستجوی رزرو برای چک‌اوت -->
+<div class="card no-print" id="searchBox" style="display:none">
+  <h2>جستجوی مهمان برای چک‌اوت</h2>
+  <div class="fld"><label>نام یا شماره تماس مهمان</label><input id="searchQ" placeholder="نام یا شماره…"></div>
+  <div style="margin-top:10px"><button type="button" class="btn" onclick="searchCheckins()">🔍 جستجو</button></div>
+  <div id="searchResults" style="margin-top:12px"></div>
+</div>
+
 <div id="mainForm">
 
+<!-- اطلاعات مهمان -->
 <div class="card">
   <h2>① اطلاعات مهمان</h2>
   <div class="grid2">
     <div class="fld"><label>نام و نام خانوادگی مهمان *</label><input id="g_name" placeholder="نام کامل"></div>
     <div class="fld"><label>شماره تماس</label><input id="g_phone" inputmode="tel" placeholder="09…"></div>
-    <div class="fld"><label>تاریخ ورود <span style="color:var(--orange)">*</span></label>
-      <div class="sdp-wrap" id="sdp_g_in">
-        <button type="button" class="sdp-input" onclick="sdpOpen('g_in')">
-          <span id="sdp_g_in_lbl">انتخاب تاریخ 📅</span>
-        </button>
-        <div class="sdp-cal" id="sdp_cal_g_in"></div>
-      </div>
-      <input type="hidden" id="g_in">
-    </div>
-    <div class="fld"><label>تاریخ خروج <span style="color:var(--orange)">*</span></label>
-      <div class="sdp-wrap" id="sdp_g_out">
-        <button type="button" class="sdp-input" onclick="sdpOpen('g_out')">
-          <span id="sdp_g_out_lbl">انتخاب تاریخ 📅</span>
-        </button>
-        <div class="sdp-cal" id="sdp_cal_g_out"></div>
-      </div>
-      <input type="hidden" id="g_out">
-    </div>
-    <div class="fld"><label>نوع مدرک شناسایی</label>
+    <div class="fld"><label>تاریخ ورود</label><input type="date" id="g_in"></div>
+    <div class="fld"><label>تاریخ خروج</label><input type="date" id="g_out"></div>
+    <div class="fld"><label>نوع مدرک شناسایی تحویلی</label>
       <select id="g_id_type">
         <option value="">— انتخاب کنید —</option>
         <option value="کارت ملی">کارت ملی</option>
@@ -143,18 +126,14 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
   </div>
 </div>
 
-<div class="card" id="checkinSection">
-  <h2>② وضعیت اقامتگاه هنگام تحویل</h2>
-  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px">هر مورد را بررسی، توضیح (با تایپ یا میکروفون) و در صورت نیاز عکس ثبت کنید.</p>
+<!-- وضعیت اقامتگاه -->
+<div class="card">
+  <h2 id="h2Items">② وضعیت اقامتگاه هنگام تحویل</h2>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px" id="itemsHint">هر مورد را بررسی، توضیح (با تایپ یا میکروفون) و در صورت نیاز عکس ثبت کنید.</p>
   <div id="ciList"></div>
 </div>
 
-<div class="card" id="checkoutSection" style="display:none">
-  <h2>② وضعیت اقامتگاه هنگام تحویل‌گیری</h2>
-  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px">هر مورد را بررسی، توضیح (با تایپ یا میکروفون) و در صورت نیاز عکس ثبت کنید.</p>
-  <div id="coList"></div>
-</div>
-
+<!-- تأییدیه‌ها — فقط چک‌این -->
 <div class="card" id="inOnlySections">
   <h2>③ تأییدیه‌ها و قوانین</h2>
   <label style="display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;cursor:pointer">
@@ -168,6 +147,7 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
   <div class="fld" style="margin-top:14px"><label>توضیحات اضافه</label><textarea id="c_notes" placeholder="هر نکته‌ای که لازم است ثبت شود…"></textarea></div>
 </div>
 
+<!-- تأییدیه — فقط چک‌اوت -->
 <div class="card" id="outOnlySections" style="display:none">
   <h2>③ تسویه و تأییدیه چک‌اوت</h2>
   <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer">
@@ -177,6 +157,7 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
   <div class="fld" style="margin-top:14px"><label>توضیحات اضافه چک‌اوت</label><textarea id="c_notes_out" placeholder="خسارت، کسورات، نکات مهم…"></textarea></div>
 </div>
 
+<!-- امضاها — چک‌این -->
 <div id="inSigSection">
   <div class="card">
     <h2>④ امضای مالک</h2>
@@ -196,6 +177,7 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
   </div>
 </div>
 
+<!-- امضاها — چک‌اوت -->
 <div id="outSigSection" style="display:none">
   <div class="card">
     <h2>④ امضای مالک (چک‌اوت)</h2>
@@ -215,159 +197,25 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
   </div>
 </div>
 
+<!-- تاریخ -->
 <div class="card">
   <h2>⑥ تاریخ و ثبت</h2>
   <div class="grid2">
-    <div class="fld"><label>تاریخ تنظیم فرم</label>
-      <div class="sdp-wrap" id="sdp_f_date">
-        <button type="button" class="sdp-input" onclick="sdpOpen('f_date')">
-          <span id="sdp_f_date_lbl">انتخاب تاریخ 📅</span>
-        </button>
-        <div class="sdp-cal" id="sdp_cal_f_date"></div>
-      </div>
-      <input type="hidden" id="f_date">
-    </div>
-  </div>
-  <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap" class="no-print">
-    <button type="button" class="btn" id="btnCheckin" onclick="setMode('in')">🏠 تحویل (چک‌این)</button>
-    <button type="button" class="btn ghost" id="btnCheckout" onclick="setMode('out')">🔑 چک‌اوت</button>
+    <div class="fld"><label>تاریخ تنظیم فرم</label><input type="date" id="f_date"></div>
   </div>
   <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap" class="no-print">
     <button class="btn" id="submitBtn" onclick="mode==='in'?submitForm():submitCheckout()">💾 ثبت فرم</button>
     <button class="btn ghost" onclick="window.print()">🖨️ چاپ</button>
+    <button class="btn ghost" id="backBtn" style="display:none" onclick="backToSearch()">↩ رزرو دیگر</button>
   </div>
   <div class="msg" id="fMsg"></div>
 </div>
 
-</div>
+</div><!-- /mainForm -->
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* ===== Jalali Calendar ===== */
-function jdiv(a,b){return ~~(a/b);}
-function jmod(a,b){return a-~~(a/b)*b;}
-function jalCal(jy){
-  var breaks=[-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178];
-  var bl=breaks.length,gy=jy+621,leapJ=-14,jp=breaks[0],jm,jump=0,leap,leapG,march,n,i;
-  for(i=1;i<bl;i++){jm=breaks[i];jump=jm-jp;if(jy<jm)break;leapJ=leapJ+jdiv(jump,33)*8+jdiv(jmod(jump,33),4);jp=jm;}
-  n=jy-jp; leapJ=leapJ+jdiv(n,33)*8+jdiv(jmod(n,33)+3,4);
-  if(jmod(jump,33)===4&&jump-n===4)leapJ+=1;
-  leapG=jdiv(gy,4)-jdiv((jdiv(gy,100)+1)*3,4)-150;march=20+leapJ-leapG;
-  if(jump-n<6)n=n-jump+jdiv(jump+4,33)*33; leap=jmod(jmod(n+1,33)-1,4);if(leap===-1)leap=4;
-  return{leap:leap,gy:gy,march:march};
-}
-function g2d(gy,gm,gd){
-  var d=jdiv((gy+jdiv(gm-8,6)+100100)*1461,4)+jdiv(153*jmod(gm+9,12)+2,5)+gd-34840408;
-  d=d-jdiv(jdiv(gy+100100+jdiv(gm-8,6),100)*3,4)+752;return d;
-}
-function d2g(jdn){
-  var j,i,gd,gm,gy;j=4*jdn+139361631;j=j+jdiv(jdiv(4*jdn+183187720,146097)*3,4)*4-3908;
-  i=jdiv(jmod(j,1461),4)*5+308;gd=jdiv(jmod(i,153),5)+1;gm=jmod(jdiv(i,153),12)+1;
-  gy=jdiv(j,1461)-100100+jdiv(8-gm,6);return{gy:gy,gm:gm,gd:gd};
-}
-function j2d(jy,jm,jd){var r=jalCal(jy);return g2d(r.gy,3,r.march)+(jm-1)*31-jdiv(jm,7)*(jm-7)+jd-1;}
-function d2j(jdn){
-  var gy=d2g(jdn).gy,jy=gy-621,r=jalCal(jy),jdn1f=g2d(gy,3,r.march),jd,jm,k;
-  k=jdn-jdn1f;if(k>=0){if(k<=185){jm=1+jdiv(k,31);jd=jmod(k,31)+1;return{jy:jy,jm:jm,jd:jd};}else{k-=186;}}else{jy-=1;k+=179;if(r.leap===1)k+=1;}
-  jm=7+jdiv(k,30);jd=jmod(k,30)+1;return{jy:jy,jm:jm,jd:jd};
-}
-function toJalali(dt){return d2j(g2d(dt.getFullYear(),dt.getMonth()+1,dt.getDate()));}
-function toGreg(jy,jm,jd){var r=d2g(j2d(jy,jm,jd));return new Date(r.gy,r.gm-1,r.gd);}
-function jMonLen(jy,jm){if(jm<=6)return 31;if(jm<=11)return 30;return jalCal(jy).leap===0?30:29;}
-function toFa(n){return String(n).replace(/[0-9]/g,d=>"۰۱۲۳۴۵۶۷۸۹"[d]);}
-function gregISO(jy,jm,jd){const g=toGreg(jy,jm,jd);return g.getFullYear()+'-'+String(g.getMonth()+1).padStart(2,'0')+'-'+String(g.getDate()).padStart(2,'0');}
-function jymdf(iso){if(!iso)return "—";const d=new Date(iso+"T00:00:00");const j=toJalali(d);return toFa(j.jd)+" "+FA_MONTHS[j.jm-1]+" "+toFa(j.jy);}
-
-const FA_MONTHS=["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
-const FA_WEEK_SH=["ش","ی","د","س","چ","پ","ج"];
-const TODAY_G=new Date();TODAY_G.setHours(0,0,0,0);
-
-/* ===== Shamsi Date Picker ===== */
-const sdpState={};
-function sdpInit(id,onSelect){
-  const todayJ=toJalali(TODAY_G);
-  sdpState[id]={jy:todayJ.jy,jm:todayJ.jm,selISO:null,onSelect:onSelect||null};
-}
-function sdpOpen(id){
-  document.querySelectorAll('.sdp-cal.open').forEach(el=>{if(el.id!=='sdp_cal_'+id)el.classList.remove('open');});
-  if(!sdpState[id])sdpInit(id);
-  sdpRender(id);
-  const cal=document.getElementById('sdp_cal_'+id);
-  if(cal)cal.classList.toggle('open');
-}
-function sdpRender(id){
-  const st=sdpState[id];if(!st)return;
-  const cal=document.getElementById('sdp_cal_'+id);if(!cal)return;
-  const {jy,jm,selISO}=st;
-  const selJ=selISO?toJalali(new Date(selISO+'T00:00:00')):null;
-  const todayJ=toJalali(TODAY_G);
-  const first=toGreg(jy,jm,1);
-  const dayOfWeek=first.getDay();
-  const offset=(dayOfWeek+1)%7;
-  const len=jMonLen(jy,jm);
-  let cells=FA_WEEK_SH.map(w=>`<span>${w}</span>`).join('');
-  cells=`<div class="sdp-week">${cells}</div><div class="sdp-grid">`;
-  for(let i=0;i<offset;i++)cells+=`<div class="sdp-d sdp-e"></div>`;
-  for(let d=1;d<=len;d++){
-    const gISO=gregISO(jy,jm,d);
-    const gDate=new Date(gISO+'T00:00:00');
-    const isPast=gDate<TODAY_G;
-    const isSel=selJ&&selJ.jy===jy&&selJ.jm===jm&&selJ.jd===d;
-    const isToday=todayJ.jy===jy&&todayJ.jm===jm&&todayJ.jd===d;
-    let cls='sdp-d';
-    if(isPast)cls+=' sdp-dis';
-    if(isSel)cls+=' sdp-sel';
-    if(isToday)cls+=' sdp-today';
-    cells+=`<div class="${cls}" onclick="${isPast?'':`sdpSel('${id}','${gISO}',${d})`}">${toFa(d)}</div>`;
-  }
-  cells+='</div>';
-  cal.innerHTML=`<div class="sdp-head"><button type="button" class="sdp-nav" onclick="sdpNav('${id}',-1)">›</button><span class="sdp-title">${FA_MONTHS[jm-1]} ${toFa(jy)}</span><button type="button" class="sdp-nav" onclick="sdpNav('${id}',1)">‹</button></div>${cells}`;
-}
-function sdpNav(id,step){
-  const st=sdpState[id];if(!st)return;
-  let {jy,jm}=st;jm-=step;
-  if(jm>12){jm=1;jy++;}if(jm<1){jm=12;jy--;}
-  st.jy=jy;st.jm=jm;sdpRender(id);
-}
-function sdpSel(id,iso,jd){
-  const st=sdpState[id];if(!st)return;
-  st.selISO=iso;
-  const el=document.getElementById(id);if(el)el.value=iso;
-  const lbl=document.getElementById('sdp_'+id+'_lbl');if(lbl)lbl.textContent=jymdf(iso);
-  document.getElementById('sdp_cal_'+id)?.classList.remove('open');
-  if(st.onSelect)st.onSelect(iso);
-  validateDates();
-}
-function sdpSetVal(id,iso){
-  if(!iso)return;
-  if(!sdpState[id])sdpInit(id);
-  sdpState[id].selISO=iso;
-  const g=new Date(iso+'T00:00:00');const j=toJalali(g);
-  sdpState[id].jy=j.jy;sdpState[id].jm=j.jm;
-  const el=document.getElementById(id);if(el)el.value=iso;
-  const lbl=document.getElementById('sdp_'+id+'_lbl');if(lbl)lbl.textContent=jymdf(iso);
-}
-function sdpSetToday(id){
-  const iso=TODAY_G.toISOString().split('T')[0];
-  sdpSetVal(id,iso);
-}
-document.addEventListener('click',e=>{
-  if(!e.target.closest('.sdp-wrap'))document.querySelectorAll('.sdp-cal.open').forEach(el=>el.classList.remove('open'));
-});
-function validateDates(){
-  const inV=document.getElementById('g_in').value;
-  const outV=document.getElementById('g_out').value;
-  if(inV&&outV){
-    if(new Date(outV)<=new Date(inV)){
-      alert('تاریخ خروج باید بعد از تاریخ ورود باشد!');
-      document.getElementById('g_out').value='';
-      sdpState['g_out'].selISO=null;
-      document.getElementById('sdp_g_out_lbl').textContent='انتخاب تاریخ 📅';
-    }
-  }
-}
-
 /* checklist items */
 const ITEMS=[
   {k:"cleaning",  l:"نظافت اقامتگاه",       type:"status"},
@@ -385,9 +233,9 @@ const ITEMS=[
   {k:"doors",     l:"درب‌ها و قفل‌ها",       type:"status"},
   {k:"ac",        l:"سرمایش / گرمایش",       type:"status"},
 ];
-const state={};
-const outState={};
-ITEMS.forEach(it=>{state[it.k]={status:"ok",note:"",count:0,photos:[]};outState[it.k]={status:"ok",note:"",count:0,photos:[]};});
+const state={};    // وضعیت چک‌این (قبل)
+const outState={}; // وضعیت چک‌اوت (بعد)
+ITEMS.forEach(it=>{ state[it.k]={status:"ok",note:"",count:0,photos:[]}; outState[it.k]={status:"ok",note:"",count:0,photos:[]}; });
 
 let mode="in";
 let loadedRecord=null;
@@ -395,31 +243,44 @@ const draftId=(crypto.randomUUID?crypto.randomUUID():String(Date.now()));
 
 function setMode(m){
   mode=m;
-  document.getElementById("btnCheckin").classList.toggle("btn",m==="in");
-  document.getElementById("btnCheckin").classList.toggle("ghost",m!=="in");
-  document.getElementById("btnCheckout").classList.toggle("btn",m==="out");
-  document.getElementById("btnCheckout").classList.toggle("ghost",m!=="out");
+  document.getElementById("tab_in").classList.toggle("on",m==="in");
+  document.getElementById("tab_out").classList.toggle("on",m==="out");
   if(m==="out"){
-    document.getElementById("checkinSection").style.display="none";
-    document.getElementById("checkoutSection").style.display="block";
+    document.getElementById("searchBox").style.display = loadedRecord?"none":"block";
+    document.getElementById("mainForm").style.display = loadedRecord?"block":"none";
+    document.getElementById("h2Items").textContent="② وضعیت اقامتگاه — مقایسه قبل/بعد";
+    document.getElementById("itemsHint").textContent="ستون «قبل» فقط نمایشی است. ستون «بعد» را بررسی، توضیح و عکس ثبت کنید.";
+    document.getElementById("submitBtn").textContent="💾 ثبت چک‌اوت";
     document.getElementById("inOnlySections").style.display="none";
     document.getElementById("outOnlySections").style.display="block";
     document.getElementById("inSigSection").style.display="none";
     document.getElementById("outSigSection").style.display="block";
-    document.getElementById("submitBtn").textContent="💾 ثبت چک‌اوت";
-    renderCheckoutList();
+    document.getElementById("backBtn").style.display="inline-block";
   }else{
-    document.getElementById("checkinSection").style.display="block";
-    document.getElementById("checkoutSection").style.display="none";
+    document.getElementById("searchBox").style.display="none";
+    document.getElementById("mainForm").style.display="block";
+    document.getElementById("h2Items").textContent="② وضعیت اقامتگاه هنگام تحویل";
+    document.getElementById("itemsHint").textContent="هر مورد را بررسی، توضیح (با تایپ یا میکروفون) و در صورت نیاز عکس ثبت کنید.";
+    document.getElementById("submitBtn").textContent="💾 ثبت فرم";
     document.getElementById("inOnlySections").style.display="block";
     document.getElementById("outOnlySections").style.display="none";
     document.getElementById("inSigSection").style.display="block";
     document.getElementById("outSigSection").style.display="none";
-    document.getElementById("submitBtn").textContent="💾 ثبت فرم";
-    renderCheckinList();
+    document.getElementById("backBtn").style.display="none";
   }
+  renderList();
+}
+function backToSearch(){
+  loadedRecord=null;
+  ["g_name","g_phone","g_id_type","g_id_num"].forEach(id=>document.getElementById(id).disabled=false);
+  document.getElementById("g_name").value="";document.getElementById("g_phone").value="";
+  document.getElementById("g_id_type").value="";document.getElementById("g_id_num").value="";
+  document.getElementById("searchResults").innerHTML="";
+  document.getElementById("searchQ").value="";
+  setMode("out");
 }
 
+/* رندر آیتم قابل‌ویرایش (چک‌این یا سمت «بعد» چک‌اوت) */
 function itemPhotosHtml(stage,k,photos){
   const thumbs=(photos||[]).map(u=>`<img class="photo-thumb" src="${u}">`).join("");
   return `<div class="ci-photos" id="thumbs_${stage}_${k}">${thumbs}</div>
@@ -441,17 +302,37 @@ function renderItemEditable(it,stage){
     </div>
     ${countHtml}
     <div class="ci-note">
-      <input id="note_${stage}_${it.k}" placeholder="توضیح (با تایپ یا میکروفون)" value="${s.note||""}" onchange="setField('${stage}','${it.k}','note',this.value)">
+      <input id="note_${stage}_${it.k}" placeholder="توضیح (اختیاری)" value="${s.note||""}" onchange="setField('${stage}','${it.k}','note',this.value)">
       <button type="button" class="cib mic" onclick="toggleMic('${stage}','${it.k}',this)" title="ضبط صدا">🎤</button>
     </div>
     ${itemPhotosHtml(stage,it.k,s.photos)}
   </div>`;
 }
-function renderCheckinList(){
-  document.getElementById("ciList").innerHTML=ITEMS.map(it=>renderItemEditable(it,"in")).join("");
+function renderItemReadonly(it,s){
+  const cnt=it.type==="count"?`<div class="ci-count muted" style="margin-top:6px">${it.label} ${s.count||0}</div>`:"";
+  return `<div class="ci">
+    <div class="ci-head"><span class="ci-name">${it.l}</span><span class="cib${s.status==="bad"?" bad":" ok"}" style="pointer-events:none">${s.status==="bad"?"✗ مشکل":"✓ سالم"}</span></div>
+    ${cnt}
+    ${s.note?`<div class="ci-note muted" style="margin-top:6px">${s.note}</div>`:""}
+    <div class="ci-photos">${(s.photos||[]).map(u=>`<img class="photo-thumb" src="${u}">`).join("")||'<span class="muted" style="font-size:.78rem">بدون عکس</span>'}</div>
+  </div>`;
 }
-function renderCheckoutList(){
-  document.getElementById("coList").innerHTML=ITEMS.map(it=>renderItemEditable(it,"out")).join("");
+function renderList(){
+  const el=document.getElementById("ciList");
+  if(mode==="in"){
+    el.innerHTML=ITEMS.map(it=>renderItemEditable(it,"in")).join("");
+  }else{
+    const beforeData=(loadedRecord&&(loadedRecord.checkin_items||loadedRecord.condition))||{};
+    el.innerHTML=ITEMS.map(it=>{
+      const before=beforeData[it.k]||{status:"ok",note:"",count:0,photos:[]};
+      return `<div class="ci-pair">
+        <div class="ci-pair-label">قبل (تحویل)</div>
+        ${renderItemReadonly(it,before)}
+        <div class="ci-pair-label" style="margin-top:8px">بعد (چک‌اوت)</div>
+        ${renderItemEditable(it,"out")}
+      </div>`;
+    }).join("");
+  }
 }
 function setStatus(stage,k,v,btn){
   const st=stage==="in"?state:outState;
@@ -467,6 +348,7 @@ function setField(stage,k,field,v){
   st[k][field]=field==="count"?(parseInt(v)||0):v;
 }
 
+/* عکس هر آیتم */
 async function handlePhotos(stage,k,files){
   const st=stage==="in"?state:outState;
   if(!st[k])st[k]={status:"ok",note:"",count:0,photos:[]};
@@ -481,103 +363,35 @@ async function handlePhotos(stage,k,files){
       if(error)throw error;
       const{data}=sb.storage.from("checkin-photos").getPublicUrl(path);
       st[k].photos.push(data.publicUrl);
-    }catch(e){if(statusEl)statusEl.textContent="خطا: "+e.message;}
+    }catch(e){ if(statusEl)statusEl.textContent="خطا: "+e.message; }
   }
   if(statusEl)statusEl.textContent="";
   const thumbEl=document.getElementById(`thumbs_${stage}_${k}`);
   if(thumbEl)thumbEl.innerHTML=st[k].photos.map(u=>`<img class="photo-thumb" src="${u}">`).join("");
 }
 
-/* ===== MICROPHONE - NO DUPLICATE TEXT ===== */
+/* میکروفون — تبدیل صدا به متن، فقط کنار توضیح هر آیتم */
 function toggleMic(stage,k,btn){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){alert("مرورگر شما از تبدیل صدا به متن پشتیبانی نمی‌کند.");return;}
-
-  if(btn._rec){
-    try{btn._rec.stop();}catch(e){}
-    btn._rec=null;
-    btn.classList.remove("rec");
-    return;
-  }
-
+  if(!SR){ alert("مرورگر شما از تبدیل صدا به متن پشتیبانی نمی‌کند."); return; }
+  if(btn._rec){ btn._rec.stop(); btn._rec=null; btn.classList.remove("rec"); return; }
   const rec=new SR();
-  rec.lang="fa-IR";
-  rec.interimResults=true;
-  rec.maxAlternatives=1;
-  rec.continuous=false;
-
-  // Save the text that was in the input BEFORE starting speech
-  const inputEl=document.getElementById(`note_${stage}_${k}`);
-  const baseText=inputEl?inputEl.value:"";
-
-  // Accumulates only NEW final results
-  let finalTranscript="";
-
+  rec.lang="fa-IR"; rec.interimResults=false; rec.maxAlternatives=1;
   rec.onresult=(e)=>{
-    const inp=document.getElementById(`note_${stage}_${k}`);
-    if(!inp)return;
-
-    let interimTranscript="";
-
-    // event.resultIndex tells us which results are NEW since last call
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      const result=e.results[i];
-      if(result.isFinal){
-        finalTranscript+=result[0].transcript;
-      }else{
-        interimTranscript=result[0].transcript;
-      }
-    }
-
-    // Build display: base + all final so far + current interim preview
-    let display=baseText;
-    if(finalTranscript){
-      const spacer=display.length>0&&!display.endsWith(" ")?" ":"";
-      display=display+spacer+finalTranscript;
-    }
-    if(interimTranscript){
-      const spacer=display.length>0&&!display.endsWith(" ")?" ":"";
-      display=display+spacer+interimTranscript+" ...";
-    }
-
-    inp.value=display;
+    const text=e.results[0][0].transcript;
+    const input=document.getElementById(`note_${stage}_${k}`);
+    if(input){ input.value=(input.value?input.value+" ":"")+text; setField(stage,k,"note",input.value); }
   };
-
-  rec.onend=()=>{
-    const inp=document.getElementById(`note_${stage}_${k}`);
-    if(inp){
-      inp.value=inp.value.replace(/\s*\.\.\.$/,"");
-      setField(stage,k,"note",inp.value);
-    }
-    btn.classList.remove("rec");
-    btn._rec=null;
-  };
-
-  rec.onerror=(e)=>{
-    console.error("Speech error:",e.error);
-    if(e.error==="not-allowed"){
-      alert("لطفاً دسترسی میکروفون را بدهید.");
-    }
-    btn.classList.remove("rec");
-    btn._rec=null;
-  };
-
-  btn._rec=rec;
-  btn.classList.add("rec");
-  try{
-    rec.start();
-  }catch(e){
-    console.error("Start error:",e);
-    btn.classList.remove("rec");
-    btn._rec=null;
-  }
+  rec.onend=()=>{btn.classList.remove("rec");btn._rec=null;};
+  rec.onerror=()=>{btn.classList.remove("rec");btn._rec=null;};
+  btn._rec=rec; btn.classList.add("rec"); rec.start();
 }
 
 /* signatures */
 const sigs={};
 function initSig(id){
   const c=document.getElementById("sig_"+id);
-  if(!c||c._init)return;c._init=true;
+  if(!c||c._init)return; c._init=true;
   const ctx=c.getContext("2d");
   let drawing=false;
   function fit(){const r=c.getBoundingClientRect();c.width=r.width;c.height=160;ctx.strokeStyle="#111";ctx.lineWidth=2.2;ctx.lineCap="round";}
@@ -587,107 +401,91 @@ function initSig(id){
   function end(){drawing=false;}
   c.addEventListener("mousedown",start);c.addEventListener("mousemove",move);window.addEventListener("mouseup",end);
   c.addEventListener("touchstart",start,{passive:false});c.addEventListener("touchmove",move,{passive:false});c.addEventListener("touchend",end);
-  window.addEventListener("resize",fit);fit();
+  window.addEventListener("resize",fit);
+  fit();
   return c;
 }
 function clearSig(id){
-  const c=document.getElementById("sig_"+id);if(!c)return;const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);sigs[id]=false;
+  const c=document.getElementById("sig_"+id);const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);sigs[id]=false;
 }
 
 /* supabase */
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 
 async function submitForm(){
-  console.log("submitForm called");
-  const msg=document.getElementById("fMsg");
-  msg.className="msg";msg.style.display="none";
+  const msg=document.getElementById("fMsg");msg.className="msg";
   const gname=document.getElementById("g_name").value.trim();
-  if(!gname){msg.className="msg err";msg.style.display="block";msg.textContent="نام مهمان الزامی است.";return;}
-  const inV=document.getElementById("g_in").value;
-  const outV=document.getElementById("g_out").value;
-  if(!inV||!outV){msg.className="msg err";msg.style.display="block";msg.textContent="تاریخ ورود و خروج را انتخاب کنید.";return;}
-  if(new Date(outV)<=new Date(inV)){msg.className="msg err";msg.style.display="block";msg.textContent="تاریخ خروج باید بعد از تاریخ ورود باشد.";return;}
+  if(!gname){msg.className="msg err";msg.textContent="نام مهمان الزامی است.";return;}
   const record={
-    guest_name:gname,
-    phone:document.getElementById("g_phone").value.trim()||null,
-    checkin_date:inV,
-    checkout_date:outV,
-    id_type:document.getElementById("g_id_type").value||null,
-    id_number:document.getElementById("g_id_num").value.trim()||null,
-    condition:state,
-    checkin_items:state,
-    id_confirmed:document.getElementById("c_id").checked,
-    rules_accepted:document.getElementById("c_rules").checked,
-    notes:document.getElementById("c_notes").value.trim()||null,
-    extra_notes:document.getElementById("c_notes").value.trim()||null,
-    signature:sigs.guest?document.getElementById("sig_guest").toDataURL("image/png"):null,
-    admin_signature:sigs.admin?document.getElementById("sig_admin").toDataURL("image/png"):null,
-    checkin_date_signed:document.getElementById("f_date").value||null,
+    guest_name: gname,
+    phone: document.getElementById("g_phone").value.trim()||null,
+    checkin_date: document.getElementById("g_in").value||null,
+    id_type: document.getElementById("g_id_type").value||null,
+    id_number: document.getElementById("g_id_num").value.trim()||null,
+    condition: state,
+    checkin_items: state,
+    id_confirmed: document.getElementById("c_id").checked,
+    rules_accepted: document.getElementById("c_rules").checked,
+    notes: document.getElementById("c_notes").value.trim()||null,
+    extra_notes: document.getElementById("c_notes").value.trim()||null,
+    signature: sigs.guest ? document.getElementById("sig_guest").toDataURL("image/png") : null,
+    admin_signature: sigs.admin ? document.getElementById("sig_admin").toDataURL("image/png") : null,
+    checkin_date_signed: document.getElementById("f_date").value||null,
     locale:"fa"
   };
-  console.log("Inserting:",record);
-  try{
-    const{error}=await sb.from("checkins").insert(record);
-    if(error){console.error("Error:",error);msg.className="msg err";msg.style.display="block";msg.textContent="خطا: "+error.message;return;}
-    console.log("Success!");
-    msg.className="msg ok";msg.style.display="block";msg.textContent="✅ فرم با موفقیت ثبت شد.";
-  }catch(e){console.error("Exception:",e);msg.className="msg err";msg.style.display="block";msg.textContent="خطای سیستم: "+e.message;}
+  const{error}=await sb.from("checkins").insert(record);
+  if(error){msg.className="msg err";msg.textContent="خطا: "+error.message;return;}
+  msg.className="msg ok";msg.textContent="✅ فرم با موفقیت ثبت شد.";
 }
 
+/* جستجو برای چک‌اوت */
+async function searchCheckins(){
+  const q=document.getElementById("searchQ").value.trim();
+  const resEl=document.getElementById("searchResults");
+  resEl.innerHTML="در حال جستجو…";
+  let query=sb.from("checkins").select("*").eq("checked_out",false).order("created_at",{ascending:false}).limit(20);
+  if(q) query=query.or(`guest_name.ilike.%${q}%,phone.ilike.%${q}%`);
+  const{data,error}=await query;
+  if(error){resEl.innerHTML="خطا: "+error.message;return;}
+  if(!data||!data.length){resEl.innerHTML='<div class="muted">موردی یافت نشد.</div>';return;}
+  window._searchData=data;
+  resEl.innerHTML=data.map(r=>`<div class="search-row"><span>${r.guest_name} — ${r.phone||""} — ${r.checkin_date||""}</span><button type="button" class="btn ghost" style="padding:6px 14px;font-size:.8rem" onclick="pickCheckin('${r.id}')">انتخاب</button></div>`).join("");
+}
+function pickCheckin(id){
+  const r=(window._searchData||[]).find(x=>x.id===id);
+  if(!r)return;
+  loadedRecord=r;
+  document.getElementById("g_name").value=r.guest_name||"";
+  document.getElementById("g_phone").value=r.phone||"";
+  document.getElementById("g_in").value=r.checkin_date||"";
+  document.getElementById("g_id_type").value=r.id_type||"";
+  document.getElementById("g_id_num").value=r.id_number||"";
+  ["g_name","g_phone","g_id_type","g_id_num"].forEach(fid=>document.getElementById(fid).disabled=true);
+  ITEMS.forEach(it=>outState[it.k]={status:"ok",note:"",count:0,photos:[]});
+  setMode("out");
+}
 async function submitCheckout(){
-  console.log("submitCheckout called");
-  const msg=document.getElementById("fMsg");
-  msg.className="msg";msg.style.display="none";
-  const gname=document.getElementById("g_name").value.trim();
-  if(!gname){msg.className="msg err";msg.style.display="block";msg.textContent="نام مهمان الزامی است.";return;}
-  const inV=document.getElementById("g_in").value;
-  const outV=document.getElementById("g_out").value;
-  if(!inV||!outV){msg.className="msg err";msg.style.display="block";msg.textContent="تاریخ ورود و خروج را انتخاب کنید.";return;}
-  if(new Date(outV)<=new Date(inV)){msg.className="msg err";msg.style.display="block";msg.textContent="تاریخ خروج باید بعد از تاریخ ورود باشد.";return;}
-  const record={
-    guest_name:gname,
-    phone:document.getElementById("g_phone").value.trim()||null,
-    checkin_date:inV,
-    checkout_date:outV,
-    id_type:document.getElementById("g_id_type").value||null,
-    id_number:document.getElementById("g_id_num").value.trim()||null,
-    condition:state,
-    checkin_items:state,
-    checkout_items:outState,
-    id_confirmed:document.getElementById("c_id").checked,
-    rules_accepted:document.getElementById("c_rules").checked,
-    notes:document.getElementById("c_notes").value.trim()||null,
-    extra_notes:document.getElementById("c_notes").value.trim()||null,
-    checkout_notes:document.getElementById("c_notes_out").value.trim()||null,
-    signature:sigs.guest?document.getElementById("sig_guest").toDataURL("image/png"):null,
-    admin_signature:sigs.admin?document.getElementById("sig_admin").toDataURL("image/png"):null,
-    checkout_signature:sigs.guest_out?document.getElementById("sig_guest_out").toDataURL("image/png"):null,
-    checkout_admin_signature:sigs.admin_out?document.getElementById("sig_admin_out").toDataURL("image/png"):null,
-    checkin_date_signed:document.getElementById("f_date").value||null,
-    checkout_date_signed:document.getElementById("f_date").value||null,
-    checked_out:true,
-    locale:"fa"
+  const msg=document.getElementById("fMsg");msg.className="msg";
+  if(!loadedRecord){msg.className="msg err";msg.textContent="ابتدا مهمان را از طریق جستجو انتخاب کنید.";return;}
+  const rec={
+    checkout_items: outState,
+    checkout_notes: document.getElementById("c_notes_out").value.trim()||null,
+    checkout_signature: sigs.guest_out ? document.getElementById("sig_guest_out").toDataURL("image/png") : null,
+    checkout_admin_signature: sigs.admin_out ? document.getElementById("sig_admin_out").toDataURL("image/png") : null,
+    checkout_date_signed: document.getElementById("f_date").value||null,
+    checked_out: true
   };
-  console.log("Saving checkout:",record);
-  try{
-    if(loadedRecord){
-      const{error}=await sb.from("checkins").update(record).eq("id",loadedRecord.id);
-      if(error){console.error("Error:",error);msg.className="msg err";msg.style.display="block";msg.textContent="خطا: "+error.message;return;}
-    }else{
-      const{error}=await sb.from("checkins").insert(record);
-      if(error){console.error("Error:",error);msg.className="msg err";msg.style.display="block";msg.textContent="خطا: "+error.message;return;}
-    }
-    console.log("Success!");
-    msg.className="msg ok";msg.style.display="block";msg.textContent="✅ چک‌اوت با موفقیت ثبت شد.";
-  }catch(e){console.error("Exception:",e);msg.className="msg err";msg.style.display="block";msg.textContent="خطای سیستم: "+e.message;}
+  const{error}=await sb.from("checkins").update(rec).eq("id",loadedRecord.id);
+  if(error){msg.className="msg err";msg.textContent="خطا: "+error.message;return;}
+  msg.className="msg ok";msg.textContent="✅ چک‌اوت با موفقیت ثبت شد.";
 }
 
 /* init */
 (function(){
   initSig("admin");initSig("guest");initSig("admin_out");initSig("guest_out");
-  renderCheckinList();
-  sdpInit('g_in');sdpInit('g_out');sdpInit('f_date');
-  sdpSetToday('f_date');
+  renderList();
+  document.getElementById("g_in").value=new Date().toISOString().split("T")[0];
+  document.getElementById("f_date").value=new Date().toISOString().split("T")[0];
 })();
 </script>
 </body>
