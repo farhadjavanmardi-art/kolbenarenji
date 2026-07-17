@@ -310,7 +310,17 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
         </div>
         <div style="margin-bottom:14px" id="igCaptionWrap">
           <label>کپشن</label>
-          <textarea id="igCaption" rows="4" placeholder="متن پست… (برای استوری لازم نیست)"></textarea>
+          <textarea id="igCaption" rows="4" placeholder="متن پست… (برای استوری لازم نیست)">🏷️ تخفیف لحظه‌آخری کلبه نارنجی!
+
+این آخر هفته کلبه نارنجی (ویلای خصوصی و دنج در قلات شیراز) — فرصت رزرو با تخفیف ویژه داری!
+
+💰 قیمت عادی: ۴٬۶۰۰٬۰۰۰ تومان
+🔥 قیمت با تخفیف: ۳٬۶۸۰٬۰۰۰ تومان هر شب (۲۰٪ تخفیف)
+
+✨ حریم کامل، چشم‌انداز کوه، مناسب تا ۶ نفر
+
+📲 رزرو سریع:
+kolbenarenji.com</textarea>
         </div>
         <button class="btn sm" onclick="queueContent('instagram')" id="igQueueBtn" disabled>افزودن به صف انتشار</button>
         <div class="err" id="igErr" style="margin-top:8px"></div>
@@ -331,7 +341,17 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
         </div>
         <div style="margin-bottom:14px">
           <label>کپشن</label>
-          <textarea id="tgCaption" rows="4" placeholder="متن پست کانال…"></textarea>
+          <textarea id="tgCaption" rows="4" placeholder="متن پست کانال…">🏷️ تخفیف لحظه‌آخری کلبه نارنجی!
+
+این آخر هفته کلبه نارنجی (ویلای خصوصی و دنج در قلات شیراز) — فرصت رزرو با تخفیف ویژه داری!
+
+💰 قیمت عادی: ۴٬۶۰۰٬۰۰۰ تومان
+🔥 قیمت با تخفیف: ۳٬۶۸۰٬۰۰۰ تومان هر شب (۲۰٪ تخفیف)
+
+✨ حریم کامل، چشم‌انداز کوه، مناسب تا ۶ نفر
+
+📲 رزرو سریع:
+kolbenarenji.com</textarea>
         </div>
         <button class="btn sm" onclick="queueContent('telegram')" id="tgQueueBtn" disabled>افزودن به صف انتشار</button>
         <div class="err" id="tgErr" style="margin-top:8px"></div>
@@ -909,6 +929,17 @@ function tierBadge(tier){
 }
 
 /* ---- content queue (instagram/telegram) ---- */
+const DEFAULT_OFFER_CAPTION = `🏷️ تخفیف لحظه‌آخری کلبه نارنجی!
+
+این آخر هفته کلبه نارنجی (ویلای خصوصی و دنج در قلات شیراز) — فرصت رزرو با تخفیف ویژه داری!
+
+💰 قیمت عادی: ۴٬۶۰۰٬۰۰۰ تومان
+🔥 قیمت با تخفیف: ۳٬۶۸۰٬۰۰۰ تومان هر شب (۲۰٪ تخفیف)
+
+✨ حریم کامل، چشم‌انداز کوه، مناسب تا ۶ نفر
+
+📲 رزرو سریع:
+kolbenarenji.com`;
 let igKind = "post";
 let pendingUpload = { instagram: null, telegram: null };
 
@@ -954,7 +985,7 @@ async function queueContent(platform){
   });
   if(error){ errEl.textContent = "خطا: "+error.message; return; }
   pendingUpload[platform] = null;
-  document.getElementById(platform==="instagram"?"igCaption":"tgCaption").value = "";
+  document.getElementById(platform==="instagram"?"igCaption":"tgCaption").value = DEFAULT_OFFER_CAPTION;
   document.getElementById(platform==="instagram"?"igPreview":"tgPreview").innerHTML = "";
   document.getElementById(platform==="instagram"?"igQueueBtn":"tgQueueBtn").disabled = true;
   loadContentQueue(platform);
