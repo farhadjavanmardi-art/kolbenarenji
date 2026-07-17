@@ -89,6 +89,9 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--orange)}
 .res .name{font-weight:700;font-size:1.05rem}
 .res .meta{color:var(--muted);font-size:.88rem;margin-top:4px}
 .badge{padding:4px 11px;border-radius:999px;font-size:.78rem;font-weight:700;white-space:nowrap}
+.tier-badge{padding:2px 8px;border-radius:999px;font-size:.7rem;font-weight:700;margin-right:6px;display:inline-block}
+.tier-vip{background:rgba(255,180,84,.18);color:#FFB454;border:1px solid rgba(255,180,84,.4)}
+.tier-loyal{background:rgba(40,170,90,.15);color:#74e0a0;border:1px solid rgba(40,170,90,.4)}
 .badge.pending{background:rgba(255,180,84,.14);color:#FFB454}
 .badge.confirmed{background:rgba(40,170,90,.16);color:#74e0a0}
 .badge.cancelled{background:rgba(220,60,60,.14);color:#f0a0a0}
@@ -180,6 +183,8 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
       <button class="tab" id="tabChk" onclick="setTab('chk')" data-i="tab_chk">فرم‌های تحویل</button>
       <button class="tab" id="tabAcc" onclick="setTab('acc')" data-i="tab_acc">حسابداری</button>
       <button class="tab" id="tabDis" onclick="setTab('dis')">🏷️ تخفیف‌ها</button>
+      <button class="tab" id="tabIg" onclick="setTab('ig')">📸 اینستاگرام</button>
+      <button class="tab" id="tabTg" onclick="setTab('tg')">✈️ تلگرام</button>
     </div>
 
     <!-- RESERVATIONS -->
@@ -284,6 +289,55 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
       </div>
       <h3 class="acc-h" style="margin:22px 0 10px">تخفیف‌های فعال</h3>
       <div id="disList"></div>
+    </div>
+
+    <!-- INSTAGRAM CONTENT -->
+    <div id="paneIg" hidden>
+      <div class="card-acc">
+        <h3 class="acc-h">📸 افزودن پست/استوری اینستاگرام</h3>
+        <div style="margin-bottom:14px">
+          <label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:8px">نوع محتوا</label>
+          <div class="tabs" style="margin-bottom:0">
+            <button type="button" class="tab on" id="igKindPost" onclick="setIgKind('post')">فید (پست)</button>
+            <button type="button" class="tab" id="igKindStory" onclick="setIgKind('story')">استوری</button>
+          </div>
+        </div>
+        <div style="margin-bottom:14px">
+          <input type="file" accept="image/*" capture="environment" id="igFile" style="display:none" onchange="handleContentUpload('instagram', this.files)">
+          <button class="btn ghost sm" onclick="document.getElementById('igFile').click()">📷 گرفتن/انتخاب عکس</button>
+          <span id="igUploadStatus" style="font-size:.8rem;color:var(--muted);margin-inline-start:8px"></span>
+          <div id="igPreview" style="margin-top:10px"></div>
+        </div>
+        <div style="margin-bottom:14px" id="igCaptionWrap">
+          <label>کپشن</label>
+          <textarea id="igCaption" rows="4" placeholder="متن پست… (برای استوری لازم نیست)"></textarea>
+        </div>
+        <button class="btn sm" onclick="queueContent('instagram')" id="igQueueBtn" disabled>افزودن به صف انتشار</button>
+        <div class="err" id="igErr" style="margin-top:8px"></div>
+      </div>
+      <h3 class="acc-h" style="margin:22px 0 10px">صف/تاریخچه اینستاگرام</h3>
+      <div id="igQueueList"></div>
+    </div>
+
+    <!-- TELEGRAM CONTENT -->
+    <div id="paneTg" hidden>
+      <div class="card-acc">
+        <h3 class="acc-h">✈️ افزودن پست تلگرام</h3>
+        <div style="margin-bottom:14px">
+          <input type="file" accept="image/*" capture="environment" id="tgFile" style="display:none" onchange="handleContentUpload('telegram', this.files)">
+          <button class="btn ghost sm" onclick="document.getElementById('tgFile').click()">📷 گرفتن/انتخاب عکس</button>
+          <span id="tgUploadStatus" style="font-size:.8rem;color:var(--muted);margin-inline-start:8px"></span>
+          <div id="tgPreview" style="margin-top:10px"></div>
+        </div>
+        <div style="margin-bottom:14px">
+          <label>کپشن</label>
+          <textarea id="tgCaption" rows="4" placeholder="متن پست کانال…"></textarea>
+        </div>
+        <button class="btn sm" onclick="queueContent('telegram')" id="tgQueueBtn" disabled>افزودن به صف انتشار</button>
+        <div class="err" id="tgErr" style="margin-top:8px"></div>
+      </div>
+      <h3 class="acc-h" style="margin:22px 0 10px">صف/تاریخچه تلگرام</h3>
+      <div id="tgQueueList"></div>
     </div>
   </div>
 </div>
@@ -553,13 +607,15 @@ function setFilter(f,el){ filter=f; document.querySelectorAll(".chip").forEach(c
 /* ---- tabs ---- */
 function setTab(t){
   tab=t;
-  ["Res","New","Chk","Acc","Dis"].forEach(x=>{
+  ["Res","New","Chk","Acc","Dis","Ig","Tg"].forEach(x=>{
     const btn=document.getElementById("tab"+x), pane=document.getElementById("pane"+x);
     if(btn) btn.classList.toggle("on",x.toLowerCase()===t);
     if(pane) pane.hidden=(x.toLowerCase()!==t);
   });
   if(t==="acc") loadExpenses();
   if(t==="dis") loadDiscounts();
+  if(t==="ig") loadContentQueue("instagram");
+  if(t==="tg") loadContentQueue("telegram");
 }
 
 /* ---- delete reservation ---- */
@@ -810,7 +866,7 @@ function render(){
     <div class="res">
       <div class="top">
         <div>
-          <div class="name">${esc(r.first_name)} ${esc(r.last_name)}</div>
+          <div class="name">${esc(r.first_name)} ${esc(r.last_name)} ${tierBadge(r.guest_tier)}</div>
           <div class="meta">${t.created}: ${date(r.created_at)} · ${esc(r.phone||"")}</div>
         </div>
         <span class="badge ${r.status}">${t["f_"+r.status]||r.status}</span>
@@ -846,8 +902,83 @@ function render(){
 }
 function kpi(label,val){ return `<div class="kpi"><b>${val}</b><span>${label}</span></div>`; }
 function esc(s){ return s==null?"":String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function tierBadge(tier){
+  if(tier==="VIP") return '<span class="tier-badge tier-vip">⭐ VIP</span>';
+  if(tier==="وفادار") return '<span class="tier-badge tier-loyal">💚 وفادار</span>';
+  return "";
+}
 
-/* ---- discounts ---- */
+/* ---- content queue (instagram/telegram) ---- */
+let igKind = "post";
+let pendingUpload = { instagram: null, telegram: null };
+
+function setIgKind(k){
+  igKind = k;
+  document.getElementById("igKindPost").classList.toggle("on", k==="post");
+  document.getElementById("igKindStory").classList.toggle("on", k==="story");
+  document.getElementById("igCaptionWrap").style.display = k==="story" ? "none" : "block";
+}
+
+async function handleContentUpload(platform, files){
+  const f = files && files[0];
+  if(!f) return;
+  const statusEl = document.getElementById(platform==="instagram"?"igUploadStatus":"tgUploadStatus");
+  const previewEl = document.getElementById(platform==="instagram"?"igPreview":"tgPreview");
+  const btnEl = document.getElementById(platform==="instagram"?"igQueueBtn":"tgQueueBtn");
+  statusEl.textContent = "در حال آپلود…";
+  btnEl.disabled = true;
+  try{
+    const path = `${platform}/${Date.now()}_${Math.random().toString(36).slice(2,7)}.jpg`;
+    const {error} = await sb.storage.from("content-uploads").upload(path, f, {contentType: f.type||"image/jpeg"});
+    if(error) throw error;
+    const {data} = sb.storage.from("content-uploads").getPublicUrl(path);
+    pendingUpload[platform] = data.publicUrl;
+    previewEl.innerHTML = `<img src="${data.publicUrl}" style="max-width:220px;border-radius:10px;border:1px solid var(--line)">`;
+    statusEl.textContent = "آپلود شد ✓";
+    btnEl.disabled = false;
+  }catch(e){
+    statusEl.textContent = "خطا: "+e.message;
+  }
+}
+
+async function queueContent(platform){
+  const errEl = document.getElementById(platform==="instagram"?"igErr":"tgErr");
+  errEl.textContent = "";
+  const imageUrl = pendingUpload[platform];
+  if(!imageUrl){ errEl.textContent = "اول یه عکس آپلود کن."; return; }
+  const caption = document.getElementById(platform==="instagram"?"igCaption":"tgCaption").value.trim();
+  const kind = platform==="instagram" ? igKind : "post";
+  if(kind==="post" && !caption){ errEl.textContent = "برای پست، کپشن لازمه."; return; }
+  const {error} = await sb.from("content_queue").insert({
+    platform, kind, image_url: imageUrl, caption: caption||null, status: "pending"
+  });
+  if(error){ errEl.textContent = "خطا: "+error.message; return; }
+  pendingUpload[platform] = null;
+  document.getElementById(platform==="instagram"?"igCaption":"tgCaption").value = "";
+  document.getElementById(platform==="instagram"?"igPreview":"tgPreview").innerHTML = "";
+  document.getElementById(platform==="instagram"?"igQueueBtn":"tgQueueBtn").disabled = true;
+  loadContentQueue(platform);
+}
+
+async function loadContentQueue(platform){
+  const listEl = document.getElementById(platform==="instagram"?"igQueueList":"tgQueueList");
+  if(!sb){ listEl.innerHTML=""; return; }
+  const {data, error} = await sb.from("content_queue").select("*").eq("platform", platform).order("created_at",{ascending:false}).limit(20);
+  if(error){ listEl.innerHTML = `<p style="color:var(--muted)">خطا در بارگذاری</p>`; return; }
+  if(!data || !data.length){ listEl.innerHTML = `<p style="color:var(--muted)">چیزی توی صف نیست.</p>`; return; }
+  const statusFa = {pending:"⏳ در انتظار انتشار", posted:"✅ منتشر شد", failed:"❌ خطا"};
+  listEl.innerHTML = data.map(r=>`
+    <div class="card-acc" style="display:flex;gap:12px;align-items:center;padding:12px 16px;margin-bottom:8px">
+      <img src="${r.image_url}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex:none">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:.82rem;color:var(--muted)">${r.kind==="story"?"استوری":"پست"} · ${statusFa[r.status]||r.status}</div>
+        <div style="font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.caption||"—")}</div>
+        ${r.error?`<div style="font-size:.75rem;color:#f0a0a0">${esc(r.error)}</div>`:""}
+      </div>
+    </div>`).join("");
+}
+
+
 let discounts=[];
 async function loadDiscounts(){
   if(!sb){discounts=[];renderDiscounts();return;}
