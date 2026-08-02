@@ -156,13 +156,24 @@ header{
 /* ---------- contact ---------- */
 .contact-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
 .contact-card{
-  display:flex;flex-direction:column;gap:6px;
+  display:flex;align-items:center;gap:16px;
   background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-  padding:20px 22px;text-decoration:none;transition:border-color .2s, transform .2s;
+  padding:20px 22px;text-decoration:none;transition:border-color .2s, transform .2s, background .2s;
 }
 .contact-card:hover{border-color:rgba(255,122,26,.5);transform:translateY(-3px)}
+.contact-card .c-icon{
+  width:48px;height:48px;border-radius:14px;flex:none;
+  display:grid;place-items:center;
+}
+.contact-card .c-icon svg{width:24px;height:24px}
+.contact-card .c-text{display:flex;flex-direction:column;gap:5px;min-width:0}
 .contact-card .c-label{color:var(--muted);font-size:.8rem}
-.contact-card .c-val{color:var(--text);font-size:1.02rem;font-weight:700;direction:ltr;text-align:right}
+.contact-card .c-val{color:var(--text);font-size:1rem;font-weight:700;direction:ltr;text-align:right}
+.contact-card .c-sub{color:var(--muted);font-size:.78rem;direction:ltr;text-align:right}
+.contact-card.phone .c-icon{background:rgba(255,122,26,.14);color:var(--orange)}
+.contact-card.wa .c-icon{background:rgba(60,201,120,.14);color:#4ADE80}
+.contact-card.ig .c-icon{background:rgba(255,122,26,.14);color:var(--amber)}
+.contact-card.tg .c-icon{background:rgba(70,170,255,.14);color:#5EB1FF}
 
 /* ---------- gallery ---------- */
 .gallery{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
@@ -321,8 +332,8 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
 <section class="hero">
   <div class="wrap reveal">
     <span class="eyebrow" data-i="hero_eyebrow">شیراز · اقامتگاه خصوصی</span>
-    <h1 data-i="hero_title">اقامتی خصوصی بر <span class="accent">بلندای شیراز</span></h1>
-    <p class="lead" data-i="hero_lead">ویلایی دنج با چشم‌انداز کوه‌ها، باغی پر از درختان میوه، و رستوران برج وی‌آی‌پی درست در همسایگی — بدون هیچ همسایه‌ی دیگر.</p>
+    <h1 data-i="hero_title">فقط ۳۰ دقیقه با شیراز فاصله دارید؛ <span class="accent">اما انگار وارد دنیای دیگری شده‌اید</span></h1>
+    <p class="lead" data-i="hero_lead">جایی که سکوت، کوهستان و آسمان پرستاره جای ترافیک و شلوغی را می‌گیرند. کلبه نارنجی، اقامتگاهی کاملاً خصوصی در دل قلات — بدون همسایه، فقط شما و طبیعت.</p>
     <div class="hero-cta">
       <a href="#book" class="btn" data-i="hero_cta1">رزرو اقامت</a>
       <a href="#amen" class="btn ghost" data-i="hero_cta2">دیدن امکانات</a>
@@ -341,13 +352,13 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
     <div class="head">
       <span class="eyebrow" data-i="about_eyebrow">درباره کلبه نارنجی</span>
       <h2 data-i="about_title">آرامش، چشم‌انداز و حریم خصوصی</h2>
-      <p data-i="about_text">حدود ۱۰۰۰ مترمربع زمین، یک فضای نشیمن ۴۰ متری به‌همراه آشپزخانه، و یک اتاق‌خواب ۹ متری. مناسب برای ۴ مهمان و تا ۶ نفر با هزینه‌ی اندک اضافه. کلبه نارنجی بر بلندای منطقه‌ی گردشگری شیراز قرار دارد؛ پس از بالا رفتن از پله‌ها، چشم‌اندازی بی‌نظیر از کوه‌ها پیش روی شماست.</p>
+      <p data-i="about_text">صبح را با صدای پرنده‌ها آغاز کنید، عصر را با منظره‌ی کوهستان و شب را زیر آسمانی پر از ستاره. بدون همسایه، بدون سروصدا، و فقط چند دقیقه تا طبیعت بکر قلات. کلبه نارنجی روی حدود ۱۰۰۰ مترمربع باغ، با نشیمنی گرم و اتاق‌خوابی دنج، جایی‌ست که برای ۴ مهمان ساخته شده و تا ۶ نفر هم میزبانی می‌کند.</p>
     </div>
     <div class="grid">
-      <div class="card"><div class="ico">🏔️</div><h3 data-i="a1_t">چشم‌انداز کوه و شهر</h3><p data-i="a1_p">منظره‌ی باز کوه‌ها از بلندترین نقطه‌ی منطقه.</p></div>
-      <div class="card"><div class="ico">🔒</div><h3 data-i="a2_t">امنیت و آرامش</h3><p data-i="a2_p">بدون همسایه، در کنار رستوران برج وی‌آی‌پی؛ ساکت و امن.</p></div>
-      <div class="card"><div class="ico">🌳</div><h3 data-i="a3_t">باغ با درختان میوه</h3><p data-i="a3_p">فضای سبز، محل نشستن، و امکان باربیکیو در طبیعت.</p></div>
-      <div class="card"><div class="ico">🍽️</div><h3 data-i="a4_t">سفارش غذا</h3><p data-i="a4_p">رستوران برج وی‌آی‌پی در همسایگی؛ غذا را مستقیم سفارش دهید.</p></div>
+      <div class="card"><div class="ico">🏔️</div><h3 data-i="a1_t">چشم‌اندازی که هر روز آرامتان می‌کند</h3><p data-i="a1_p">منظره‌ی باز کوه‌ها از بلندترین نقطه‌ی منطقه، همراه هر فنجان چای.</p></div>
+      <div class="card"><div class="ico">🔒</div><h3 data-i="a2_t">فقط شما و سکوت</h3><p data-i="a2_p">بدون همسایه، و با نگهبانی دائم مجموعه؛ خیالتان کاملاً راحت است.</p></div>
+      <div class="card"><div class="ico">🌳</div><h3 data-i="a3_t">صبحانه زیر درختان میوه</h3><p data-i="a3_p">صبحانه را زیر درختان میوه بخورید و شب را با باربیکیو در باغ تمام کنید.</p></div>
+      <div class="card"><div class="ico">🍽️</div><h3 data-i="a4_t">دیگر لازم نیست رانندگی کنید</h3><p data-i="a4_p">بهترین غذای منطقه، رستوران برج وی‌آی‌پی، فقط چند قدم با شما فاصله دارد.</p></div>
     </div>
   </div>
 </section>
@@ -360,12 +371,30 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
       <h2 data-i="amen_title">امکانات و مزیت‌ها</h2>
     </div>
     <div class="grid">
-      <div class="card"><div class="ico">🚗</div><h3 data-i="m1_t">پارکینگ امن</h3><p data-i="m1_p">جای پارک فراوان و امن در نزدیکی کلبه.</p></div>
-      <div class="card"><div class="ico">💧</div><h3 data-i="m2_t">آبشار و پیاده‌روی</h3><p data-i="m2_p">مسیرهای پیاده‌روی و آبشار در فاصله‌ی نزدیک.</p></div>
-      <div class="card"><div class="ico">☕</div><h3 data-i="m3_t">کافه و رستوران</h3><p data-i="m3_p">رستوران‌ها و کافه‌های متعدد در اطراف.</p></div>
-      <div class="card"><div class="ico">🔥</div><h3 data-i="m4_t">فضای باربیکیو</h3><p data-i="m4_p">محل نشستن در باغ برای غذا خوردن و کباب.</p></div>
-      <div class="card"><div class="ico">🛏️</div><h3 data-i="m5_t">ظرفیت</h3><p data-i="m5_p">پایه ۴ مهمان، تا ۶ نفر با هزینه‌ی اضافه.</p></div>
-      <div class="card"><div class="ico">📐</div><h3 data-i="m6_t">فضا</h3><p data-i="m6_p">نشیمن و آشپزخانه‌ی ۴۰ متری + اتاق‌خواب ۹ متری.</p></div>
+      <div class="card"><div class="ico">🚗</div><h3 data-i="m1_t">پارک کنید و خیالتان راحت باشد</h3><p data-i="m1_p">ماشینتان را با خیال راحت پارک کنید و تمام مدت اقامت فقط از طبیعت لذت ببرید.</p></div>
+      <div class="card"><div class="ico">💧</div><h3 data-i="m2_t">چند قدم تا آبشار</h3><p data-i="m2_p">صبح زود از خانه بیرون بزنید و در چند دقیقه پیاده‌روی، صدای آبشار را از نزدیک بشنوید.</p></div>
+      <div class="card"><div class="ico">☕</div><h3 data-i="m3_t">هیچ‌جا برای غذا رانندگی نکنید</h3><p data-i="m3_p">کافه‌ها و رستوران‌های قلات فقط چند قدم با شما فاصله دارند.</p></div>
+      <div class="card"><div class="ico">🔥</div><h3 data-i="m4_t">شب را کنار آتش تمام کنید</h3><p data-i="m4_p">شب را کنار آتش، با کباب و هوای خنک قلات به پایان برسانید.</p></div>
+      <div class="card"><div class="ico">🛏️</div><h3 data-i="m5_t">جا برای همه هست</h3><p data-i="m5_p">برای ۴ نفر ساخته شده، و اگر جمع‌تان بزرگ‌تر بود، تا ۶ نفر هم راحت جا می‌شوید.</p></div>
+      <div class="card"><div class="ico">📐</div><h3 data-i="m6_t">فضایی برای نفس کشیدن</h3><p data-i="m6_p">نشیمن و آشپزخانه‌ی باز، به‌علاوه‌ی اتاق‌خوابی دنج برای استراحت واقعی.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO IS THIS FOR -->
+<section id="who">
+  <div class="wrap reveal">
+    <div class="head">
+      <span class="eyebrow" data-i="who_eyebrow">مناسب برای چه کسانی</span>
+      <h2 data-i="who_title">اینجا مال شماست، اگر...</h2>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="ico">❤️</div><h3 data-i="w1_t">زوج‌ها</h3><p data-i="w1_p">دنبال یک خلوت دونفره‌ی واقعی، دور از شلوغی شهر هستید.</p></div>
+      <div class="card"><div class="ico">👨‍👩‍👧</div><h3 data-i="w2_t">خانواده‌ها</h3><p data-i="w2_p">می‌خواهید یک سفر خانوادگی آرام، امن و بدون دغدغه داشته باشید.</p></div>
+      <div class="card"><div class="ico">📷</div><h3 data-i="w3_t">بلاگرها و تولیدکنندگان محتوا</h3><p data-i="w3_p">به‌دنبال چشم‌اندازی سینمایی برای تولید محتوا هستید.</p></div>
+      <div class="card"><div class="ico">🎂</div><h3 data-i="w4_t">جشن تولد</h3><p data-i="w4_p">می‌خواهید تولدتان را جایی متفاوت و خصوصی جشن بگیرید.</p></div>
+      <div class="card"><div class="ico">💍</div><h3 data-i="w5_t">سالگرد ازدواج</h3><p data-i="w5_p">به‌دنبال فضایی رمانتیک برای یادآوری یک روز خاص هستید.</p></div>
+      <div class="card"><div class="ico">💻</div><h3 data-i="w6_t">دورکاری</h3><p data-i="w6_p">می‌خواهید چند روز از شهر فاصله بگیرید و در آرامش کار کنید.</p></div>
     </div>
   </div>
 </section>
@@ -406,12 +435,50 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
   </div>
 </section>
 
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="wrap reveal">
+    <div class="head">
+      <span class="eyebrow" data-i="test_eyebrow">نظر مهمانان</span>
+      <h2 data-i="test_title">آن‌ها اینجا را دوست داشتند</h2>
+      <p data-i="test_text">⚠️ این نظرات نمونه هستند و باید پیش از انتشار با نظرات واقعی مهمانان جایگزین شوند.</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div style="color:var(--orange);letter-spacing:2px;margin-bottom:10px">★★★★★</div>
+        <p data-i="test1_p" style="color:var(--text);margin-bottom:12px">«تمیزترین ویلایی بود که تا حالا رفته بودیم.»</p>
+        <p data-i="test1_n" style="color:var(--muted);font-size:.85rem">محمد، اصفهان</p>
+      </div>
+      <div class="card">
+        <div style="color:var(--orange);letter-spacing:2px;margin-bottom:10px">★★★★★</div>
+        <p data-i="test2_p" style="color:var(--text);margin-bottom:12px">«شب فوق‌العاده آرامی داشتیم.»</p>
+        <p data-i="test2_n" style="color:var(--muted);font-size:.85rem">ندا، تهران</p>
+      </div>
+      <div class="card">
+        <div style="color:var(--orange);letter-spacing:2px;margin-bottom:10px">★★★★★</div>
+        <p data-i="test3_p" style="color:var(--text);margin-bottom:12px">«از عکس‌ها خیلی قشنگ‌تر بود.»</p>
+        <p data-i="test3_n" style="color:var(--muted);font-size:.85rem">علی، شیراز</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- PRICING -->
 <section id="price">
   <div class="wrap reveal">
     <div class="head">
       <span class="eyebrow" data-i="price_eyebrow">قیمت‌ها</span>
       <h2 data-i="price_title">تعرفه‌ی اقامت</h2>
+    </div>
+    <div class="grid" style="margin-bottom:32px">
+      <div class="card"><div class="ico">🔒</div><h3 data-i="val1_t">بدون همسایه</h3></div>
+      <div class="card"><div class="ico">🌳</div><h3 data-i="val2_t">هزار متر باغ</h3></div>
+      <div class="card"><div class="ico">🏔️</div><h3 data-i="val3_t">منظره‌ی اختصاصی کوهستان</h3></div>
+      <div class="card"><div class="ico">🍽️</div><h3 data-i="val4_t">رستوران کنار ویلا</h3></div>
+      <div class="card"><div class="ico">🔥</div><h3 data-i="val5_t">فضای باربیکیو</h3></div>
+      <div class="card"><div class="ico">🚗</div><h3 data-i="val6_t">پارکینگ امن</h3></div>
+      <div class="card"><div class="ico">🛡️</div><h3 data-i="val7_t">نگهبانی و امنیت</h3></div>
+      <div class="card"><div class="ico">🍳</div><h3 data-i="val8_t">آشپزخانه‌ی کامل</h3></div>
     </div>
     <div class="prices">
       <div class="price">
@@ -478,12 +545,10 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
         </div>
 
         <!-- بند تعهد تعداد مهمان -->
-        <div style="background:rgba(220,60,60,.08);border:1px solid rgba(220,60,60,.35);border-radius:12px;padding:14px 18px;margin-top:14px">
-          <p style="font-size:.88rem;font-weight:800;color:#f0a0a0;margin-bottom:6px">⚠️ توجه مهم — تعداد مهمانان</p>
-          <p style="font-size:.85rem;line-height:1.9;color:var(--text)">
-            کلبه نارنجی در کنار رستوران برج قرار دارد و توسط نگهبان مجموعه به‌صورت دائم تحت کنترل امنیتی است. لطفاً تعداد واقعی مهمانان را اعلام کنید.
-            <br>
-            <b style="color:#f0a0a0">در صورتی که تعداد مهمانان از مقدار اعلام‌شده بیشتر باشد، هزینهٔ نفرات اضافه (هر نفر ۵۰۰٬۰۰۰ تومان در هر شب) از مبلغ ودیعه کسر و در صورت تجاوز از ودیعه، مابه‌التفاوت دریافت خواهد شد.</b>
+        <div style="background:var(--bg);border:1px dashed var(--line);border-radius:12px;padding:14px 18px;margin-top:14px">
+          <p style="font-size:.85rem;line-height:1.9;color:var(--muted)">
+            🛡️ کلبه نارنجی همیشه تحت نظارت نگهبان مجموعه است، پس لطفاً تعداد واقعی مهمانان را همینجا اعلام کنید تا رزروتان دقیق و بی‌دردسر باشد.
+            اگر تعداد مهمانان از مقدار اعلام‌شده بیشتر باشد، هزینه‌ی نفرات اضافه (هر نفر ۵۰۰٬۰۰۰ تومان در هر شب) از ودیعه کسر می‌شود.
           </p>
         </div>
 
@@ -548,6 +613,12 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
     <details class="faq-item"><summary data-i="q7">غذا چطور تهیه کنم؟</summary><div class="ans" data-i="a7">رستوران برج وی‌آی‌پی درست کنار ویلاست و می‌توانید مستقیم سفارش دهید. کافه و رستوران‌های دیگری هم در نزدیکی هستند.</div></details>
     <details class="faq-item"><summary data-i="q8">ویلا کجاست؟</summary><div class="ans" data-i="a8">شیراز، روستای قلات، ابتدای بافت قدیم، کنار رستوران شاندیز برج وی‌آی‌پی؛ با چشم‌انداز کوه و آبشارهای قلات در نزدیکی.</div></details>
     <details class="faq-item"><summary data-i="q9">چطور ودیعه را پرداخت کنم؟</summary><div class="ans" data-i="a9">به شماره شبا (بانک سپه، به نام پوران اسدپور) واریز کنید و سپس عکس فیش را در سایت آپلود کنید.</div></details>
+    <details class="faq-item"><summary data-i="q10">حیوان خانگی مجاز است؟</summary><div class="ans" data-i="a10">لطفاً پیش از رزرو با پشتیبانی هماهنگ کنید تا شرایط همراه‌داشتن حیوان خانگی بررسی شود.</div></details>
+    <details class="faq-item"><summary data-i="q11">اینترنت وای‌فای دارد؟</summary><div class="ans" data-i="a11">بله، اینترنت وای‌فای در سراسر کلبه در دسترس است.</div></details>
+    <details class="faq-item"><summary data-i="q12">کودکان هزینه‌ای دارند؟</summary><div class="ans" data-i="a12">برای اطلاع از شرایط کودکان همراه، پیش از رزرو با پشتیبانی تماس بگیرید.</div></details>
+    <details class="faq-item"><summary data-i="q13">صبحانه سرو می‌شود؟</summary><div class="ans" data-i="a13">کلبه نارنجی خودپذیرایی است؛ آشپزخانه‌ی کامل در اختیار شماست و رستوران کنار ویلا هم برای سفارش غذا در دسترس است.</div></details>
+    <details class="faq-item"><summary data-i="q14">وسایل آشپزی کامل است؟</summary><div class="ans" data-i="a14">بله، آشپزخانه با ظروف و وسایل کامل آشپزی مجهز است.</div></details>
+    <details class="faq-item"><summary data-i="q15">گرمایش و سرمایش دارد؟</summary><div class="ans" data-i="a15">بله، کلبه به سیستم گرمایش و سرمایش مجهز است و در همه‌ی فصل‌ها قابل اقامت است.</div></details>
   </div>
 </section>
 
@@ -559,21 +630,41 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
       <h2 data-i="contact_title">ارتباط با ما</h2>
     </div>
     <div class="contact-grid">
-      <a class="contact-card" href="tel:+989179245523_0917 887 1601">
-        <span class="c-label" data-i="ph_admin_lbl">مدیریت</span>
-        <span class="c-val">0917 924 5523 _ 0917 887 1601</span>
+      <a class="contact-card phone" href="tel:+989179245523">
+        <span class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+        <span class="c-text">
+          <span class="c-label" data-i="ph_admin_lbl">مدیریت</span>
+          <span class="c-val">0917 924 5523</span>
+          <span class="c-sub">0917 887 1601</span>
+        </span>
       </a>
-      <a class="contact-card" href="tel:+00491794286020">
-        <span class="c-label" data-i="ph_support_lbl">پشتیبانی</span>
-        <span class="c-val">0049 1794 286020</span>
+      <a class="contact-card wa" href="https://wa.me/989179245523" target="_blank" rel="noopener">
+        <span class="c-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.76.46 3.48 1.34 5L2 22l5.2-1.36a9.94 9.94 0 0 0 4.84 1.24h.01c5.5 0 9.96-4.46 9.96-9.96S17.54 2 12.04 2zm0 18.15h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.09.81.82-3.01-.2-.31a8.18 8.18 0 0 1-1.26-4.35c0-4.53 3.69-8.22 8.23-8.22 2.2 0 4.26.86 5.82 2.41a8.17 8.17 0 0 1 2.41 5.82c0 4.53-3.69 8.22-8.24 8.22zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.17.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.23-1.46-1.37-1.7-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.36-.77-1.86-.2-.48-.41-.42-.56-.43-.14-.01-.31-.01-.48-.01-.17 0-.43.06-.66.31-.23.25-.86.85-.86 2.06 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.14-1.18-.06-.11-.23-.17-.48-.29z"/></svg></span>
+        <span class="c-text">
+          <span class="c-label" data-i="wa_lbl">واتساپ</span>
+          <span class="c-val" data-i="wa_val">پیام در واتساپ</span>
+        </span>
       </a>
-      <a class="contact-card" href="https://instagram.com/kolbenarenji_shiraz" target="_blank" rel="noopener">
-        <span class="c-label">اینستاگرام</span>
-        <span class="c-val">kolbenarenji_shiraz</span>
+      <a class="contact-card phone" href="tel:+00491794286020">
+        <span class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+        <span class="c-text">
+          <span class="c-label" data-i="ph_support_lbl">پشتیبانی</span>
+          <span class="c-val">0049 1794 286020</span>
+        </span>
       </a>
-      <a class="contact-card" href="https://t.me/kolbe_narenji" target="_blank" rel="noopener">
-        <span class="c-label">تلگرام</span>
-        <span class="c-val">kolbe_narenji</span>
+      <a class="contact-card ig" href="https://instagram.com/kolbenarenji_shiraz" target="_blank" rel="noopener">
+        <span class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></span>
+        <span class="c-text">
+          <span class="c-label">اینستاگرام</span>
+          <span class="c-val">kolbenarenji_shiraz</span>
+        </span>
+      </a>
+      <a class="contact-card tg" href="https://t.me/kolbe_narenji" target="_blank" rel="noopener">
+        <span class="c-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.5 3.5 2.7 10.9c-1.13.45-1.12 1.08-.2 1.36l4.8 1.5 1.86 5.7c.22.6.38.83.78.83.38 0 .56-.17.78-.4l2.1-2.03 4.4 3.24c.8.45 1.38.22 1.58-.75l2.87-13.5c.28-1.2-.45-1.74-1.19-1.35zM8.6 13.3l9-5.68c.43-.26.82-.12.5.17l-7.4 6.68-.29 3.14-1.3-4.31z"/></svg></span>
+        <span class="c-text">
+          <span class="c-label">تلگرام</span>
+          <span class="c-val">kolbe_narenji</span>
+        </span>
       </a>
     </div>
   </div>
@@ -615,6 +706,12 @@ const T = {
     q7:"غذا چطور تهیه کنم؟", a7:"رستوران برج وی‌آی‌پی درست کنار ویلاست و می‌توانید مستقیم سفارش دهید. کافه و رستوران‌های دیگری هم در نزدیکی هستند. کلبه نارنجی مجهز به آشپزخانه با ظروف برای آشپزی هست و غیر از اون می‌تونید از باربیکیو هم برای کباب بازی استفاده کنید😉.",
     q8:"ویلا کجاست؟", a8:"شیراز، روستای قلات، ابتدای بافت قدیم، کنار رستوران شاندیز برج وی‌آی‌پی؛ با چشم‌انداز کوه و آبشارهای قلات در نزدیکی.",
     q9:"چطور ودیعه را پرداخت کنم؟", a9:"به شماره شبا (بانک سپه، به نام پوران اسدپور) واریز کنید و سپس عکس فیش را در سایت آپلود کنید.",
+    q10:"حیوان خانگی مجاز است؟", a10:"لطفاً پیش از رزرو با پشتیبانی هماهنگ کنید تا شرایط همراه‌داشتن حیوان خانگی بررسی شود.",
+    q11:"اینترنت وای‌فای دارد؟", a11:"بله، اینترنت وای‌فای در سراسر کلبه در دسترس است.",
+    q12:"کودکان هزینه‌ای دارند؟", a12:"برای اطلاع از شرایط کودکان همراه، پیش از رزرو با پشتیبانی تماس بگیرید.",
+    q13:"صبحانه سرو می‌شود؟", a13:"کلبه نارنجی خودپذیرایی است؛ آشپزخانه‌ی کامل در اختیار شماست و رستوران کنار ویلا هم برای سفارش غذا در دسترس است.",
+    q14:"وسایل آشپزی کامل است؟", a14:"بله، آشپزخانه با ظروف و وسایل کامل آشپزی مجهز است.",
+    q15:"گرمایش و سرمایش دارد؟", a15:"بله، کلبه به سیستم گرمایش و سرمایش مجهز است و در همه‌ی فصل‌ها قابل اقامت است.",
     nav_qalat:"قلات",
     q_eyebrow:"موقعیت · قلات", q_title:"قلات؛ نگین کوهستانی شیراز",
     q_intro:"کلبه نارنجی در دل روستای تاریخی قلات قرار دارد؛ روستایی کهن بر دامنه‌ی کوه دراک، حدود ۳۰ کیلومتری شمال‌غرب شیراز و در ارتفاع نزدیک به ۲۰۰۰ متر. هوای خنک آن حتی در گرمای تابستان، کوچه‌های سنگ‌فرش، خانه‌های پلکانی و باغ‌های میوه، قلات را به یکی از محبوب‌ترین مقصدهای گردشگری اطراف شیراز تبدیل کرده است.",
@@ -626,29 +723,43 @@ const T = {
     q6_t:"باغ‌های میوه", q6_p:"باغ‌هایی پر از درختان سیب، انار، گردو و انجیر در سراسر دامنه‌ها.",
     cta_reserve:"رزرو اقامت",
     hero_eyebrow:"شیراز · اقامتگاه خصوصی",
-    hero_title:'اقامتی خصوصی بر <span class="accent">بلندای شیراز</span>',
-    hero_lead:"ویلایی دنج با چشم‌انداز کوه‌ها، باغی پر از درختان میوه، و رستوران برج وی‌آی‌پی درست در همسایگی — بدون هیچ همسایه‌ی دیگر.",
+    hero_title:'فقط ۳۰ دقیقه با شیراز فاصله دارید؛ <span class="accent">اما انگار وارد دنیای دیگری شده‌اید</span>',
+    hero_lead:"جایی که سکوت، کوهستان و آسمان پرستاره جای ترافیک و شلوغی را می‌گیرند. کلبه نارنجی، اقامتگاهی کاملاً خصوصی در دل قلات — بدون همسایه، فقط شما و طبیعت.",
     hero_cta1:"رزرو اقامت", hero_cta2:"دیدن امکانات",
     stat1_b:"چشم‌انداز کوه", stat1_s:"بر فراز ۵۰ پله",
     stat2_b:"حریم کامل", stat2_s:"بدون همسایه",
     stat3_b:"رستوران برج وی‌آی‌پی", stat3_s:"درست در کنار شما",
     about_eyebrow:"درباره کلبه نارنجی", about_title:"آرامش، چشم‌انداز و حریم خصوصی",
-    about_text:"حدود ۱۰۰۰ مترمربع زمین، یک فضای نشیمن ۴۰ متری به‌همراه آشپزخانه، و یک اتاق‌خواب ۹ متری. مناسب برای ۴ مهمان و تا ۶ نفر با هزینه‌ی اندک اضافه. کلبه نارنجی بر بلندای منطقه‌ی گردشگری شیراز قرار دارد؛ پس از بالا رفتن از پله‌ها، چشم‌اندازی بی‌نظیر از کوه‌ها پیش روی شماست.",
-    a1_t:"چشم‌انداز کوه و شهر", a1_p:"منظره‌ی باز کوه‌ها از بلندترین نقطه‌ی منطقه.",
-    a2_t:"امنیت و آرامش", a2_p:"بدون همسایه، در کنار رستوران برج وی‌آی‌پی؛ ساکت و امن.",
-    a3_t:"باغ با درختان میوه", a3_p:"فضای سبز، محل نشستن، و امکان باربیکیو در طبیعت.",
-    a4_t:"سفارش غذا", a4_p:"رستوران برج وی‌آی‌پی در همسایگی؛ غذا را مستقیم سفارش دهید.",
+    about_text:"صبح را با صدای پرنده‌ها آغاز کنید، عصر را با منظره‌ی کوهستان و شب را زیر آسمانی پر از ستاره. بدون همسایه، بدون سروصدا، و فقط چند دقیقه تا طبیعت بکر قلات. کلبه نارنجی روی حدود ۱۰۰۰ مترمربع باغ، با نشیمنی گرم و اتاق‌خوابی دنج، جایی‌ست که برای ۴ مهمان ساخته شده و تا ۶ نفر هم میزبانی می‌کند.",
+    a1_t:"چشم‌اندازی که هر روز آرامتان می‌کند", a1_p:"منظره‌ی باز کوه‌ها از بلندترین نقطه‌ی منطقه، همراه هر فنجان چای.",
+    a2_t:"فقط شما و سکوت", a2_p:"بدون همسایه، و با نگهبانی دائم مجموعه؛ خیالتان کاملاً راحت است.",
+    a3_t:"صبحانه زیر درختان میوه", a3_p:"صبحانه را زیر درختان میوه بخورید و شب را با باربیکیو در باغ تمام کنید.",
+    a4_t:"دیگر لازم نیست رانندگی کنید", a4_p:"بهترین غذای منطقه، رستوران برج وی‌آی‌پی، فقط چند قدم با شما فاصله دارد.",
     amen_eyebrow:"چرا اینجا", amen_title:"امکانات و مزیت‌ها",
-    m1_t:"پارکینگ امن", m1_p:"جای پارک فراوان و امن در نزدیکی کلبه.",
-    m2_t:"آبشار و پیاده‌روی", m2_p:"مسیرهای پیاده‌روی و آبشار در فاصله‌ی نزدیک.",
-    m3_t:"کافه و رستوران", m3_p:"رستوران‌ها و کافه‌های متعدد در اطراف.",
-    m4_t:"فضای باربیکیو", m4_p:"محل نشستن در باغ برای غذا خوردن و کباب.",
-    m5_t:"ظرفیت", m5_p:"پایه ۴ مهمان، تا ۶ نفر با هزینه‌ی اضافه.",
-    m6_t:"فضا", m6_p:"نشیمن و آشپزخانه‌ی ۴۰ متری + اتاق‌خواب ۹ متری.",
+    m1_t:"پارک کنید و خیالتان راحت باشد", m1_p:"ماشینتان را با خیال راحت پارک کنید و تمام مدت اقامت فقط از طبیعت لذت ببرید.",
+    m2_t:"چند قدم تا آبشار", m2_p:"صبح زود از خانه بیرون بزنید و در چند دقیقه پیاده‌روی، صدای آبشار را از نزدیک بشنوید.",
+    m3_t:"هیچ‌جا برای غذا رانندگی نکنید", m3_p:"کافه‌ها و رستوران‌های قلات فقط چند قدم با شما فاصله دارند.",
+    m4_t:"شب را کنار آتش تمام کنید", m4_p:"شب را کنار آتش، با کباب و هوای خنک قلات به پایان برسانید.",
+    m5_t:"جا برای همه هست", m5_p:"برای ۴ نفر ساخته شده، و اگر جمع‌تان بزرگ‌تر بود، تا ۶ نفر هم راحت جا می‌شوید.",
+    m6_t:"فضایی برای نفس کشیدن", m6_p:"نشیمن و آشپزخانه‌ی باز، به‌علاوه‌ی اتاق‌خوابی دنج برای استراحت واقعی.",
+    who_eyebrow:"مناسب برای چه کسانی", who_title:"اینجا مال شماست، اگر...",
+    w1_t:"زوج‌ها", w1_p:"دنبال یک خلوت دونفره‌ی واقعی، دور از شلوغی شهر هستید.",
+    w2_t:"خانواده‌ها", w2_p:"می‌خواهید یک سفر خانوادگی آرام، امن و بدون دغدغه داشته باشید.",
+    w3_t:"بلاگرها و تولیدکنندگان محتوا", w3_p:"به‌دنبال چشم‌اندازی سینمایی برای تولید محتوا هستید.",
+    w4_t:"جشن تولد", w4_p:"می‌خواهید تولدتان را جایی متفاوت و خصوصی جشن بگیرید.",
+    w5_t:"سالگرد ازدواج", w5_p:"به‌دنبال فضایی رمانتیک برای یادآوری یک روز خاص هستید.",
+    w6_t:"دورکاری", w6_p:"می‌خواهید چند روز از شهر فاصله بگیرید و در آرامش کار کنید.",
     gal_eyebrow:"گالری", gal_title:"نگاهی به کلبه نارنجی",
     gal_text:"نمایی از فضای داخلی، باغ و چشم‌انداز کلبه نارنجی. برای دیدن اندازه‌ی بزرگ‌تر روی هر عکس بزنید.",
     gal_ph:"عکس نمای کلی — اینجا قرار دهید", gal_ph2:"نشیمن", gal_ph3:"باغ", gal_ph4:"اتاق‌خواب", gal_ph5:"چشم‌انداز",
+    test_eyebrow:"نظر مهمانان", test_title:"آن‌ها اینجا را دوست داشتند",
+    test_text:"⚠️ این نظرات نمونه هستند و باید پیش از انتشار با نظرات واقعی مهمانان جایگزین شوند.",
+    test1_p:"«تمیزترین ویلایی بود که تا حالا رفته بودیم.»", test1_n:"محمد، اصفهان",
+    test2_p:"«شب فوق‌العاده آرامی داشتیم.»", test2_n:"ندا، تهران",
+    test3_p:"«از عکس‌ها خیلی قشنگ‌تر بود.»", test3_n:"علی، شیراز",
     price_eyebrow:"قیمت‌ها", price_title:"تعرفه‌ی اقامت",
+    val1_t:"بدون همسایه", val2_t:"هزار متر باغ", val3_t:"منظره‌ی اختصاصی کوهستان", val4_t:"رستوران کنار ویلا",
+    val5_t:"فضای باربیکیو", val6_t:"پارکینگ امن", val7_t:"نگهبانی و امنیت", val8_t:"آشپزخانه‌ی کامل",
     p1_l:"شب‌های عادی · شنبه تا چهارشنبه", p2_l:"آخر هفته · پنجشنبه و جمعه",
     p3_l:"ودیعه", p3_n:"",
     p4_l:"هر نفر اضافه", p4_n:"بیش از ۴ نفر، در هر شب",
