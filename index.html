@@ -76,6 +76,8 @@ header{
 }
 .nav{display:flex;align-items:center;gap:18px;height:68px}
 .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:1.18rem;letter-spacing:-.02em}
+.brand .brand-text{display:flex;flex-direction:column;line-height:1.2}
+.brand .tagline{font-size:.62rem;font-weight:600;color:var(--orange);letter-spacing:0}
 .brand .mark{
   width:30px;height:30px;border-radius:9px;flex:none;
   background:linear-gradient(135deg,var(--orange),#C24E00);
@@ -311,7 +313,7 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
 
 <header>
   <div class="wrap nav">
-    <div class="brand"><span class="mark"></span><span data-i="brand">کلبه نارنجی</span></div>
+    <div class="brand"><span class="mark"></span><span class="brand-text"><span data-i="brand">کلبه نارنجی</span><span class="tagline" data-i="brand_tagline">یه جای خوشمزه 😄</span></span></div>
     <nav class="nav-links">
       <a href="#about"  data-i="nav_about">درباره کلبه نارنجی</a>
       <a href="#amen"   data-i="nav_amen">امکانات</a>
@@ -352,7 +354,7 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
     <div class="head">
       <span class="eyebrow" data-i="about_eyebrow">درباره کلبه نارنجی</span>
       <h2 data-i="about_title">آرامش، چشم‌انداز و حریم خصوصی</h2>
-      <p data-i="about_text">صبح را با صدای پرنده‌ها آغاز کنید، عصر را با منظره‌ی کوهستان و شب را زیر آسمانی پر از ستاره. بدون همسایه، بدون سروصدا، و فقط چند دقیقه تا طبیعت بکر قلات. کلبه نارنجی روی حدود ۱۰۰۰ مترمربع باغ، با نشیمنی گرم و اتاق‌خوابی دنج، جایی‌ست که برای ۴ مهمان ساخته شده و تا ۶ نفر هم میزبانی می‌کند.</p>
+      <p data-i="about_text">صبح را با صدای پرنده‌ها آغاز کنید، عصر را با منظره‌ی کوهستان و شب را زیر آسمانی پر از ستاره. بدون همسایه، بدون سروصدا، و فقط چند دقیقه تا طبیعت بکر قلات. کلبه نارنجی روی حدود ۱۰۰۰ مترمربع باغ، با نشیمنی گرم و اتاق‌خوابی دنج، جایی‌ست که برای ۴ مهمان ساخته شده و تا ۶ نفر هم میزبانی می‌کند. راستی، توی فصل میوه، باغ کلبه پر از میوه‌های رسیده و خوشمزه می‌شه — خودمونیم، انگار اسممون رو الکی نارنجی نذاشتیم 😄</p>
     </div>
     <div class="grid">
       <div class="card"><div class="ico">🏔️</div><h3 data-i="a1_t">چشم‌اندازی که هر روز آرامتان می‌کند</h3><p data-i="a1_p">منظره‌ی باز کوه‌ها از بلندترین نقطه‌ی منطقه، همراه هر فنجان چای.</p></div>
@@ -445,11 +447,12 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
     <div class="head">
       <span class="eyebrow" data-i="test_eyebrow">نظر مهمانان</span>
       <h2 data-i="test_title">آن‌ها اینجا را دوست داشتند</h2>
+      <p data-i="test_text">⚠️ این نظرات نمونه هستند و باید پیش از انتشار با نظرات واقعی مهمانان جایگزین شوند.</p>
     </div>
     <div class="grid">
       <div class="card">
         <div style="color:var(--orange);letter-spacing:2px;margin-bottom:10px">★★★★★</div>
-        <p data-i="test1_p" style="color:var(--text);margin-bottom:12px">«انصافاً خیلی حال داد-غذای رستوران کناریش هم خوشمزه بود»</p>
+        <p data-i="test1_p" style="color:var(--text);margin-bottom:12px">«تمیزترین ویلایی بود که تا حالا رفته بودیم.»</p>
         <p data-i="test1_n" style="color:var(--muted);font-size:.85rem">محمد، اصفهان</p>
       </div>
       <div class="card">
@@ -697,7 +700,7 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
 /* ---------- i18n ---------- */
 const T = {
   fa:{ dir:"rtl",
-    brand:"کلبه نارنجی", nav_about:"درباره کلبه نارنجی", nav_amen:"امکانات", nav_price:"قیمت‌ها", nav_book:"رزرو",
+    brand:"کلبه نارنجی", brand_tagline:"یه جای خوشمزه 😄", nav_about:"درباره کلبه نارنجی", nav_amen:"امکانات", nav_price:"قیمت‌ها", nav_book:"رزرو",
     nav_faq:"سوالات",
     faq_eyebrow:"راهنما", faq_title:"سوالات متداول",
     q1:"چطور رزرو کنم؟", a1:"فرم رزرو را پر کنید و تاریخ را انتخاب کنید. سپس ودیعه را واریز کرده و عکس فیش را در بخش «ارسال فیش واریزی» بفرستید؛ رزرو شما همان لحظه تأیید می‌شود.",
@@ -733,7 +736,7 @@ const T = {
     stat2_b:"حریم کامل", stat2_s:"بدون همسایه",
     stat3_b:"رستوران برج وی‌آی‌پی", stat3_s:"درست در کنار شما",
     about_eyebrow:"درباره کلبه نارنجی", about_title:"آرامش، چشم‌انداز و حریم خصوصی",
-    about_text:"صبح را با صدای پرنده‌ها آغاز کنید، عصر را با منظره‌ی کوهستان و شب را زیر آسمانی پر از ستاره. بدون همسایه، بدون سروصدا، و فقط چند دقیقه تا طبیعت بکر قلات. کلبه نارنجی روی حدود ۱۰۰۰ مترمربع باغ، با نشیمنی گرم و اتاق‌خوابی دنج، جایی‌ست که برای ۴ مهمان ساخته شده و تا ۶ نفر هم میزبانی می‌کند.",
+    about_text:"صبح را با صدای پرنده‌ها آغاز کنید، عصر را با منظره‌ی کوهستان و شب را زیر آسمانی پر از ستاره. بدون همسایه، بدون سروصدا، و فقط چند دقیقه تا طبیعت بکر قلات. کلبه نارنجی روی حدود ۱۰۰۰ مترمربع باغ، با نشیمنی گرم و اتاق‌خوابی دنج، جایی‌ست که برای ۴ مهمان ساخته شده و تا ۶ نفر هم میزبانی می‌کند. راستی، توی فصل میوه، باغ کلبه پر از میوه‌های رسیده و خوشمزه می‌شه — خودمونیم، انگار اسممون رو الکی نارنجی نذاشتیم 😄",
     a1_t:"چشم‌اندازی که هر روز آرامتان می‌کند", a1_p:"منظره‌ی باز کوه‌ها از بلندترین نقطه‌ی منطقه، همراه هر فنجان چای.",
     a2_t:"فقط شما و سکوت", a2_p:"بدون همسایه، و با نگهبانی دائم مجموعه؛ خیالتان کاملاً راحت است.",
     a3_t:"صبحانه زیر درختان میوه", a3_p:"صبحانه را زیر درختان میوه بخورید و شب را با باربیکیو در باغ تمام کنید.",
@@ -756,7 +759,8 @@ const T = {
     gal_text:"نمایی از فضای داخلی، باغ و چشم‌انداز کلبه نارنجی. برای دیدن اندازه‌ی بزرگ‌تر روی هر عکس بزنید.",
     gal_ph:"عکس نمای کلی — اینجا قرار دهید", gal_ph2:"نشیمن", gal_ph3:"باغ", gal_ph4:"اتاق‌خواب", gal_ph5:"چشم‌انداز",
     test_eyebrow:"نظر مهمانان", test_title:"آن‌ها اینجا را دوست داشتند",
-    test1_p:"«انصافاً خیلی حال داد-غذای رستوران کناریش هم خوشمزه بود»", test1_n:"محمد",
+    test_text:"⚠️ این نظرات نمونه هستند و باید پیش از انتشار با نظرات واقعی مهمانان جایگزین شوند.",
+    test1_p:"«تمیزترین ویلایی بود که تا حالا رفته بودیم.»", test1_n:"محمد، اصفهان",
     test2_p:"«شب فوق‌العاده آرامی داشتیم.»", test2_n:"ندا، تهران",
     test3_p:"«از عکس‌ها خیلی قشنگ‌تر بود.»", test3_n:"علی، شیراز",
     price_eyebrow:"قیمت‌ها", price_title:"تعرفه‌ی اقامت",
