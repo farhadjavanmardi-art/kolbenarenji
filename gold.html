@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#07090d">
+  <meta name="description" content="Gold Intelligence AI — professional XAU/USD analysis, forecasting, news intelligence and risk management">
+  <title>Gold Intelligence AI — XAU/USD Decision Support</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="gold-style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">Au</span>
+      <div>
+        <h1>Gold Intelligence AI</h1>
+        <small>Global gold intelligence and decision support system</small>
+      </div>
+    </div>
+    <span class="spacer"></span>
+    <span class="tag" id="modelTag">XAU/USD</span>
+  </header>
+
+  <nav class="tabs">
+    <button type="button" data-tab="analyze" class="active">Analysis</button>
+    <button type="button" data-tab="journal">Journal</button>
+    <button type="button" data-tab="settings">Settings</button>
+  </nav>
+
+  <!-- ANALYSIS -->
+  <section id="tab-analyze">
+
+    <div class="card">
+      <h2>Market snapshot <span class="sec">Section 4 — data ingestion</span></h2>
+      <div class="grid c4">
+        <div><label for="price">Spot price</label><input type="number" step="0.01" id="price" placeholder="e.g. 4120.50"></div>
+        <div><label for="changePct">Change %</label><input type="number" step="0.01" id="changePct" placeholder="e.g. -0.42"></div>
+        <div><label for="dxy">DXY</label><input type="number" step="0.01" id="dxy" placeholder="e.g. 98.40"></div>
+        <div><label for="us10y">US 10Y yield %</label><input type="number" step="0.01" id="us10y" placeholder="e.g. 4.12"></div>
+        <div><label for="us2y">US 2Y yield %</label><input type="number" step="0.01" id="us2y" placeholder="e.g. 3.78"></div>
+        <div><label for="realYield">10Y real yield %</label><input type="number" step="0.01" id="realYield" placeholder="e.g. 1.85"></div>
+        <div><label for="atr">Daily ATR</label><input type="number" step="0.01" id="atr" placeholder="e.g. 34.5"></div>
+        <div><label for="vix">VIX</label><input type="number" step="0.01" id="vix" placeholder="e.g. 16.2"></div>
+      </div>
+      <div class="grid c2" style="margin-top:12px">
+        <div>
+          <label for="levels">Known levels (support / resistance)</label>
+          <input type="text" id="levels" placeholder="e.g. S 4080 / 4040, R 4165 / 4210">
+        </div>
+        <div>
+          <label for="structure">Observed structure / trend</label>
+          <input type="text" id="structure" placeholder="e.g. Daily HH-HL, 4H change of character">
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <label for="notes">Notes for the engine</label>
+        <textarea id="notes" placeholder="Anything else the analysis should account for — open positions, a specific timeframe you trade, constraints."></textarea>
+      </div>
+      <p class="hint">Every field is optional. Missing data lowers the Data Quality Score and the confidence of the analysis — it does not fabricate values.</p>
+    </div>
+
+    <div class="card">
+      <h2>Account &amp; risk <span class="sec">Section 27 — position sizing</span></h2>
+      <div class="grid c4">
+        <div><label for="balance">Account balance</label><input type="number" step="0.01" id="balance" placeholder="e.g. 10000"></div>
+        <div><label for="riskPct">Max risk %</label><input type="number" step="0.01" id="riskPct" placeholder="e.g. 1"></div>
+        <div><label for="maxDaily">Max daily loss %</label><input type="number" step="0.01" id="maxDaily" placeholder="e.g. 3"></div>
+        <div><label for="leverage">Leverage</label><input type="number" step="1" id="leverage" placeholder="e.g. 100"></div>
+        <div><label for="contractSize">Contract size (oz/lot)</label><input type="number" step="1" id="contractSize" value="100"></div>
+        <div><label for="tickValue">Tick value</label><input type="number" step="0.01" id="tickValue" placeholder="e.g. 1"></div>
+        <div><label for="openPositions">Open positions</label><input type="text" id="openPositions" placeholder="e.g. 0.2 lot long from 4090"></div>
+        <div><label for="currency">Account currency</label><input type="text" id="currency" value="USD"></div>
+      </div>
+      <p class="hint">Leave blank to receive <span class="mono">ACCOUNT_DATA_REQUIRED</span> instead of a position size.</p>
+    </div>
+
+    <div class="card">
+      <h2>Run</h2>
+      <div class="row">
+        <div style="min-width:170px">
+          <label for="effort">Reasoning effort</label>
+          <select id="effort">
+            <option value="low">Low — fastest</option>
+            <option value="medium">Medium</option>
+            <option value="high" selected>High — recommended</option>
+            <option value="xhigh">Extra high</option>
+            <option value="max">Max — slowest</option>
+          </select>
+        </div>
+        <label class="check" style="margin-top:18px">
+          <input type="checkbox" id="useWebSearch" checked>
+          Run live news &amp; macro research first
+        </label>
+        <span class="spacer"></span>
+        <button type="button" class="btn primary" id="runBtn" style="margin-top:18px">Run analysis</button>
+      </div>
+      <div class="status" id="status"><span class="spinner"></span><span id="statusText">Working…</span></div>
+      <div id="error"></div>
+    </div>
+
+    <div id="result"></div>
+  </section>
+
+  <!-- JOURNAL -->
+  <section id="tab-journal" hidden>
+    <div class="card">
+      <h2>Performance evaluation <span class="sec">Sections 31–33</span></h2>
+      <div class="grid c4" id="perfTiles"></div>
+      <div id="calibration" style="margin-top:16px"></div>
+    </div>
+
+    <div class="card">
+      <h2>Prediction log</h2>
+      <div id="journalList"></div>
+      <div class="row" style="margin-top:14px">
+        <button type="button" class="btn ghost sm" id="exportBtn">Export JSON</button>
+        <button type="button" class="btn ghost sm" id="clearBtn">Clear journal</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="tab-settings" hidden>
+    <div class="card">
+      <h2>Connection</h2>
+      <div style="max-width:420px">
+        <label for="mode">Mode</label>
+        <select id="mode">
+          <option value="direct">Direct — call Anthropic from this browser</option>
+          <option value="backend">Backend — call the Supabase function</option>
+        </select>
+      </div>
+
+      <div id="directFields" style="margin-top:14px">
+        <div style="max-width:520px">
+          <label for="apiKey">Anthropic API key</label>
+          <input type="password" id="apiKey" placeholder="sk-ant-...">
+          <p class="hint">
+            Stored in this browser only — never written into the page source.
+            <strong>Do not host this page publicly in direct mode:</strong> anyone who opens it
+            could read the key out of their own browser. Running it from your own machine is fine.
+          </p>
+        </div>
+        <div style="max-width:280px;margin-top:12px">
+          <label for="model">Model</label>
+          <input type="text" id="model" value="claude-opus-5">
+        </div>
+      </div>
+
+      <div id="backendFields" class="grid c2" style="margin-top:14px" hidden>
+        <div>
+          <label for="endpoint">Analysis endpoint</label>
+          <input type="text" id="endpoint" placeholder="https://<project>.supabase.co/functions/v1/gold-analysis">
+          <p class="hint">Supabase edge function <span class="mono">gold-analysis</span>.</p>
+        </div>
+        <div>
+          <label for="accessCode">Access code</label>
+          <input type="password" id="accessCode" placeholder="GOLD_ACCESS_CODE">
+          <p class="hint">Matches the <span class="mono">GOLD_ACCESS_CODE</span> secret. Stored in this browser only.</p>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:14px">
+        <button type="button" class="btn primary sm" id="saveSettings">Save</button>
+        <span class="dim small" id="settingsSaved"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Which mode to use</h2>
+      <p class="small dim" style="margin-top:0">
+        <strong>Direct</strong> needs nothing but a key — the page talks to Anthropic itself.
+        Use it while the page lives on your own machine.
+      </p>
+      <p class="small dim">
+        <strong>Backend</strong> keeps the key on the server, so the page can be hosted publicly.
+        It needs two secrets set on the Supabase project:
+        <span class="mono">ANTHROPIC_API_KEY</span> and <span class="mono">GOLD_ACCESS_CODE</span>
+        (optionally <span class="mono">GOLD_MODEL</span>). The function stays disabled until the
+        access code is set.
+      </p>
+    </div>
+  </section>
+
+  <p class="disclaimer">
+    Analytical decision support, not investment advice. Every output is probabilistic; high confidence is not certainty.
+    Trading gold carries substantial risk of loss. Verify every price level against your own broker feed before acting.
+  </p>
+
+</div>
+
+<script src="gold-engine.js"></script>
+<script src="gold-app.js"></script>
+</body>
+</html>
