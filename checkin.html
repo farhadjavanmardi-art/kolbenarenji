@@ -446,12 +446,44 @@ checkSession();
 
 async function submitForm(){
   const msg=document.getElementById("fMsg");msg.className="msg";
+  const req=[
+    ["g_name","نام و نام خانوادگی مهمان"],
+    ["g_phone","شماره تماس"],
+    ["g_in","تاریخ ورود"],
+    ["g_out","تاریخ خروج"],
+    ["g_id_type","نوع مدرک شناسایی"],
+    ["g_id_num","شماره مدرک"],
+    ["f_date","تاریخ تنظیم فرم"],
+  ];
+  for(const[id,label] of req){
+    const el=document.getElementById(id);
+    if(!el.value||!el.value.trim()){
+      msg.className="msg err";msg.textContent=`فیلد «${label}» الزامی است.`;
+      el.scrollIntoView({behavior:"smooth",block:"center"});el.focus();return;
+    }
+  }
+  if(!document.getElementById("c_id").checked){
+    msg.className="msg err";msg.textContent="تأیید ارائه‌ی مدرک شناسایی الزامی است.";
+    document.getElementById("c_id").scrollIntoView({behavior:"smooth",block:"center"});return;
+  }
+  if(!document.getElementById("c_rules").checked){
+    msg.className="msg err";msg.textContent="تأیید پذیرش قوانین اقامت الزامی است.";
+    document.getElementById("c_rules").scrollIntoView({behavior:"smooth",block:"center"});return;
+  }
+  if(!sigs.admin){
+    msg.className="msg err";msg.textContent="امضای مالک الزامی است.";
+    document.getElementById("sig_admin").scrollIntoView({behavior:"smooth",block:"center"});return;
+  }
+  if(!sigs.guest){
+    msg.className="msg err";msg.textContent="امضای مهمان الزامی است.";
+    document.getElementById("sig_guest").scrollIntoView({behavior:"smooth",block:"center"});return;
+  }
   const gname=document.getElementById("g_name").value.trim();
-  if(!gname){msg.className="msg err";msg.textContent="نام مهمان الزامی است.";return;}
   const record={
     guest_name: gname,
     phone: document.getElementById("g_phone").value.trim()||null,
     checkin_date: document.getElementById("g_in").value||null,
+    checkout_date: document.getElementById("g_out").value||null,
     id_type: document.getElementById("g_id_type").value||null,
     id_number: document.getElementById("g_id_num").value.trim()||null,
     condition: state,
@@ -460,8 +492,8 @@ async function submitForm(){
     rules_accepted: document.getElementById("c_rules").checked,
     notes: document.getElementById("c_notes").value.trim()||null,
     extra_notes: document.getElementById("c_notes").value.trim()||null,
-    signature: sigs.guest ? document.getElementById("sig_guest").toDataURL("image/png") : null,
-    admin_signature: sigs.admin ? document.getElementById("sig_admin").toDataURL("image/png") : null,
+    signature: document.getElementById("sig_guest").toDataURL("image/png"),
+    admin_signature: document.getElementById("sig_admin").toDataURL("image/png"),
     checkin_date_signed: document.getElementById("f_date").value||null,
     locale:"fa"
   };
@@ -499,11 +531,28 @@ function pickCheckin(id){
 async function submitCheckout(){
   const msg=document.getElementById("fMsg");msg.className="msg";
   if(!loadedRecord){msg.className="msg err";msg.textContent="ابتدا مهمان را از طریق جستجو انتخاب کنید.";return;}
+  const fdate=document.getElementById("f_date");
+  if(!fdate.value){
+    msg.className="msg err";msg.textContent="فیلد «تاریخ تنظیم فرم» الزامی است.";
+    fdate.scrollIntoView({behavior:"smooth",block:"center"});return;
+  }
+  if(!document.getElementById("c_settled").checked){
+    msg.className="msg err";msg.textContent="تأیید تسویه‌حساب و تحویل‌گیری الزامی است.";
+    document.getElementById("c_settled").scrollIntoView({behavior:"smooth",block:"center"});return;
+  }
+  if(!sigs.admin_out){
+    msg.className="msg err";msg.textContent="امضای مالک (چک‌اوت) الزامی است.";
+    document.getElementById("sig_admin_out").scrollIntoView({behavior:"smooth",block:"center"});return;
+  }
+  if(!sigs.guest_out){
+    msg.className="msg err";msg.textContent="امضای مهمان (چک‌اوت) الزامی است.";
+    document.getElementById("sig_guest_out").scrollIntoView({behavior:"smooth",block:"center"});return;
+  }
   const rec={
     checkout_items: outState,
     checkout_notes: document.getElementById("c_notes_out").value.trim()||null,
-    checkout_signature: sigs.guest_out ? document.getElementById("sig_guest_out").toDataURL("image/png") : null,
-    checkout_admin_signature: sigs.admin_out ? document.getElementById("sig_admin_out").toDataURL("image/png") : null,
+    checkout_signature: document.getElementById("sig_guest_out").toDataURL("image/png"),
+    checkout_admin_signature: document.getElementById("sig_admin_out").toDataURL("image/png"),
     checkout_date_signed: document.getElementById("f_date").value||null,
     checked_out: true
   };
