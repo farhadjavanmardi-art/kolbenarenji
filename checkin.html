@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <title>فرم تحویل اقامتگاه · کلبه نارنجی</title>
 <script>
-  const SUPABASE_URL      = "https://ajkmagdcoxpqhfknmmmk.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_WQVbekgoKZFSkB7Fw1rfOw_pPaDzd2G";
+  const SUPABASE_URL      = "https://aqxlxnczzaqbdtjpdbal.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_W1_fIGS4g9w_GvLi4vpkqA_-YxbFAk7";
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -87,13 +87,23 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
 
 <header><div class="wrap topbar">
   <div class="brand"><span class="mark">ک</span><span>کلبه نارنجی · فرم تحویل</span></div>
-  <div class="mode-tabs no-print">
+  <div class="mode-tabs no-print" id="modeTabs" style="display:none">
     <button type="button" class="mode-tab on" id="tab_in" onclick="setMode('in')">🏠 تحویل (چک‌این)</button>
     <button type="button" class="mode-tab" id="tab_out" onclick="setMode('out')">🔑 چک‌اوت مشتری</button>
   </div>
 </div></header>
 
 <div class="wrap">
+
+<!-- ورود -->
+<div class="card" id="loginBox">
+  <h2>ورود</h2>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px">برای استفاده از فرم تحویل، با ایمیل و رمز مدیر وارد شوید.</p>
+  <div class="fld" style="margin-bottom:12px"><label>ایمیل</label><input id="lg_email" type="email" placeholder="ایمیل"></div>
+  <div class="fld" style="margin-bottom:12px"><label>رمز عبور</label><input id="lg_pass" type="password" placeholder="رمز عبور"></div>
+  <button type="button" class="btn" onclick="doLogin()">ورود</button>
+  <div id="loginMsg" class="msg"></div>
+</div>
 
 <!-- جستجوی رزرو برای چک‌اوت -->
 <div class="card no-print" id="searchBox" style="display:none">
@@ -103,7 +113,7 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
   <div id="searchResults" style="margin-top:12px"></div>
 </div>
 
-<div id="mainForm">
+<div id="mainForm" style="display:none">
 
 <!-- اطلاعات مهمان -->
 <div class="card">
@@ -410,7 +420,29 @@ function clearSig(id){
 }
 
 /* supabase */
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
+
+/* ورود با ایمیل/رمز مدیر */
+async function doLogin(){
+  const msg=document.getElementById("loginMsg");
+  msg.className="msg";
+  const email=document.getElementById("lg_email").value.trim();
+  const pass=document.getElementById("lg_pass").value;
+  if(!email||!pass){msg.className="msg err";msg.textContent="ایمیل و رمز عبور را وارد کنید.";return;}
+  const{error}=await sb.auth.signInWithPassword({email,password:pass});
+  if(error){msg.className="msg err";msg.textContent="ورود ناموفق: "+error.message;return;}
+  showApp();
+}
+function showApp(){
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("modeTabs").style.display="flex";
+  document.getElementById("mainForm").style.display="block";
+}
+async function checkSession(){
+  const{data}=await sb.auth.getSession();
+  if(data&&data.session) showApp();
+}
+checkSession();
 
 async function submitForm(){
   const msg=document.getElementById("fMsg");msg.className="msg";
