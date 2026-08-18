@@ -24,8 +24,8 @@
   const WEEKEND_DAYS = [4, 5];
 
   // Bankverbindung für Kaution
-  const IBAN = "6104337270380858";   // بانک ملت
-  const IBAN_OWNER = "پوران اسدپور";
+  const IBAN = "6219861986705167";
+  const IBAN_OWNER = "بزرگ قلاتی";
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -535,8 +535,8 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
           <div class="field"><label data-i="f_first">نام <span class="req">*</span></label><input name="first_name" required></div>
           <div class="field"><label data-i="f_last">نام خانوادگی <span class="req">*</span></label><input name="last_name" required></div>
           <div class="field"><label data-i="f_phone"> واتساپ شماره تماس <span class="req">*</span></label><input name="phone" inputmode="tel" required></div>
-          <div class="field"><label data-i="f_telegram">آیدی تلگرام (اختیاری)</label><input name="telegram" placeholder="@..."></div>
-          <div class="field"><label data-i="f_plate">ایمیل</label><input name="license_plate"></div>
+          <div class="field"><label data-i="f_telegram">آیدی تلگرام <span style="font-weight:400;color:var(--muted)">(اختیاری — برای دریافت تخفیف)</span></label><input name="telegram" placeholder="@..."></div>
+          <div class="field"><label data-i="f_plate">ایمیل <span style="font-weight:400;color:var(--muted)">(اختیاری — برای دریافت تخفیف)</span></label><input name="license_plate"></div>
           <div class="field full">
             <label><span data-i="f_dates">تاریخ ورود و خروج</span> <span class="req">*</span></label>
             <div class="cal" id="cal">
@@ -577,7 +577,7 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
         </div>
 
         <div class="pay-note">
-          <span data-i="pay_note">برای نهایی شدن رزرو، مبلغ <b>۱٬۵۰۰٬۰۰۰ تومان</b> ودیعه را به شماره شبای زیر واریز کنید و عکس فیش را در پایین بارگذاری کنید. تأییدیه نهایی به شماره واتساپ یا آیدی تلگرام شما ارسال خواهد شد. 🙏</span><br>
+          <span data-i="pay_note">برای نهایی شدن رزرو، مبلغ <b>۱٬۵۰۰٬۰۰۰ تومان</b> ودیعه را به شماره کارت زیر واریز کنید و عکس فیش را در پایین بارگذاری کنید. تأییدیه نهایی به شماره واتساپ یا آیدی تلگرام شما ارسال خواهد شد. 🙏</span><br>
           <b data-i="pay_iban_lbl"></b> <code id="iban_show"></code>
         </div>
 
@@ -628,7 +628,7 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
     <details class="faq-item"><summary data-i="q6">پارکینگ دارد؟</summary><div class="ans" data-i="a6">بله، پارکینگ امن و جای کافی در نزدیکی ویلا موجود است.</div></details>
     <details class="faq-item"><summary data-i="q7">غذا چطور تهیه کنم؟</summary><div class="ans" data-i="a7">رستوران برج وی‌آی‌پی درست کنار ویلاست و می‌توانید مستقیم سفارش دهید. کافه و رستوران‌های دیگری هم در نزدیکی هستند.</div></details>
     <details class="faq-item"><summary data-i="q8">ویلا کجاست؟</summary><div class="ans" data-i="a8">شیراز، روستای قلات، ابتدای بافت قدیم، کنار رستوران شاندیز برج وی‌آی‌پی؛ با چشم‌انداز کوه و آبشارهای قلات در نزدیکی.</div></details>
-    <details class="faq-item"><summary data-i="q9">چطور ودیعه را پرداخت کنم؟</summary><div class="ans" data-i="a9">به شماره شبا (بانک سپه، به نام پوران اسدپور) واریز کنید و سپس عکس فیش را در سایت آپلود کنید.</div></details>
+    <details class="faq-item"><summary data-i="q9">چطور ودیعه را پرداخت کنم؟</summary><div class="ans" data-i="a9">مبلغ ودیعه را به شماره کارت (به نام بزرگ قلاتی) واریز کنید و سپس عکس فیش را در سایت آپلود کنید.</div></details>
     <details class="faq-item"><summary data-i="q10">حیوان خانگی مجاز است؟</summary><div class="ans" data-i="a10">لطفاً پیش از رزرو با پشتیبانی هماهنگ کنید تا شرایط همراه‌داشتن حیوان خانگی بررسی شود.</div></details>
     <details class="faq-item"><summary data-i="q11">اینترنت وای‌فای دارد؟</summary><div class="ans" data-i="a11">بله، اینترنت وای‌فای در سراسر کلبه در دسترس است.</div></details>
     <details class="faq-item"><summary data-i="q12">کودکان هزینه‌ای دارند؟</summary><div class="ans" data-i="a12">برای اطلاع از شرایط کودکان همراه، پیش از رزرو با پشتیبانی تماس بگیرید.</div></details>
@@ -721,7 +721,7 @@ const T = {
     q6:"پارکینگ دارد؟", a6:"بله، پارکینگ امن و جای کافی در نزدیکی ویلا موجود است.",
     q7:"غذا چطور تهیه کنم؟", a7:"رستوران برج وی‌آی‌پی درست کنار ویلاست و می‌توانید مستقیم سفارش دهید. کافه و رستوران‌های دیگری هم در نزدیکی هستند. کلبه نارنجی مجهز به آشپزخانه با ظروف برای آشپزی هست و غیر از اون می‌تونید از باربیکیو هم برای کباب بازی استفاده کنید😉.",
     q8:"ویلا کجاست؟", a8:"شیراز، روستای قلات، ابتدای بافت قدیم، کنار رستوران شاندیز برج وی‌آی‌پی؛ با چشم‌انداز کوه و آبشارهای قلات در نزدیکی.",
-    q9:"چطور ودیعه را پرداخت کنم؟", a9:"به شماره شبا (بانک سپه، به نام پوران اسدپور) واریز کنید و سپس عکس فیش را در سایت آپلود کنید.",
+    q9:"چطور ودیعه را پرداخت کنم؟", a9:"مبلغ ودیعه را به شماره کارت (به نام بزرگ قلاتی) واریز کنید و سپس عکس فیش را در سایت آپلود کنید.",
     q10:"حیوان خانگی مجاز است؟", a10:"لطفاً پیش از رزرو با پشتیبانی هماهنگ کنید تا شرایط همراه‌داشتن حیوان خانگی بررسی شود.",
     q11:"اینترنت وای‌فای دارد؟", a11:"بله، اینترنت وای‌فای در سراسر کلبه در دسترس است.",
     q12:"کودکان هزینه‌ای دارند؟", a12:"برای اطلاع از شرایط کودکان همراه، پیش از رزرو با پشتیبانی تماس بگیرید.",
@@ -792,12 +792,12 @@ const T = {
     cal_in:"ورود", cal_out:"خروج", cal_nights:"شب",
     f_notes:"توضیحات", f_submit:"ثبت و رزرو",
     rc_eyebrow:"پرداخت ودیعه", rc_title:"ارسال فیش واریزی",
-    rc_text:"ودیعه را به شماره شبای زیر واریز کنید، بعد عکس فیش را اینجا بفرستید. رزرو شما همان لحظه تأیید می‌شود.",
+    rc_text:"ودیعه را به شماره کارت زیر واریز کنید، بعد عکس فیش را اینجا بفرستید. رزرو شما همان لحظه تأیید می‌شود.",
     rc_upload:"📷 از فیش عکس بگیرید یا از گالری انتخاب کنید",
-    rc_iban_lbl:"شماره شبا:", rc_name:"نام و نام خانوادگی", rc_phone:"شماره تماس", rc_file:"عکس فیش واریزی", rc_submit:"ارسال فیش",
+    rc_iban_lbl:"شماره کارت:", rc_name:"نام و نام خانوادگی", rc_phone:"شماره تماس", rc_file:"عکس فیش واریزی", rc_submit:"ارسال فیش",
     rc_ok:"فیش با موفقیت ارسال شد. متشکریم!", rc_need:"لطفاً نام، تلفن و عکس فیش را وارد کنید.", rc_err:"خطا در ارسال فیش. دوباره تلاش کنید.", rc_sending:"در حال ارسال…",
     s_nights:"تعداد شب", s_base:"هزینه‌ی اقامت", s_extra:"نفرات اضافه", s_deposit:"ودیعه", s_total:"جمع کل",
-    pay_note:"برای نهایی شدن رزرو، مبلغ ۱٬۵۰۰٬۰۰۰ تومان ودیعه را به شماره شبای زیر واریز کنید و عکس فیش را در پایین بارگذاری کنید. تأییدیه نهایی به واتساپ یا تلگرام شما ارسال خواهد شد. 🙏",
+    pay_note:"برای نهایی شدن رزرو، مبلغ ۱٬۵۰۰٬۰۰۰ تومان ودیعه را به شماره کارت زیر واریز کنید و عکس فیش را در پایین بارگذاری کنید. تأییدیه نهایی به واتساپ یا تلگرام شما ارسال خواهد شد. 🙏",
     pol_eyebrow:"شرایط لغو", pol_title:"قوانین کنسلی",
     r1_w:"۷ روز یا بیشتر قبل", r1_p:"ودیعه به‌طور کامل بازگردانده می‌شود.",
     r2_w:"کمتر از ۷ روز قبل", r2_p:"ودیعه بازگردانده نمی‌شود.",
