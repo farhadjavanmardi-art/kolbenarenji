@@ -24,6 +24,8 @@ h2{font-size:1.05rem;color:var(--amber);margin:22px 0 12px;padding-bottom:8px;bo
 .card{background:var(--s);border:1px solid var(--line);border-radius:var(--r);padding:20px;margin-bottom:16px}
 input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:10px 12px;font:inherit;font-size:.9rem;width:100%}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--orange)}
+.jdate-row{display:flex;gap:6px}
+.jdate-row select{width:auto;flex:1;min-width:0}
 input:disabled{opacity:.6}
 textarea{resize:vertical;min-height:70px}
 label{font-size:.85rem;font-weight:600;display:block;margin-bottom:6px}
@@ -121,8 +123,8 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
   <div class="grid2">
     <div class="fld"><label>نام و نام خانوادگی مهمان *</label><input id="g_name" placeholder="نام کامل"></div>
     <div class="fld"><label>شماره تماس</label><input id="g_phone" inputmode="tel" placeholder="09…"></div>
-    <div class="fld"><label>تاریخ ورود</label><input type="date" id="g_in"></div>
-    <div class="fld"><label>تاریخ خروج</label><input type="date" id="g_out"></div>
+    <div class="fld"><label>تاریخ ورود (شمسی)</label><div class="jdate-row" id="jd_g_in"></div></div>
+    <div class="fld"><label>تاریخ خروج (شمسی)</label><div class="jdate-row" id="jd_g_out"></div></div>
     <div class="fld"><label>نوع مدرک شناسایی تحویلی</label>
       <select id="g_id_type">
         <option value="">— انتخاب کنید —</option>
@@ -211,7 +213,7 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
 <div class="card">
   <h2>⑥ تاریخ و ثبت</h2>
   <div class="grid2">
-    <div class="fld"><label>تاریخ تنظیم فرم</label><input type="date" id="f_date"></div>
+    <div class="fld"><label>تاریخ تنظیم فرم (شمسی)</label><div class="jdate-row" id="jd_f_date"></div></div>
   </div>
   <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap" class="no-print">
     <button class="btn" id="submitBtn" onclick="mode==='in'?submitForm():submitCheckout()">💾 ثبت فرم</button>
@@ -225,6 +227,93 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ---------- تبدیل تاریخ شمسی/میلادی (الگوریتم دقیق مبتنی بر جدول کبیسه) ---------- */
+function jdiv(a,b){return ~~(a/b);}
+function jmod(a,b){return a-~~(a/b)*b;}
+function jalCal(jy){
+  const breaks=[-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178];
+  const bl=breaks.length; let gy=jy+621, leapJ=-14, jp=breaks[0], jm, jump=0, n, i;
+  for(i=1;i<bl;i+=1){
+    jm=breaks[i]; jump=jm-jp;
+    if(jy<jm) break;
+    leapJ=leapJ+jdiv(jump,33)*8+jdiv(jmod(jump,33),4);
+    jp=jm;
+  }
+  n=jy-jp;
+  leapJ=leapJ+jdiv(n,33)*8+jdiv(jmod(n,33)+3,4);
+  if(jmod(jump,33)===4&&jump-n===4) leapJ+=1;
+  const leapG=jdiv(gy,4)-jdiv((jdiv(gy,100)+1)*3,4)-150;
+  const march=20+leapJ-leapG;
+  if(jump-n<6) n=n-jump+jdiv(jump,33)*33;
+  let leap=jmod(jmod(n+1,33)-1,4);
+  if(leap===-1) leap=4;
+  return {leap:leap, gy:gy, march:march};
+}
+function g2d(gy,gm,gd){
+  let d = jdiv((gy+jdiv(gm-8,6)+100100)*1461,4)+jdiv(153*jmod(gm+9,12)+2,5)+gd-34840408;
+  d = d-jdiv(jdiv(gy+100100+jdiv(gm-8,6),100)*3,4)+752;
+  return d;
+}
+function d2g(jdn){
+  let j=4*jdn+139361631;
+  j=j+jdiv(jdiv(4*jdn+183187720,146097)*3,4)*4-3908;
+  const i=jdiv(jmod(j,1461),4)*5+308;
+  const gd=jdiv(jmod(i,153),5)+1;
+  const gm=jmod(jdiv(i,153),12)+1;
+  const gy=jdiv(j,1461)-100100+jdiv(8-gm,6);
+  return [gy,gm,gd];
+}
+function j2d(jy,jm,jd){
+  const r=jalCal(jy);
+  return g2d(r.gy,3,r.march)+(jm-1)*31-jdiv(jm,7)*(jm-7)+jd-1;
+}
+function d2j(jdn){
+  const gy0=d2g(jdn)[0]; let jy=gy0-621;
+  const r=jalCal(jy);
+  const jdn1f=g2d(gy0,3,r.march);
+  let k=jdn-jdn1f, jm, jd;
+  if(k>=0){
+    if(k<=185){ jm=1+jdiv(k,31); jd=jmod(k,31)+1; return [jy,jm,jd]; }
+    k-=186;
+  } else { jy-=1; k+=179; if(r.leap===1) k+=1; }
+  jm=7+jdiv(k,30); jd=jmod(k,30)+1;
+  return [jy,jm,jd];
+}
+function g2j(gy,gm,gd){ return d2j(g2d(gy,gm,gd)); }
+function j2g(jy,jm,jd){ return d2g(j2d(jy,jm,jd)); }
+const J_MONTHS=["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
+function pad2(n){return String(n).padStart(2,"0");}
+function todayJalali(){
+  const t=new Date();
+  return g2j(t.getFullYear(),t.getMonth()+1,t.getDate());
+}
+/* ساخت سه dropdown روز/ماه/سال برای یک فیلد؛ مقدار انتخاب‌شده را به‌صورت ISO میلادی برمی‌گرداند */
+function buildJDatePicker(containerId,defaultJalali){
+  const box=document.getElementById(containerId);
+  const [jy,jm,jd]=defaultJalali||todayJalali();
+  const daySel=document.createElement("select"); daySel.id=containerId+"_d";
+  for(let d=1;d<=31;d++) daySel.innerHTML+=`<option value="${d}" ${d===jd?"selected":""}>${d}</option>`;
+  const monSel=document.createElement("select"); monSel.id=containerId+"_m";
+  J_MONTHS.forEach((name,i)=>{ monSel.innerHTML+=`<option value="${i+1}" ${i+1===jm?"selected":""}>${name}</option>`; });
+  const yearSel=document.createElement("select"); yearSel.id=containerId+"_y";
+  for(let y=jy-2;y<=jy+2;y++) yearSel.innerHTML+=`<option value="${y}" ${y===jy?"selected":""}>${y}</option>`;
+  box.innerHTML=""; box.appendChild(yearSel); box.appendChild(monSel); box.appendChild(daySel);
+}
+/* مقدار میلادی ISO (YYYY-MM-DD) فیلد شمسی را برمی‌گرداند، یا خالی اگر انتخاب نشده */
+function jdateValue(containerId){
+  const y=document.getElementById(containerId+"_y"), m=document.getElementById(containerId+"_m"), d=document.getElementById(containerId+"_d");
+  if(!y||!m||!d||!y.value||!m.value||!d.value) return "";
+  const [gy,gm,gd]=j2g(parseInt(y.value),parseInt(m.value),parseInt(d.value));
+  return `${gy}-${pad2(gm)}-${pad2(gd)}`;
+}
+/* برعکس: یک تاریخ ISO میلادی را روی picker شمسی می‌نشاند (برای پر کردن رکورد قبلی) */
+function jdateSetFromISO(containerId,isoStr){
+  if(!isoStr){ buildJDatePicker(containerId); return; }
+  const [gy,gm,gd]=isoStr.split("-").map(Number);
+  buildJDatePicker(containerId,g2j(gy,gm,gd));
+}
+</script>
 <script>
 /* checklist items */
 const ITEMS=[
@@ -279,6 +368,7 @@ function setMode(m){
     document.getElementById("backBtn").style.display="none";
   }
   renderList();
+  setTimeout(()=>window.dispatchEvent(new Event("resize")),50);
 }
 function backToSearch(){
   loadedRecord=null;
@@ -437,6 +527,7 @@ function showApp(){
   document.getElementById("loginBox").style.display="none";
   document.getElementById("modeTabs").style.display="flex";
   document.getElementById("mainForm").style.display="block";
+  setTimeout(()=>window.dispatchEvent(new Event("resize")),50);
 }
 async function checkSession(){
   const{data}=await sb.auth.getSession();
@@ -449,11 +540,6 @@ async function submitForm(){
   const req=[
     ["g_name","نام و نام خانوادگی مهمان"],
     ["g_phone","شماره تماس"],
-    ["g_in","تاریخ ورود"],
-    ["g_out","تاریخ خروج"],
-    ["g_id_type","نوع مدرک شناسایی"],
-    ["g_id_num","شماره مدرک"],
-    ["f_date","تاریخ تنظیم فرم"],
   ];
   for(const[id,label] of req){
     const el=document.getElementById(id);
@@ -462,6 +548,13 @@ async function submitForm(){
       el.scrollIntoView({behavior:"smooth",block:"center"});el.focus();return;
     }
   }
+  const g_in_iso=jdateValue("jd_g_in"), g_out_iso=jdateValue("jd_g_out"), f_date_iso=jdateValue("jd_f_date");
+  if(!g_in_iso){msg.className="msg err";msg.textContent="فیلد «تاریخ ورود» الزامی است.";document.getElementById("jd_g_in").scrollIntoView({behavior:"smooth",block:"center"});return;}
+  if(!g_out_iso){msg.className="msg err";msg.textContent="فیلد «تاریخ خروج» الزامی است.";document.getElementById("jd_g_out").scrollIntoView({behavior:"smooth",block:"center"});return;}
+  if(!f_date_iso){msg.className="msg err";msg.textContent="فیلد «تاریخ تنظیم فرم» الزامی است.";document.getElementById("jd_f_date").scrollIntoView({behavior:"smooth",block:"center"});return;}
+  const idType=document.getElementById("g_id_type"), idNum=document.getElementById("g_id_num");
+  if(!idType.value){msg.className="msg err";msg.textContent="فیلد «نوع مدرک شناسایی» الزامی است.";idType.scrollIntoView({behavior:"smooth",block:"center"});return;}
+  if(!idNum.value.trim()){msg.className="msg err";msg.textContent="فیلد «شماره مدرک» الزامی است.";idNum.scrollIntoView({behavior:"smooth",block:"center"});return;}
   if(!document.getElementById("c_id").checked){
     msg.className="msg err";msg.textContent="تأیید ارائه‌ی مدرک شناسایی الزامی است.";
     document.getElementById("c_id").scrollIntoView({behavior:"smooth",block:"center"});return;
@@ -482,8 +575,8 @@ async function submitForm(){
   const record={
     guest_name: gname,
     phone: document.getElementById("g_phone").value.trim()||null,
-    checkin_date: document.getElementById("g_in").value||null,
-    checkout_date: document.getElementById("g_out").value||null,
+    checkin_date: g_in_iso||null,
+    checkout_date: g_out_iso||null,
     id_type: document.getElementById("g_id_type").value||null,
     id_number: document.getElementById("g_id_num").value.trim()||null,
     condition: state,
@@ -494,7 +587,7 @@ async function submitForm(){
     extra_notes: document.getElementById("c_notes").value.trim()||null,
     signature: document.getElementById("sig_guest").toDataURL("image/png"),
     admin_signature: document.getElementById("sig_admin").toDataURL("image/png"),
-    checkin_date_signed: document.getElementById("f_date").value||null,
+    checkin_date_signed: f_date_iso||null,
     locale:"fa"
   };
   const{error}=await sb.from("checkins").insert(record);
@@ -513,7 +606,11 @@ async function searchCheckins(){
   if(error){resEl.innerHTML="خطا: "+error.message;return;}
   if(!data||!data.length){resEl.innerHTML='<div class="muted">موردی یافت نشد.</div>';return;}
   window._searchData=data;
-  resEl.innerHTML=data.map(r=>`<div class="search-row"><span>${r.guest_name} — ${r.phone||""} — ${r.checkin_date||""}</span><button type="button" class="btn ghost" style="padding:6px 14px;font-size:.8rem" onclick="pickCheckin('${r.id}')">انتخاب</button></div>`).join("");
+  resEl.innerHTML=data.map(r=>{
+    let jdStr="";
+    if(r.checkin_date){ const[gy,gm,gd]=r.checkin_date.split("-").map(Number); const[jy,jm,jd]=g2j(gy,gm,gd); jdStr=`${jy}/${pad2(jm)}/${pad2(jd)}`; }
+    return `<div class="search-row"><span>${r.guest_name} — ${r.phone||""} — ${jdStr}</span><button type="button" class="btn ghost" style="padding:6px 14px;font-size:.8rem" onclick="pickCheckin('${r.id}')">انتخاب</button></div>`;
+  }).join("");
 }
 function pickCheckin(id){
   const r=(window._searchData||[]).find(x=>x.id===id);
@@ -521,7 +618,7 @@ function pickCheckin(id){
   loadedRecord=r;
   document.getElementById("g_name").value=r.guest_name||"";
   document.getElementById("g_phone").value=r.phone||"";
-  document.getElementById("g_in").value=r.checkin_date||"";
+  jdateSetFromISO("jd_g_in",r.checkin_date||"");
   document.getElementById("g_id_type").value=r.id_type||"";
   document.getElementById("g_id_num").value=r.id_number||"";
   ["g_name","g_phone","g_id_type","g_id_num"].forEach(fid=>document.getElementById(fid).disabled=true);
@@ -531,10 +628,10 @@ function pickCheckin(id){
 async function submitCheckout(){
   const msg=document.getElementById("fMsg");msg.className="msg";
   if(!loadedRecord){msg.className="msg err";msg.textContent="ابتدا مهمان را از طریق جستجو انتخاب کنید.";return;}
-  const fdate=document.getElementById("f_date");
-  if(!fdate.value){
+  const fdate_iso=jdateValue("jd_f_date");
+  if(!fdate_iso){
     msg.className="msg err";msg.textContent="فیلد «تاریخ تنظیم فرم» الزامی است.";
-    fdate.scrollIntoView({behavior:"smooth",block:"center"});return;
+    document.getElementById("jd_f_date").scrollIntoView({behavior:"smooth",block:"center"});return;
   }
   if(!document.getElementById("c_settled").checked){
     msg.className="msg err";msg.textContent="تأیید تسویه‌حساب و تحویل‌گیری الزامی است.";
@@ -553,7 +650,7 @@ async function submitCheckout(){
     checkout_notes: document.getElementById("c_notes_out").value.trim()||null,
     checkout_signature: document.getElementById("sig_guest_out").toDataURL("image/png"),
     checkout_admin_signature: document.getElementById("sig_admin_out").toDataURL("image/png"),
-    checkout_date_signed: document.getElementById("f_date").value||null,
+    checkout_date_signed: fdate_iso||null,
     checked_out: true
   };
   const{error}=await sb.from("checkins").update(rec).eq("id",loadedRecord.id);
@@ -565,8 +662,9 @@ async function submitCheckout(){
 (function(){
   initSig("admin");initSig("guest");initSig("admin_out");initSig("guest_out");
   renderList();
-  document.getElementById("g_in").value=new Date().toISOString().split("T")[0];
-  document.getElementById("f_date").value=new Date().toISOString().split("T")[0];
+  buildJDatePicker("jd_g_in");
+  buildJDatePicker("jd_g_out");
+  buildJDatePicker("jd_f_date");
 })();
 </script>
 </body>
