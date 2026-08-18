@@ -814,6 +814,14 @@ async function loadCheckins(){
   if(error){ console.error(error); checkins=[]; } else checkins=data||[];
   renderCheckins();
 }
+async function deleteChk(id){
+  if(!confirm("این فرم چک‌این/چک‌اوت را کاملاً حذف کنی؟")) return;
+  if(!sb) return;
+  const{error}=await sb.from("checkins").delete().eq("id",id);
+  if(error){ alert("خطا در حذف: "+error.message); return; }
+  checkins=checkins.filter(x=>x.id!==id);
+  renderCheckins();
+}
 document.getElementById("refreshChk").addEventListener("click", loadCheckins);
 document.getElementById("searchChk").addEventListener("input", renderCheckins);
 const COND_KEYS=["living","kitchen","bedroom","bathroom","furniture","appliances","garden"];
@@ -848,6 +856,7 @@ function renderCheckins(){
         <button class="btn sm" onclick="chkPdf('${r.id}')">🖨️ ${t.pdf_btn}</button>
         <button class="btn wa sm" onclick="chkWa('${r.id}')">📱 ${t.wa_btn}</button>
         <button class="btn ghost sm" id="chkCopy_${r.id}" onclick="chkCopy('${r.id}')">${t.copy_btn}</button>
+        <button class="btn ghost sm" style="color:#c43030;border-color:#c43030" onclick="deleteChk('${r.id}')">🗑️ حذف</button>
       </div>
     </div>`).join("");
 }
