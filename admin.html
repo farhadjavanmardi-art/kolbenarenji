@@ -264,11 +264,13 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
         <div class="form2">
           <div class="f2"><label>نام <span style="color:var(--orange)">*</span></label><input id="n_fn" placeholder="نام"></div>
           <div class="f2"><label>نام خانوادگی</label><input id="n_ln" placeholder="نام خانوادگی"></div>
-          <div class="f2"><label>شماره تماس</label><input id="n_ph" inputmode="tel" placeholder="09…"></div>
-          <div class="f2"><label>ایمیل</label><input id="n_em" placeholder="email (اختیاری)"></div>
+          <div class="f2"><label>شماره تماس <span style="color:var(--orange)">*</span></label><input id="n_ph" inputmode="tel" placeholder="09…"></div>
+          <div class="f2"><label>آیدی تلگرام <span style="font-weight:400;color:var(--muted)">(اختیاری — برای دریافت تخفیف)</span></label><input id="n_tg" placeholder="@..."></div>
+          <div class="f2"><label>ایمیل <span style="font-weight:400;color:var(--muted)">(اختیاری — برای دریافت تخفیف)</span></label><input id="n_em" placeholder="email"></div>
           <div class="f2"><label>تاریخ ورود <span style="color:var(--orange)">*</span></label><div class="sdp-wrap" id="sdp_n_in"><button type="button" class="sdp-input" onclick="sdpOpen('n_in')"><span id="sdp_n_in_lbl">انتخاب تاریخ 📅</span></button><div class="sdp-cal" id="sdp_cal_n_in"></div></div><input type="hidden" id="n_in"></div>
           <div class="f2"><label>تاریخ خروج <span style="color:var(--orange)">*</span></label><div class="sdp-wrap" id="sdp_n_out"><button type="button" class="sdp-input" onclick="sdpOpen('n_out')"><span id="sdp_n_out_lbl">انتخاب تاریخ 📅</span></button><div class="sdp-cal" id="sdp_cal_n_out"></div></div><input type="hidden" id="n_out"></div>
           <div class="f2"><label>تعداد مهمان</label><input type="number" id="n_gu" value="2" min="1" max="6"></div>
+          <div class="f2 full2"><label>عکس فیش واریزی <span style="color:var(--orange)">*</span></label><input type="file" id="n_rc" accept="image/*"></div>
           <div class="f2"><label>وضعیت</label>
             <select id="n_st">
               <option value="confirmed">تأیید شده</option>
@@ -725,25 +727,41 @@ function calcManual(){
 async function saveManual(){
   const err=document.getElementById("n_err"); err.textContent="";
   const fn=document.getElementById("n_fn").value.trim();
+  const ph=document.getElementById("n_ph").value.trim();
   const inV=document.getElementById("n_in").value, outV=document.getElementById("n_out").value;
+  const rcFile=document.getElementById("n_rc").files[0];
   if(!fn){err.textContent="نام را وارد کنید.";return;}
+  if(!ph){err.textContent="شماره تماس را وارد کنید.";return;}
   if(!inV||!outV||new Date(outV)<=new Date(inV)){err.textContent="تاریخ‌ها را درست وارد کنید.";return;}
+  if(!rcFile){err.textContent="عکس فیش واریزی الزامی است.";return;}
   const r=calcManual(); if(!r){err.textContent="خطا در محاسبه.";return;}
+  if(!sb){console.warn("manual reservation");err.textContent="Supabase not configured";return;}
+
+  let receiptUrl=null;
+  try{
+    const path=`r_${Date.now()}_${Math.random().toString(36).slice(2,10)}.${(rcFile.name.split(".").pop()||"jpg")}`;
+    const{error:upErr}=await sb.storage.from("receipts").upload(path,rcFile,{upsert:false});
+    if(upErr){err.textContent="خطا در آپلود فیش: "+upErr.message;return;}
+    receiptUrl=sb.storage.from("receipts").getPublicUrl(path).data.publicUrl;
+  }catch(e){err.textContent="خطا در آپلود فیش.";return;}
+
   const record={
     first_name:fn, last_name:document.getElementById("n_ln").value.trim()||null,
-    phone:document.getElementById("n_ph").value.trim()||null,
+    phone:ph,
     email:document.getElementById("n_em").value.trim()||null,
+    telegram:document.getElementById("n_tg").value.trim()||null,
     check_in:inV, check_out:outV, nights:r.nights,
     guests:parseInt(document.getElementById("n_gu").value||"2",10),
     total_price:r.total, deposit:r.deposit,
     special_requests:document.getElementById("n_nt").value.trim()||null,
-    status:document.getElementById("n_st").value, locale:"fa"
+    status:document.getElementById("n_st").value, locale:"fa",
+    receipt_url:receiptUrl
   };
-  if(!sb){console.warn(record);err.textContent="Supabase not configured";return;}
   const{error}=await sb.from("reservations").insert(record);
   if(error){err.textContent="خطا: "+error.message;return;}
   alert("✅ رزرو ثبت شد!");
-  ["n_fn","n_ln","n_ph","n_em","n_in","n_out","n_nt"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  ["n_fn","n_ln","n_ph","n_em","n_tg","n_in","n_out","n_nt"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  document.getElementById("n_rc").value="";
   document.getElementById("n_gu").value="2";
   document.getElementById("n_price").textContent="";
   setTab("res"); load();
