@@ -14,14 +14,16 @@
   // Preise (Toman) — frei änderbar
   const PRICE = {
     weekday:     4600000,   // شنبه تا چهارشنبه
-    weekend:     5500000,   // پنجشنبه و جمعه
+    weekend:     5500000,   // فقط پنجشنبه شب
     deposit:     1500000,   // ودیعه
     extraGuest:   500000,   // هر نفر اضافه در هر شب
     baseGuests:        4,   // ظرفیت پایه
     maxGuests:         6
   };
-  // Wochenend-Nächte = Donnerstag (4) und Freitag (5)  (0=So ... 6=Sa)
-  const WEEKEND_DAYS = [4, 5];
+  // Wochenend-Preis gilt nur fuer die Nacht, die am Donnerstag beginnt
+  // ("پنجشنبه شب"). Die Nacht ab Freitag ist eine gewoehnliche Nacht,
+  // weil auf sie der Samstag als Arbeitstag folgt. (0=So ... 6=Sa)
+  const WEEKEND_DAYS = [4];
 
   // Bankverbindung für Kaution
   const IBAN = "6219861986705167";
@@ -498,11 +500,11 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
     </div>
     <div class="prices">
       <div class="price">
-        <div class="label" data-i="p1_l">شب‌های عادی · شنبه تا چهارشنبه</div>
+        <div class="label" data-i="p1_l">شب‌های عادی · جمعه تا چهارشنبه</div>
         <div class="amount" id="p_weekday"></div>
       </div>
       <div class="price feature">
-        <div class="label" data-i="p2_l">آخر هفته · پنجشنبه و جمعه</div>
+        <div class="label" data-i="p2_l">آخر هفته · پنجشنبه شب</div>
         <div class="amount" id="p_weekend"></div>
       </div>
       <div class="price">
@@ -775,7 +777,7 @@ const T = {
     price_eyebrow:"قیمت‌ها", price_title:"تعرفه‌ی اقامت",
     val1_t:"بدون همسایه", val2_t:"هزار متر باغ", val3_t:"منظره‌ی اختصاصی کوهستان", val4_t:"رستوران کنار ویلا",
     val5_t:"فضای باربیکیو", val6_t:"پارکینگ امن", val7_t:"نگهبانی و امنیت", val8_t:"آشپزخانه‌ی کامل",
-    p1_l:"شب‌های عادی · شنبه تا چهارشنبه", p2_l:"آخر هفته · پنجشنبه و جمعه",
+    p1_l:"شب‌های عادی · جمعه تا چهارشنبه", p2_l:"آخر هفته · پنجشنبه شب",
     p3_l:"ودیعه", p3_n:"",
     p4_l:"هر نفر اضافه", p4_n:"بیش از ۴ نفر، در هر شب",
     book_eyebrow:"رزرو", book_title:"درخواست رزرو",
