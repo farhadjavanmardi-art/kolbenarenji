@@ -1073,31 +1073,53 @@ function renderDiscountBanner(){
   const banner = document.getElementById("discountBanner");
   const top    = document.getElementById("topDiscountBar");
   const today  = startOfDay(new Date());
+  const alsDatum = s => new Date(s+"T00:00:00");
+
   // تخفیف‌هایی که امروز واقعاً برقرارند
-  const current = activeDiscounts.filter(d =>
-    d.active &&
-    new Date(d.start_date+"T00:00:00") <= today &&
-    new Date(d.end_date+"T00:00:00")   >= today);
+  const laeuft = activeDiscounts.filter(d =>
+    d.active && alsDatum(d.start_date) <= today && alsDatum(d.end_date) >= today);
+
+  // Und die, die erst noch kommen. Frueher blieb der Balken bis zum
+  // Vortag leer: wer im Mordad auf die Seite kam, sah nichts von einem
+  // Rabatt, der am 1. Shahrivar beginnt - dabei ist genau das ein Grund,
+  // jetzt zu buchen. fetchDiscounts holt ohnehin alles, was noch nicht
+  // abgelaufen ist, die Zeilen liegen also schon hier.
+  const kommend = activeDiscounts
+    .filter(d => d.active && alsDatum(d.start_date) > today)
+    .sort((a,b) => alsDatum(a.start_date) - alsDatum(b.start_date)
+                || b.percent - a.percent);
+
+  // Was heute gilt, hat Vorrang; sonst der naechste, der beginnt. Beides
+  // nebeneinander waeren zwei Aussagen in einer Zeile.
+  const zeigen = laeuft.length
+    ? laeuft.reduce((m,d)=>d.percent>m.percent?d:m, laeuft[0])
+    : kommend[0];
 
   // Ohne diesen Zweig blieb ein Hinweis stehen, nachdem der Rabatt im
   // Adminbereich abgeschaltet wurde.
-  if(!current.length){
+  if(!zeigen){
     if(banner) banner.hidden = true;
     if(top)    top.hidden    = true;
     return;
   }
 
-  const best = current.reduce((m,d)=>d.percent>m.percent?d:m, current[0]);
-  const bis  = fmtDate(new Date(best.end_date+"T00:00:00"));
-  const pct  = lang==="fa" ? toFa(best.percent) : best.percent;
+  const laeuftJetzt = laeuft.length > 0;
+  const pct   = lang==="fa" ? toFa(zeigen.percent) : zeigen.percent;
+  const von   = fmtDate(alsDatum(zeigen.start_date));
+  const bis   = fmtDate(alsDatum(zeigen.end_date));
+  const titel = zeigen.description || "تخفیف ویژه";
 
   if(banner){
     banner.hidden=false;
-    banner.textContent = `🏷️ ${best.description||"تخفیف ویژه"}: ${pct}٪ — تا ${bis}`;
+    banner.textContent = laeuftJetzt
+      ? `🏷️ ${titel}: ${pct}٪ — تا ${bis}`
+      : `🏷️ ${titel}: ${pct}٪ — از ${von} تا ${bis}`;
   }
   if(top){
     top.hidden=false;
-    top.textContent = `🏷️ ${pct}٪ تخفیف روی همه‌ی شب‌ها — تا ${bis}`;
+    top.textContent = laeuftJetzt
+      ? `🏷️ ${pct}٪ تخفیف روی همه‌ی شب‌ها — تا ${bis}`
+      : `🏷️ به‌زودی ${pct}٪ تخفیف روی همه‌ی شب‌ها — از ${von}`;
   }
 }
 
