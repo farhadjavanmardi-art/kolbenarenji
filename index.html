@@ -11,9 +11,12 @@
 <script>
   const SUPABASE_URL      = "https://aqxlxnczzaqbdtjpdbal.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_W1_fIGS4g9w_GvLi4vpkqA_-YxbFAk7";   // Dashboard -> Project Settings -> API Keys -> anon/publishable
-  // Preise (Toman) — frei änderbar
+  // Preise (Toman). Massgeblich ist die Tabelle "pricing" in der
+  // Datenbank - dort rechnet auch der Trigger, der den gespeicherten
+  // Preis festlegt. Diese Werte sind nur der Rueckfall, falls die
+  // Abfrage scheitert; fetchPricing() ueberschreibt sie beim Laden.
   const PRICE = {
-    weekday:     4600000,   // شنبه تا چهارشنبه
+    weekday:     4600000,   // جمعه تا چهارشنبه
     weekend:     5500000,   // فقط پنجشنبه شب
     deposit:     1500000,   // ودیعه
     extraGuest:   500000,   // هر نفر اضافه در هر شب
@@ -1051,6 +1054,35 @@ async function fetchBlocked(){
   renderCal();
 }
 
+/* Die Preise aus der Datenbank holen. Bisher standen sie nur hier im
+   Skript, und admin.html hielt noch zwei weitere Fassungen - eine davon
+   auf der alten Wochenendregel. Solange jede Seite ihre eigenen Zahlen
+   fuehrt, faellt ein Auseinanderlaufen niemandem auf, bis jemand
+   nachrechnet.
+
+   Schlaegt die Abfrage fehl, bleiben die Werte oben stehen: lieber der
+   zuletzt bekannte Preis als gar keiner. Falsch gespeichert werden kann
+   dadurch nichts mehr, das entscheidet der Trigger. */
+async function fetchPricing(){
+  if(!sb) return;
+  try{
+    const { data, error } = await sb.from("pricing").select("*").limit(1);
+    if(error || !data || !data.length) return;
+    const p = data[0];
+    PRICE.weekday    = Number(p.weekday);
+    PRICE.weekend    = Number(p.weekend);
+    PRICE.deposit    = Number(p.deposit);
+    PRICE.extraGuest = Number(p.extra_guest);
+    PRICE.baseGuests = Number(p.base_guests);
+    PRICE.maxGuests  = Number(p.max_guests);
+    if(Array.isArray(p.weekend_dows) && p.weekend_dows.length){
+      WEEKEND_DAYS.length = 0;
+      p.weekend_dows.forEach(d => WEEKEND_DAYS.push(Number(d)));
+    }
+    renderPrices(); recalc();
+  }catch(e){ console.warn("pricing fetch failed", e); }
+}
+
 async function fetchDiscounts(){
   if(!sb) return;
   try{
@@ -1219,6 +1251,7 @@ if(rcFileInput){
 /* init */
 setLang("fa");
 fetchBlocked();
+fetchPricing();
 fetchDiscounts();
 </script>
 </body>
