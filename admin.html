@@ -703,26 +703,43 @@ async function deleteRes(id){
 }
 
 /* ---- manual reservation ---- */
-const PRICE_WD=4600000, PRICE_WE=5500000, PRICE_DEP=1500000, PRICE_EX=500000, BASE_G=4;
-const WE_DAYS=[4,5];
-function calcManual(){
-  const inV=document.getElementById("n_in").value, outV=document.getElementById("n_out").value;
+/* Der Preis wird nicht mehr hier gerechnet. Diese Datei hatte zwei eigene
+   Rechenwege, beide auf der alten Wochenendregel (Freitagnacht zum
+   Wochenendsatz) und beide ohne Rabatt - eine hier eingetragene Buchung
+   war damit zuverlaessig zu teuer, und niemand konnte es sehen, weil die
+   Zahlen nur in diesem Skript standen.
+
+   Jetzt fragt die Seite dieselbe Datenbankfunktion, nach der auch der
+   Trigger die gespeicherte Buchung berechnet. Damit kann das, was hier
+   angezeigt wird, gar nicht mehr von dem abweichen, was gespeichert und
+   kassiert wird. */
+async function preisVomServer(){
+  const inV=document.getElementById("n_in").value;
+  const outV=document.getElementById("n_out").value;
   const guests=parseInt(document.getElementById("n_gu").value||"2",10);
-  if(!inV||!outV||new Date(outV)<=new Date(inV)) return null;
-  let nights=0, base=0;
-  for(let d=new Date(inV+"T00:00:00"); d<new Date(outV+"T00:00:00"); d.setDate(d.getDate()+1)){
-    nights++; base+=WE_DAYS.includes(d.getDay())?PRICE_WE:PRICE_WD;
-  }
-  const extra=Math.max(0,guests-BASE_G)*PRICE_EX*nights;
-  return {nights, base, extra, deposit:PRICE_DEP, total:base+extra+PRICE_DEP};
+  if(!sb||!inV||!outV||new Date(outV)<=new Date(inV)) return null;
+  const {data,error}=await sb.rpc("calc_reservation_price",
+    {p_check_in:inV, p_check_out:outV, p_guests:guests});
+  if(error||!data||!data.length){ console.warn("Preis nicht abrufbar", error); return null; }
+  const r=data[0];
+  return { nights:Number(r.nights), base:Number(r.base), extra:Number(r.extra),
+           deposit:Number(r.deposit), total:Number(r.total),
+           saved:Number(r.saved), maxPct:Number(r.max_pct) };
+}
+
+/* Ohne Preis lieber nichts behaupten: ein leeres Feld faellt auf, eine
+   veraltete Zahl nicht. */
+async function calcManualUpdate(){
+  const el=document.getElementById("n_price");
+  if(!el) return;
+  const r=await preisVomServer();
+  if(!r){ el.textContent=""; return; }
+  el.textContent = `${toFa(r.nights)} شب · جمع: ${r.total.toLocaleString()} تومان`
+    + (r.maxPct>0 ? ` (${toFa(r.maxPct)}٪ تخفیف)` : "");
 }
 ["n_in","n_out","n_gu"].forEach(id=>{
   const el=document.getElementById(id);
-  if(el) el.addEventListener("input",()=>{
-    const r=calcManual(); const el2=document.getElementById("n_price");
-    if(r&&el2) el2.textContent=`${r.nights} شب · جمع: ${r.total.toLocaleString()} تومان`;
-    else if(el2) el2.textContent="";
-  });
+  if(el) el.addEventListener("input", calcManualUpdate);
 });
 async function saveManual(){
   const err=document.getElementById("n_err"); err.textContent="";
@@ -734,7 +751,7 @@ async function saveManual(){
   if(!ph){err.textContent="شماره تماس را وارد کنید.";return;}
   if(!inV||!outV||new Date(outV)<=new Date(inV)){err.textContent="تاریخ‌ها را درست وارد کنید.";return;}
   if(!rcFile){err.textContent="عکس فیش واریزی الزامی است.";return;}
-  const r=calcManual(); if(!r){err.textContent="خطا در محاسبه.";return;}
+  const r=await preisVomServer(); if(!r){err.textContent="خطا در محاسبهٔ قیمت — دوباره تلاش کنید.";return;}
   if(!sb){console.warn("manual reservation");err.textContent="Supabase not configured";return;}
 
   let receiptUrl=null;
@@ -1584,20 +1601,6 @@ document.addEventListener('click', e=>{
   if(!e.target.closest('.sdp-wrap')) document.querySelectorAll('.sdp-cal.open').forEach(el=>el.classList.remove('open'));
 });
 
-function calcManualUpdate(){
-  const inV=document.getElementById("n_in").value, outV=document.getElementById("n_out").value;
-  if(!inV||!outV) return;
-  const guests=parseInt(document.getElementById("n_gu").value||"2",10);
-  let nights=0,base=0;
-  for(let d=new Date(inV+"T00:00:00");d<new Date(outV+"T00:00:00");d.setDate(d.getDate()+1)){nights++;base+=[4,5].includes(d.getDay())?5500000:4600000;}
-  const extra=Math.max(0,guests-4)*500000*nights;
-  const total=base+extra+1500000;
-  const el=document.getElementById("n_price");
-  if(el&&nights>0) el.textContent=`${toFa(nights)} شب · جمع: ${total.toLocaleString()} تومان`;
-}
-
-/* آپدیت جمع در رزرو دستی */
-document.getElementById("n_gu")?.addEventListener("input", calcManualUpdate);
 
 /* init تقویم‌ها با تاریخ امروز */
 function initAllSdp(){
