@@ -250,6 +250,10 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--orange)}
 .cal-day.empty{cursor:default}
 .cal-day.dis{color:#45454b;cursor:not-allowed;text-decoration:line-through}
 .cal-day.booked{background:rgba(220,60,60,.20);color:#e88a8a;cursor:not-allowed}
+/* Belegt, aber als Abreisetag waehlbar: die Nacht davor ist frei, und wer
+   morgens abreist, belegt diesen Tag nicht. */
+.cal-day.booked.abreise{cursor:pointer;border-color:var(--orange);border-style:dashed}
+.cal-day.booked.abreise:hover{background:rgba(255,122,26,.22);color:var(--text)}
 .cal-day.free{background:rgba(40,170,90,.16);color:var(--text)}
 .cal-day.free:hover{background:rgba(40,170,90,.30)}
 .cal-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:.82rem;color:var(--muted)}
@@ -907,8 +911,23 @@ function fmtDate(d){
   if(lang==="fa"){ const j=toJalaali(d); return toFa(j.jd)+" "+FA_MONTHS[j.jm-1]+" "+toFa(j.jy); }
   return d.getDate()+" "+EN_MONTHS[d.getMonth()]+" "+d.getFullYear();
 }
+/* Der Abreisetag darf belegt sein. Er ist keine gebuchte Nacht: wer am
+   Morgen abreist, macht das Zimmer fuer den naechsten Gast frei. Solange
+   diese Ausnahme fehlte, liess sich eine einzelne freie Nacht zwischen
+   zwei Buchungen ueberhaupt nicht buchen - der einzige moegliche
+   Abreisetag war gesperrt. Dasselbe galt fuer jede letzte freie Nacht vor
+   einer fremden Anreise. */
+function darfAbreisetagSein(d){
+  if(!selStart || selEnd) return false;
+  if(d.getTime() <= selStart.getTime()) return false;
+  for(let x=new Date(selStart); x<d; x.setDate(x.getDate()+1)){
+    if(blocked.has(ymd(x))) return false;
+  }
+  return true;
+}
 function onDayClick(d){
-  if(d<TODAY || blocked.has(ymd(d))) return;
+  if(d<TODAY) return;
+  if(blocked.has(ymd(d)) && !darfAbreisetagSein(d)) return;
   if(!selStart || (selStart && selEnd)){ selStart=d; selEnd=null; }
   else if(d.getTime()<=selStart.getTime()){ selStart=d; selEnd=null; }
   else {
@@ -944,7 +963,7 @@ function renderCal(){
     const d=mkDate(i); const k=ymd(d); const cls=["cal-day"];
     const past = d<TODAY, isBlk = blocked.has(k);
     if(past) cls.push("dis");
-    else if(isBlk) cls.push("booked");
+    else if(isBlk){ cls.push("booked"); if(darfAbreisetagSein(d)) cls.push("abreise"); }
     else cls.push("free");
     if(d.getTime()===TODAY.getTime()) cls.push("today");
     if(sameDay(d,selStart)) cls.push("start");
@@ -953,7 +972,7 @@ function renderCal(){
     cells.push(`<div class="${cls.join(" ")}" data-k="${k}">${label(i)}</div>`);
   }
   grid.innerHTML=cells.join("");
-  grid.querySelectorAll(".cal-day:not(.empty):not(.dis):not(.booked)").forEach(el=>{
+  grid.querySelectorAll(".cal-day:not(.empty):not(.dis):not(.booked), .cal-day.booked.abreise").forEach(el=>{
     el.onclick=()=>{ const [y,m,dd]=el.getAttribute("data-k").split("-").map(Number); onDayClick(startOfDay(new Date(y,m-1,dd))); };
   });
   // prev disabled if viewing current month or earlier
