@@ -28,9 +28,13 @@
   // weil auf sie der Samstag als Arbeitstag folgt. (0=So ... 6=Sa)
   const WEEKEND_DAYS = [4];
 
-  // Bankverbindung für Kaution
-  const IBAN = "ENTFERNT";
-  const IBAN_OWNER = "ENTFERNT";
+  // Bankverbindung fuer die Kaution. Kontonummer und Name des Kontoinhabers
+  // standen bisher hier im Quelltext - und dieses Repository ist oeffentlich,
+  // der Name lag also offen. Massgeblich ist jetzt die Tabelle
+  // "bankverbindung"; fetchBankverbindung() holt sie beim Laden. Kein
+  // Rueckfallwert: lieber kurz ein Platzhalter als der Name im Quelltext.
+  let IBAN = "";
+  let IBAN_OWNER = "";
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -637,7 +641,7 @@ input,select,textarea,button{font-size:16px!important;touch-action:manipulation}
     <details class="faq-item"><summary data-i="q6">پارکینگ دارد؟</summary><div class="ans" data-i="a6">بله، پارکینگ امن و جای کافی در نزدیکی ویلا موجود است.</div></details>
     <details class="faq-item"><summary data-i="q7">غذا چطور تهیه کنم؟</summary><div class="ans" data-i="a7">رستوران برج وی‌آی‌پی درست کنار ویلاست و می‌توانید مستقیم سفارش دهید. کافه و رستوران‌های دیگری هم در نزدیکی هستند.</div></details>
     <details class="faq-item"><summary data-i="q8">ویلا کجاست؟</summary><div class="ans" data-i="a8">شیراز، روستای قلات، ابتدای بافت قدیم، کنار رستوران شاندیز برج وی‌آی‌پی؛ با چشم‌انداز کوه و آبشارهای قلات در نزدیکی.</div></details>
-    <details class="faq-item"><summary data-i="q9">چطور ودیعه را پرداخت کنم؟</summary><div class="ans" data-i="a9">مبلغ ودیعه را به شماره کارت (به نام ENTFERNT) واریز کنید و سپس عکس فیش را در سایت آپلود کنید.</div></details>
+    <details class="faq-item"><summary data-i="q9">چطور ودیعه را پرداخت کنم؟</summary><div class="ans" data-i="a9">مبلغ ودیعه را به شماره کارت اعلام‌شده در همین صفحه (همراه با نام صاحب حساب) واریز کنید و سپس عکس فیش را در سایت آپلود کنید.</div></details>
     <details class="faq-item"><summary data-i="q10">حیوان خانگی مجاز است؟</summary><div class="ans" data-i="a10">لطفاً پیش از رزرو با پشتیبانی هماهنگ کنید تا شرایط همراه‌داشتن حیوان خانگی بررسی شود.</div></details>
     <details class="faq-item"><summary data-i="q12">کودکان هزینه‌ای دارند؟</summary><div class="ans" data-i="a12">برای اطلاع از شرایط کودکان همراه، پیش از رزرو با پشتیبانی تماس بگیرید.</div></details>
     <details class="faq-item"><summary data-i="q13">صبحانه سرو می‌شود؟</summary><div class="ans" data-i="a13">کلبه نارنجی خودپذیرایی است؛ آشپزخانه‌ی کامل در اختیار شماست و رستوران کنار ویلا هم برای سفارش غذا در دسترس است.</div></details>
@@ -729,7 +733,7 @@ const T = {
     q6:"پارکینگ دارد؟", a6:"بله، پارکینگ امن و جای کافی در نزدیکی ویلا موجود است.",
     q7:"غذا چطور تهیه کنم؟", a7:"رستوران برج وی‌آی‌پی درست کنار ویلاست و می‌توانید مستقیم سفارش دهید. کافه و رستوران‌های دیگری هم در نزدیکی هستند. کلبه نارنجی مجهز به آشپزخانه با ظروف برای آشپزی هست و غیر از اون می‌تونید از باربیکیو هم برای کباب بازی استفاده کنید😉.",
     q8:"ویلا کجاست؟", a8:"شیراز، روستای قلات، ابتدای بافت قدیم، کنار رستوران شاندیز برج وی‌آی‌پی؛ با چشم‌انداز کوه و آبشارهای قلات در نزدیکی.",
-    q9:"چطور ودیعه را پرداخت کنم؟", a9:"مبلغ ودیعه را به شماره کارت (به نام ENTFERNT) واریز کنید و سپس عکس فیش را در سایت آپلود کنید.",
+    q9:"چطور ودیعه را پرداخت کنم؟", a9:"مبلغ ودیعه را به شماره کارت اعلام‌شده در همین صفحه (همراه با نام صاحب حساب) واریز کنید و سپس عکس فیش را در سایت آپلود کنید.",
     q10:"حیوان خانگی مجاز است؟", a10:"لطفاً پیش از رزرو با پشتیبانی هماهنگ کنید تا شرایط همراه‌داشتن حیوان خانگی بررسی شود.",
     q12:"کودکان هزینه‌ای دارند؟", a12:"برای اطلاع از شرایط کودکان همراه، پیش از رزرو با پشتیبانی تماس بگیرید.",
     q13:"صبحانه سرو می‌شود؟", a13:"کلبه نارنجی خودپذیرایی است؛ آشپزخانه‌ی کامل در اختیار شماست و رستوران کنار ویلا هم برای سفارش غذا در دسترس است.",
@@ -854,9 +858,12 @@ function renderPrices(){
   document.getElementById("p_weekend").innerHTML = preisMitRabatt(PRICE.weekend, T[lang].unit_per_night);
   document.getElementById("p_deposit").innerHTML = fmt(PRICE.deposit) + ' <small>'+T[lang].unit_toman+'</small>';
   document.getElementById("p_extra").innerHTML   = fmt(PRICE.extraGuest) + ' <small>'+T[lang].unit_per_night+'</small>';
-  document.getElementById("iban_show").textContent = IBAN + "  ·  " + IBAN_OWNER;
-  document.getElementById("iban_foot").textContent = IBAN + "  ·  " + IBAN_OWNER;
-  const ibanRc = document.getElementById("iban_rc"); if(ibanRc) ibanRc.textContent = IBAN + "  ·  " + IBAN_OWNER;
+  // Solange die Abfrage laeuft, steht hier ein Platzhalter statt
+  // "  ·  " ohne Zahl davor.
+  const ibanZeile = IBAN ? (IBAN + "  ·  " + IBAN_OWNER) : "…";
+  document.getElementById("iban_show").textContent = ibanZeile;
+  document.getElementById("iban_foot").textContent = ibanZeile;
+  const ibanRc = document.getElementById("iban_rc"); if(ibanRc) ibanRc.textContent = ibanZeile;
 }
 
 /* ---------- Jalali <-> Gregorian (jalaali-js, MIT) ---------- */
@@ -1102,6 +1109,26 @@ async function fetchPricing(){
   }catch(e){ console.warn("pricing fetch failed", e); }
 }
 
+/* Die Bankverbindung aus der Datenbank holen. Die Lesepolicy gibt anonymen
+   Besuchern nur die Zeilen mit oeffentlich = true frei, also das Konto fuer
+   die Kaution. Das Konto der Verwaltung sieht nur ein angemeldetes Konto.
+
+   Schlaegt die Abfrage fehl, bleibt der Platzhalter stehen. Eine falsche
+   Kontonummer waere schlimmer als gar keine. */
+async function fetchBankverbindung(){
+  if(!sb) return;
+  try{
+    const { data, error } = await sb.from("bankverbindung")
+      .select("key,value").in("key", ["gast_konto","gast_inhaber"]);
+    if(error || !data || !data.length) return;
+    data.forEach(z => {
+      if(z.key === "gast_konto")   IBAN       = z.value;
+      if(z.key === "gast_inhaber") IBAN_OWNER = z.value;
+    });
+    renderPrices();
+  }catch(e){ console.warn("bankverbindung fetch failed", e); }
+}
+
 async function fetchDiscounts(){
   if(!sb) return;
   try{
@@ -1271,6 +1298,7 @@ if(rcFileInput){
 setLang("fa");
 fetchBlocked();
 fetchPricing();
+fetchBankverbindung();
 fetchDiscounts();
 </script>
 </body>
