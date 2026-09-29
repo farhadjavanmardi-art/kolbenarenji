@@ -58,7 +58,7 @@ diesem Repository.
 | `admin.html` | [/admin](https://kolbenarenji.com/admin) | Verwaltung (Anmeldung nötig) |
 | `checkin.html` | [/checkin](https://kolbenarenji.com/checkin) | Übergabeformular (Anmeldung nötig) |
 | `dashboard-6p.html` | [/dashboard-6p](https://kolbenarenji.com/dashboard-6p) | Kennzahlen (Anmeldung nötig) |
-| `gold.html` | [/gold](https://kolbenarenji.com/gold) | Gold Intelligence |
+| `gold.html` | [/gold](https://kolbenarenji.com/gold) | Gold Intelligence — eigenes Repository: [farhadjavanmardi-art/gold](https://github.com/farhadjavanmardi-art/gold) |
 | `panel.html` | [/panel](https://kolbenarenji.com/panel) | Einstieg zu den Bereichen |
 | `crm.html` | [/crm](https://kolbenarenji.com/crm) | Kundenverwaltung, noch nicht angeschlossen |
 
@@ -75,7 +75,7 @@ diesem Repository.
 - `admin.html` — پنل مدیریت (نیازمند ورود)
 - `checkin.html` — فرم تحویل و تحول (نیازمند ورود)
 - `dashboard-6p.html` — داشبورد شاخص‌ها (نیازمند ورود)
-- `gold.html` — Gold Intelligence
+- `gold.html` — Gold Intelligence (مخزن جداگانه: [farhadjavanmardi-art/gold](https://github.com/farhadjavanmardi-art/gold))
 - `panel.html` — صفحه لانچر
 - `crm.html` — مدیریت مشتریان (هنوز به دیتابیس وصل نیست)
 
