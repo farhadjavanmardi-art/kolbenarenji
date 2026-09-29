@@ -1229,7 +1229,11 @@ document.getElementById("bookForm").addEventListener("submit", async (e)=>{
       const path=`r_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
       const up=await sb.storage.from("receipts").upload(path, file, {upsert:false});
       if(up.error) throw up.error;
-      receiptUrl = sb.storage.from("receipts").getPublicUrl(path).data.publicUrl;
+      // Nur der Pfad wird gespeichert. Vorher stand hier die oeffentliche
+      // Adresse der Datei: wer sie hatte - und sie stand in receipt_url,
+      // das jeder lesen konnte - sah den Zahlungsbeleg eines fremden Gastes.
+      // admin.html macht daraus beim Anzeigen eine befristete Adresse.
+      receiptUrl = path;
     }
 
     const record = {

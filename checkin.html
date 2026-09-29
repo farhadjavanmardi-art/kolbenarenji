@@ -387,7 +387,7 @@ function backToSearch(){
 
 /* رندر آیتم قابل‌ویرایش (چک‌این یا سمت «بعد» چک‌اوت) */
 function itemPhotosHtml(stage,k,photos){
-  const thumbs=(photos||[]).map(u=>`<img class="photo-thumb" src="${u}">`).join("");
+  const thumbs=(photos||[]).map(u=>`<img class="photo-thumb" data-cifoto="${u}">`).join("");
   return `<div class="ci-photos" id="thumbs_${stage}_${k}">${thumbs}</div>
     <button type="button" class="cib" onclick="document.getElementById('pf_${stage}_${k}').click()">📷 افزودن عکس</button>
     <input type="file" accept="image/*" capture="environment" multiple style="display:none" id="pf_${stage}_${k}" onchange="handlePhotos('${stage}','${k}',this.files)">
@@ -419,7 +419,7 @@ function renderItemReadonly(it,s){
     <div class="ci-head"><span class="ci-name">${it.l}</span><span class="cib${s.status==="bad"?" bad":" ok"}" style="pointer-events:none">${s.status==="bad"?"✗ مشکل":"✓ سالم"}</span></div>
     ${cnt}
     ${s.note?`<div class="ci-note muted" style="margin-top:6px">${s.note}</div>`:""}
-    <div class="ci-photos">${(s.photos||[]).map(u=>`<img class="photo-thumb" src="${u}">`).join("")||'<span class="muted" style="font-size:.78rem">بدون عکس</span>'}</div>
+    <div class="ci-photos">${(s.photos||[]).map(u=>`<img class="photo-thumb" data-cifoto="${u}">`).join("")||'<span class="muted" style="font-size:.78rem">بدون عکس</span>'}</div>
   </div>`;
 }
 function renderList(){
@@ -438,7 +438,32 @@ function renderList(){
       </div>`;
     }).join("");
   }
+  ciFotosZeigen();
 }
+
+/* Der Bucket "checkin-photos" war oeffentlich: wer eine Adresse hatte, sah
+   das Foto, ohne angemeldet zu sein. Jetzt ist er geschlossen. Gespeichert
+   wird nur der Pfad; die Vorschau holt sich beim Anzeigen eine Adresse, die
+   nach zehn Minuten verfaellt. Aeltere Datensaetze tragen noch die
+   vollstaendige Adresse, ciFotoPfad() nimmt beides. */
+function ciFotoPfad(wert){
+  if(!wert) return null;
+  const marke = "/checkin-photos/";
+  const i = wert.indexOf(marke);
+  return i === -1 ? wert : wert.slice(i + marke.length);
+}
+async function ciFotosZeigen(){
+  if(!sb) return;
+  for(const bild of document.querySelectorAll("img[data-cifoto]")){
+    const pfad = ciFotoPfad(bild.dataset.cifoto);
+    if(!pfad) continue;
+    const { data, error } = await sb.storage.from("checkin-photos").createSignedUrl(pfad, 600);
+    if(error || !data) continue;
+    bild.src = data.signedUrl;
+    bild.removeAttribute("data-cifoto");
+  }
+}
+
 function setStatus(stage,k,v,btn){
   const st=stage==="in"?state:outState;
   if(!st[k])st[k]={photos:[]};
@@ -466,13 +491,13 @@ async function handlePhotos(stage,k,files){
       const path=`${folder}/${k}/${stage}_${Date.now()}_${Math.random().toString(36).slice(2,7)}.jpg`;
       const{error}=await sb.storage.from("checkin-photos").upload(path,f,{contentType:f.type||"image/jpeg"});
       if(error)throw error;
-      const{data}=sb.storage.from("checkin-photos").getPublicUrl(path);
-      st[k].photos.push(data.publicUrl);
+      st[k].photos.push(path);   // nur der Pfad, siehe ciFotosZeigen()
     }catch(e){ if(statusEl)statusEl.textContent="خطا: "+e.message; }
   }
   if(statusEl)statusEl.textContent="";
   const thumbEl=document.getElementById(`thumbs_${stage}_${k}`);
-  if(thumbEl)thumbEl.innerHTML=st[k].photos.map(u=>`<img class="photo-thumb" src="${u}">`).join("");
+  if(thumbEl)thumbEl.innerHTML=st[k].photos.map(u=>`<img class="photo-thumb" data-cifoto="${u}">`).join("");
+  ciFotosZeigen();
 }
 
 /* میکروفون — تبدیل صدا به متن، فقط کنار توضیح هر آیتم */

@@ -6,7 +6,19 @@
 <title>داشبورد 6P — خانه‌باغ / کلبه نارنجی</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+  /* Anmeldung. Diese Seite lag ohne jede Schranke auf der Domain und gab
+     Geschaeftszahlen und eine Tabelle mit Gastnamen aus. */
+  .anmeldung{max-width:360px; margin:14vh auto; background:#141416; border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:28px}
+  .anmeldung h2{font-size:1.15rem; font-weight:800; margin-bottom:6px}
+  .anmeldung p{font-size:.82rem; color:#9A9A9E; margin-bottom:20px}
+  .anmeldung label{display:block; font-size:.78rem; font-weight:700; margin:0 0 6px}
+  .anmeldung input{width:100%; background:#1B1B1E; border:1px solid rgba(255,255,255,.08); border-radius:10px;
+    padding:11px 12px; color:#F4EFE7; font-family:inherit; font-size:.9rem; margin-bottom:14px}
+  .anmeldung button{width:100%; background:#FF7A1A; color:#0A0A0B; border:0; border-radius:10px;
+    padding:12px; font-family:inherit; font-weight:800; font-size:.9rem; cursor:pointer}
+  .anmeldung .fehler{color:#e2585d; font-size:.8rem; margin-top:12px; min-height:1.2em}
   :root{
     --bg:#0A0A0B; --panel:#141416; --panel2:#1B1B1E; --border:rgba(255,255,255,.08);
     --orange:#FF7A1A; --text:#F4EFE7; --muted:#9A9A9E; --green:#3ecf8e; --red:#e2585d;
@@ -51,6 +63,20 @@
 </head>
 <body>
 
+<div id="anmeldeAnsicht">
+  <div class="anmeldung">
+    <h2>ورود مدیر</h2>
+    <p>این داشبورد اعداد داخلی کسب‌وکار را نشان می‌دهد.</p>
+    <label for="dbEmail">ایمیل</label>
+    <input type="email" id="dbEmail" autocomplete="username">
+    <label for="dbPass">رمز عبور</label>
+    <input type="password" id="dbPass" autocomplete="current-password">
+    <button id="dbLoginBtn">ورود</button>
+    <div class="fehler" id="dbFehler"></div>
+  </div>
+</div>
+
+<div id="dashAnsicht" hidden>
 <header>
   <h1>داشبورد <span>6P</span> — تحلیل کسب‌وکار</h1>
   <p>خانه‌باغ (کلبه نارنجی) · قلات، شیراز</p>
@@ -58,11 +84,16 @@
 
 <nav id="nav"></nav>
 <main id="main"></main>
+</div>
 
 <script>
-/* ====== تنظیمات اتصال — از CREDENTIALS_SECRET.md پروژه کلبه نارنجی ====== */
-const SUPABASE_URL = "https://ajkmagdcoxpqhfknmmmk.supabase.co";
-const SUPABASE_KEY  = "sb_publishable_WQVbekgoKZFSkB7Fw1rfOw_pPaDzd2G";
+/* Hier stand ein anderes Projekt als das, auf dem die Seite laeuft - die
+   Abfrage konnte gar nicht gelingen. Jetzt dieselbe Verbindung wie
+   index.html und admin.html. Der publishable key darf im Quelltext stehen,
+   geschuetzt wird ueber RLS; die Zahlen kommen erst nach der Anmeldung. */
+const SUPABASE_URL = "https://aqxlxnczzaqbdtjpdbal.supabase.co";
+const SUPABASE_KEY  = "sb_publishable_W1_fIGS4g9w_GvLi4vpkqA_-YxbFAk7";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const P = [
   {id:'feas', title:'۱. امکان‌سنجی'},
@@ -110,8 +141,6 @@ main.innerHTML += `
     <div class="card"><div class="lbl">در حال بارگذاری…</div></div>
   </div>
   <div id="biz-status"></div>
-  <h2 class="sect">۵ رزرو اخیر</h2>
-  <table id="biz-table"><thead><tr><th>مهمان</th><th>ورود</th><th>شب</th><th>مبلغ</th><th>وضعیت</th></tr></thead><tbody></tbody></table>
 </section>`;
 
 async function loadBusiness(){
@@ -119,11 +148,14 @@ async function loadBusiness(){
   try{
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/reservations?check_in=gte.${monthStart}&select=*`, {
-      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
-    });
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const rows = await res.json();
+    /* Frueher stand hier select=*. Damit kamen Vorname, Nachname, Telefon,
+       E-Mail, Kennzeichen und die Adressen von Ausweisfoto und Zahlungsbeleg
+       in den Browser - fuer eine Seite, die vier Summen anzeigt. Jetzt nur
+       die vier Spalten, aus denen gerechnet wird. */
+    const { data: rows, error } = await sb.from('reservations')
+      .select('nights,total_price,status')
+      .gte('check_in', monthStart);
+    if(error) throw new Error(error.message);
     const confirmed = rows.filter(r=>r.status==='confirmed');
     const nights = confirmed.reduce((s,r)=>s+(r.nights||0),0);
     const revenue = confirmed.reduce((s,r)=>s+(r.total_price||0),0);
@@ -136,10 +168,9 @@ async function loadBusiness(){
       <div class="card"><div class="lbl">درصد اشغال</div><div class="val">${occ}٪</div><div class="sub ${occ>=80?'pos':'neg'}">هدف: ۸۰٪</div></div>
       <div class="card"><div class="lbl">تعداد رزرو تأییدشده</div><div class="val">${confirmed.length}</div><div class="sub">نقطه سر‌به‌سر: ۷ رزرو</div></div>
     `;
-    const tbody = document.querySelector('#biz-table tbody');
-    tbody.innerHTML = rows.slice(0,5).map(r=>`
-      <tr><td>${(r.first_name||'')+' '+(r.last_name||'')}</td><td>${r.check_in||'-'}</td>
-      <td>${r.nights||0}</td><td>${fmt(r.total_price)} ت</td><td>${r.status}</td></tr>`).join('') || '<tr><td colspan="5">رزروی ثبت نشده</td></tr>';
+    /* Die Tabelle "۵ رزرو اخیر" stand hier und nannte die Gaeste beim Namen.
+       Fuer eine Kennzahlenseite braucht es keinen einzigen Namen; wer eine
+       bestimmte Buchung sucht, findet sie in admin.html. */
     statusEl.innerHTML = `<div class="status ok">✅ متصل به دیتابیس زنده کلبه نارنجی</div>`;
   }catch(e){
     document.getElementById('biz-cards').innerHTML = `<div class="card"><div class="lbl">خطا در اتصال</div><div class="val" style="font-size:.9rem">${e.message}</div></div>`;
@@ -219,7 +250,34 @@ document.getElementById('dig-check').innerHTML = digItems.map((t,i)=>{
 }).join('');
 function toggleDig(i, val){ const d=loadLS('dig',{}); d[i]=val; saveLS('dig', d); }
 
-loadBusiness();
+/* Anmeldung. Die Seite lag ohne Schranke auf der Domain. Wer angemeldet ist,
+   entscheidet weiterhin die Datenbank: is_admin() in der Lesepolicy von
+   reservations. Ein fremdes Konto kaeme hier zwar hinein, saehe aber keine
+   Zeile - die Anmeldung ist die Tuer, RLS ist das Schloss. */
+const anmeldeAnsicht = document.getElementById('anmeldeAnsicht');
+const dashAnsicht    = document.getElementById('dashAnsicht');
+const dbFehler       = document.getElementById('dbFehler');
+
+function dashZeigen(){
+  anmeldeAnsicht.hidden = true;
+  dashAnsicht.hidden = false;
+  loadBusiness();
+}
+
+document.getElementById('dbLoginBtn').addEventListener('click', async ()=>{
+  dbFehler.textContent = '';
+  const email    = document.getElementById('dbEmail').value.trim();
+  const password = document.getElementById('dbPass').value;
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if(error){ dbFehler.textContent = 'ایمیل یا رمز عبور اشتباه است.'; return; }
+  dashZeigen();
+});
+
+document.getElementById('dbPass').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') document.getElementById('dbLoginBtn').click();
+});
+
+sb.auth.getSession().then(({ data })=>{ if(data.session) dashZeigen(); });
 </script>
 </body>
 </html>

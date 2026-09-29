@@ -762,7 +762,7 @@ async function saveManual(){
     const path=`r_${Date.now()}_${Math.random().toString(36).slice(2,10)}.${(rcFile.name.split(".").pop()||"jpg")}`;
     const{error:upErr}=await sb.storage.from("receipts").upload(path,rcFile,{upsert:false});
     if(upErr){err.textContent="خطا در آپلود فیش: "+upErr.message;return;}
-    receiptUrl=sb.storage.from("receipts").getPublicUrl(path).data.publicUrl;
+    receiptUrl=path;   // nur den Pfad, siehe belegeZeigen()
   }catch(e){err.textContent="خطا در آپلود فیش.";return;}
 
   const record={
@@ -966,6 +966,32 @@ async function viewId(path,e){
   if(!error && data) window.open(data.signedUrl, "_blank");
 }
 
+/* Aeltere Zeilen tragen in receipt_url die vollstaendige oeffentliche
+   Adresse, neue nur den Pfad. Beides muss gehen, solange noch alte
+   Datensaetze da sind. */
+function belegPfad(wert){
+  if(!wert) return null;
+  const marke = "/receipts/";
+  const i = wert.indexOf(marke);
+  return i === -1 ? wert : wert.slice(i + marke.length);
+}
+
+/* Der Bucket "receipts" war oeffentlich, und die Adresse jedes Belegs stand
+   in einer Spalte, die jeder Besucher lesen konnte. Beides ist zu. Die
+   Vorschau holt sich die Adresse jetzt beim Anzeigen und sie verfaellt nach
+   zwei Minuten - dieselbe Art, wie die Ausweisfotos schon behandelt wurden. */
+async function belegeZeigen(){
+  if(!sb) return;
+  for(const bild of document.querySelectorAll("img[data-beleg]")){
+    const pfad = belegPfad(bild.dataset.beleg);
+    if(!pfad) continue;
+    const { data, error } = await sb.storage.from("receipts").createSignedUrl(pfad, 120);
+    if(error || !data) continue;
+    bild.src = data.signedUrl;
+    bild.onclick = () => window.open(data.signedUrl, "_blank");
+  }
+}
+
 function render(){
   const t=T[lang];
   // KPIs
@@ -1003,7 +1029,7 @@ function render(){
       ${r.email?`<div class="email-row"><span>${t.plate}:</span> <b>${esc(r.email)}</b></div>`:""}
       ${r.telegram?`<div class="email-row"><span>تلگرام:</span> <b>${esc(r.telegram)}</b></div>`:""}
       ${r.special_requests?`<div class="note-box muted"><span style="font-size:.78rem">${t.requests}:</span> ${esc(r.special_requests)}</div>`:""}
-      ${r.receipt_url?`<div style="margin-top:10px"><div class="muted" style="font-size:.78rem;margin-bottom:4px">🧾 فیش واریزی:</div><img class="receipt-img" src="${esc(r.receipt_url)}" alt="فیش" onclick="window.open('${esc(r.receipt_url)}','_blank')"></div>`:""}
+      ${r.receipt_url?`<div style="margin-top:10px"><div class="muted" style="font-size:.78rem;margin-bottom:4px">🧾 فیش واریزی:</div><img class="receipt-img" data-beleg="${esc(r.receipt_url)}" alt="فیش"></div>`:""}
       <div class="actions">
         <button class="btn wa sm" onclick="waSend('${r.id}')">📱 ${t.wa_btn}</button>
         ${r.telegram?`<a class="btn ghost sm" href="https://t.me/${esc((r.telegram||'').replace(/^@/,''))}" target="_blank" style="text-decoration:none">✈️ تلگرام</a>`:""}
@@ -1020,6 +1046,7 @@ function render(){
         <button class="btn ghost sm" id="noteBtn_${r.id}" style="margin-top:8px" onclick="saveNote('${r.id}')">${t.save_note}</button>
       </div>
     </div>`).join("");
+  belegeZeigen();
 }
 function kpi(label,val){ return `<div class="kpi"><b>${val}</b><span>${label}</span></div>`; }
 function togglePassView(){
@@ -1282,7 +1309,7 @@ function closeCi(){
 }
 
 function ciPhotosHtml(stage,k,photos){
-  const thumbs=(photos||[]).map(u=>`<img class="photo-thumb-g" src="${u}">`).join("");
+  const thumbs=(photos||[]).map(u=>`<img class="photo-thumb-g" data-cifoto="${u}">`).join("");
   return `<div class="ci-photos-g" id="ci_thumbs_${stage}_${k}">${thumbs}</div>
     <button type="button" class="cib-g" onclick="document.getElementById('ci_pf_${stage}_${k}').click()">📷 افزودن عکس</button>
     <input type="file" accept="image/*" capture="environment" multiple style="display:none" id="ci_pf_${stage}_${k}" onchange="ciHandlePhotos('${stage}','${k}',this.files)">
@@ -1314,9 +1341,32 @@ function ciItemReadonlyHtml(it,s){
     <div class="ci-item-head"><span class="ci-item-name">${it.l}</span><span class="cib-g${s.status==="bad"?" bad":" ok"}" style="pointer-events:none">${s.status==="bad"?"✗ مشکل":"✓ سالم"}</span></div>
     ${cnt}
     ${s.note?`<div class="ci-note-in" style="color:#9A9AA0">${s.note}</div>`:""}
-    <div class="ci-photos-g">${(s.photos||[]).map(u=>`<img class="photo-thumb-g" src="${u}">`).join("")||'<span style="font-size:.75rem;color:#9A9AA0">بدون عکس</span>'}</div>
+    <div class="ci-photos-g">${(s.photos||[]).map(u=>`<img class="photo-thumb-g" data-cifoto="${u}">`).join("")||'<span style="font-size:.75rem;color:#9A9AA0">بدون عکس</span>'}</div>
   </div>`;
 }
+/* Der Bucket "checkin-photos" war oeffentlich: wer eine Adresse hatte, sah
+   das Foto, ohne angemeldet zu sein. Jetzt ist er geschlossen. Gespeichert
+   wird nur der Pfad; die Vorschau holt sich beim Anzeigen eine Adresse, die
+   nach zehn Minuten verfaellt. Aeltere Datensaetze tragen noch die
+   vollstaendige Adresse, ciFotoPfad() nimmt beides. */
+function ciFotoPfad(wert){
+  if(!wert) return null;
+  const marke = "/checkin-photos/";
+  const i = wert.indexOf(marke);
+  return i === -1 ? wert : wert.slice(i + marke.length);
+}
+async function ciFotosZeigen(){
+  if(!sb) return;
+  for(const bild of document.querySelectorAll("img[data-cifoto]")){
+    const pfad = ciFotoPfad(bild.dataset.cifoto);
+    if(!pfad) continue;
+    const { data, error } = await sb.storage.from("checkin-photos").createSignedUrl(pfad, 600);
+    if(error || !data) continue;
+    bild.src = data.signedUrl;
+    bild.removeAttribute("data-cifoto");
+  }
+}
+
 function renderCiItems(){
   const el=document.getElementById("ci_items_list");
   if(ciMode==="in"){
@@ -1333,6 +1383,7 @@ function renderCiItems(){
       </div>`;
     }).join("");
   }
+  ciFotosZeigen();
 }
 function ciSetS(stage,k,v,btn){
   const st=stage==="in"?ciState:ciOutState;
@@ -1359,13 +1410,13 @@ async function ciHandlePhotos(stage,k,files){
       const path=`${folder}/${k}/${stage}_${Date.now()}_${Math.random().toString(36).slice(2,7)}.jpg`;
       const{error}=await sb.storage.from("checkin-photos").upload(path,f,{contentType:f.type||"image/jpeg"});
       if(error)throw error;
-      const{data}=sb.storage.from("checkin-photos").getPublicUrl(path);
-      st[k].photos.push(data.publicUrl);
+      st[k].photos.push(path);   // nur der Pfad, siehe ciFotosZeigen()
     }catch(e){ if(statusEl)statusEl.textContent="خطا: "+e.message; }
   }
   if(statusEl)statusEl.textContent="";
   const thumbEl=document.getElementById(`ci_thumbs_${stage}_${k}`);
-  if(thumbEl)thumbEl.innerHTML=st[k].photos.map(u=>`<img class="photo-thumb-g" src="${u}">`).join("");
+  if(thumbEl)thumbEl.innerHTML=st[k].photos.map(u=>`<img class="photo-thumb-g" data-cifoto="${u}">`).join("");
+  ciFotosZeigen();
 }
 function ciToggleMic(stage,k,btn){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
