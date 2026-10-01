@@ -28,6 +28,11 @@ Im realen Einsatz: Gäste buchen darüber, die Vermietung wird darüber abgewick
 - **Gold Intelligence** unter [kolbenarenji.com/gold](https://kolbenarenji.com/gold):
   Entscheidungshilfe für den Goldmarkt aus realen Marktdaten, jede Zahl mit
   Quelle und Datum.
+- **5 Pollar** unter [kolbenarenji.com/5p](https://kolbenarenji.com/5p):
+  Unternehmensanalyse in fünf Säulen (Machbarkeit, Businessplan, Marketing,
+  Betriebshandbuch, Finanzplan) mit Fortschrittsplan. Die Zahlen rechnet die
+  Seite selbst; die Texte schreibt Claude mit dem API-Schlüssel des Besuchers,
+  der nur in dessen Browser bleibt. Quellcode: [5p](https://github.com/farhadjavanmardi-art/5p).
 - **Persisch und Englisch**, rechts nach links, ohne Nachladen der Seite.
 
 ## Technik
@@ -58,6 +63,7 @@ diesem Repository.
 | `admin.html` | [/admin](https://kolbenarenji.com/admin) | Verwaltung (Anmeldung nötig) |
 | `checkin.html` | [/checkin](https://kolbenarenji.com/checkin) | Übergabeformular (Anmeldung nötig) |
 | `dashboard-6p.html` | [/dashboard-6p](https://kolbenarenji.com/dashboard-6p) | Kennzahlen (Anmeldung nötig) |
+| `5p.html` | [/5p](https://kolbenarenji.com/5p) | 5 Pollar: Unternehmensanalyse (Erzeugt aus dem Repository `5p`) |
 | `gold.html` | [/gold](https://kolbenarenji.com/gold) | Gold Intelligence — eigenes Repository: [farhadjavanmardi-art/gold](https://github.com/farhadjavanmardi-art/gold) |
 | `panel.html` | [/panel](https://kolbenarenji.com/panel) | Einstieg zu den Bereichen |
 | `crm.html` | [/crm](https://kolbenarenji.com/crm) | Kundenverwaltung, noch nicht angeschlossen |
