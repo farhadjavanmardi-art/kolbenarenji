@@ -1,5 +1,7 @@
 // 5P on kolbenarenji.com: stand-in for the claude.ai page runtime (window.claude.use).
-//   sample    -> Claude API straight from the browser, with the visitor's own API key
+//   sample    -> signed-in admin: Supabase function fivep-generate (site key, stays on the server)
+//                everyone else: Claude API straight from the browser, with the visitor's own API key
+//   prompts   -> loaded from Supabase (fivep_settings / fivep_pillars / fivep_sections), editable there
 //   db        -> this browser's localStorage
 //   user      -> a single local user
 //   downloads -> a normal file download
@@ -8,6 +10,37 @@
   const PREFIX = "5p:";
   const KEY_SLOT = "5p-api-key";
   const MODEL = "claude-opus-5-5";
+  const SB_URL = "https://aqxlxnczzaqbdtjpdbal.supabase.co";
+  const SB_KEY = "sb_publishable_W1_fIGS4g9w_GvLi4vpkqA_-YxbFAk7";
+  const sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
+  let admin = null; // { email } when a signed-in admin uses the site key
+
+  async function refreshAdmin() {
+    admin = null;
+    if (!sb) return;
+    try {
+      const { data } = await sb.auth.getSession();
+      const s = data && data.session;
+      if (!s) return;
+      const { data: ok } = await sb.rpc("is_admin");
+      if (ok === true) admin = { email: s.user.email };
+    } catch {}
+  }
+
+  // Prompts, rules and professional examples from Supabase; the built-in ones stay if this fails.
+  async function loadConfig() {
+    const get = (path) => fetch(`${SB_URL}/rest/v1/${path}`, { headers: { apikey: SB_KEY } }).then((r) => (r.ok ? r.json() : Promise.reject(r.status)));
+    try {
+      const [settings, pillars, sections] = await Promise.all([
+        get("fivep_settings?select=key,value"),
+        get("fivep_pillars?select=id,purpose,boundary"),
+        get("fivep_sections?select=pillar,no,purpose,must,example&kind=neq.engine"),
+      ]);
+      const val = (k) => (settings.find((x) => x.key === k) || {}).value;
+      window.applyConfig && window.applyConfig({ rules: val("rules"), format: val("format"), pillars, sections });
+      window.FIVEP_CONFIG_SOURCE = "supabase";
+    } catch { window.FIVEP_CONFIG_SOURCE = "built-in"; }
+  }
 
   const ls = {
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
@@ -56,7 +89,29 @@
     try { return JSON.parse(t.slice(a, b + 1)); } catch { throw { code: "invalid_json", message: "پاسخ Claude قابل خواندن نبود." }; }
   }
 
+  async function askServer(prompt, opts) {
+    const { data } = await sb.auth.getSession();
+    const token = data && data.session && data.session.access_token;
+    if (!token) { admin = null; markButton(); throw { code: "auth", message: "ورود مدیر منقضی شده؛ دوباره وارد شوید." }; }
+    let res;
+    try {
+      res = await fetch(`${SB_URL}/functions/v1/fivep-generate`, {
+        method: "POST",
+        headers: { "content-type": "application/json", apikey: SB_KEY, Authorization: "Bearer " + token },
+        body: JSON.stringify({ prompt }),
+        signal: opts.signal,
+      });
+    } catch (e) {
+      if (opts.signal && opts.signal.aborted) throw { code: "cancelled", message: "متوقف شد." };
+      throw { code: "network", message: "اتصال به سرور برقرار نشد." };
+    }
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw { code: body.code || "server_error", message: body.message || "خطای سرور" };
+    return body.data;
+  }
+
   async function ask(prompt, opts = {}) {
+    if (admin && sb) return askServer(prompt, opts);
     const apiKey = ls.get(KEY_SLOT);
     if (!apiKey) { openKeyPanel(); throw { code: "no_key", message: "برای نوشتن متن، اول کلید API خود را از دکمه‌ی «کلید API» بالای صفحه وارد کنید." }; }
     const Anthropic = window.Anthropic;
@@ -99,6 +154,7 @@
     panel.style.cssText = "position:fixed;z-index:30;left:16px;right:16px;top:calc(16px + env(safe-area-inset-top,0px));max-width:520px;margin:0 auto;box-shadow:0 8px 30px rgba(0,0,0,.25)";
     panel.innerHTML = `
       <h3 style="margin-top:0">کلید Claude API</h3>
+      <div id="adminBox" class="note info"></div>
       <p class="small muted">برای نوشتن متن ستون‌ها، کلید API خودتان را از platform.claude.com وارد کنید. کلید فقط در همین مرورگر می‌ماند و مستقیم به Anthropic فرستاده می‌شود؛ به هیچ سرور دیگری نمی‌رود. هزینه‌ی هر تحلیل کامل (حدود ۱۵ درخواست) به حساب API شما نوشته می‌شود.</p>
       <div class="field"><label for="apiKeyInput">کلید API</label><input id="apiKeyInput" type="password" dir="ltr" autocomplete="off" placeholder="sk-ant-..."></div>
       <div class="row" style="margin-top:12px">
@@ -116,11 +172,38 @@
     panel.querySelector("#keySave").onclick = () => { ls.set(KEY_SLOT, input.value.trim()); refresh(); if (ls.get(KEY_SLOT)) panel.hidden = true; markButton(); };
     panel.querySelector("#keyClear").onclick = () => { ls.set(KEY_SLOT, ""); input.value = ""; refresh(); markButton(); };
     panel.querySelector("#keyClose").onclick = () => { panel.hidden = true; };
+    renderAdmin();
     input.focus();
+  }
+  function renderAdmin() {
+    const box = panel && panel.querySelector("#adminBox");
+    if (!box) return;
+    box.replaceChildren();
+    if (!sb) { box.textContent = "ورود مدیر در این صفحه در دسترس نیست."; return; }
+    if (admin) {
+      box.append(`وارد شده‌اید (${admin.email}). متن‌ها با کلید سایت نوشته می‌شوند و کلید شخصی لازم نیست. `);
+      const out = Object.assign(document.createElement("button"), { className: "btn small", type: "button", textContent: "خروج" });
+      out.onclick = async () => { await sb.auth.signOut().catch(() => {}); admin = null; renderAdmin(); markButton(); };
+      box.append(out);
+      return;
+    }
+    box.innerHTML = `<strong>مدیر سایت هستید؟</strong> با حساب مدیر وارد شوید تا از کلید سایت استفاده شود.
+      <div class="fgrid" style="margin-top:8px"><div class="field"><label for="admEmail">ایمیل</label><input id="admEmail" type="email" dir="ltr" autocomplete="username"></div>
+      <div class="field"><label for="admPass">رمز</label><input id="admPass" type="password" dir="ltr" autocomplete="current-password"></div></div>
+      <div class="row" style="margin-top:8px"><button class="btn" id="admLogin" type="button">ورود مدیر</button><span class="small" id="admMsg"></span></div>`;
+    box.querySelector("#admLogin").onclick = async () => {
+      const msg = box.querySelector("#admMsg");
+      msg.textContent = "در حال ورود…";
+      const { error } = await sb.auth.signInWithPassword({ email: box.querySelector("#admEmail").value.trim(), password: box.querySelector("#admPass").value });
+      if (error) { msg.textContent = "ورود ناموفق: ایمیل یا رمز اشتباه است."; return; }
+      await refreshAdmin();
+      if (!admin) { await sb.auth.signOut().catch(() => {}); msg.textContent = "این حساب مدیر سایت نیست."; return; }
+      renderAdmin(); markButton();
+    };
   }
   function markButton() {
     const b = document.getElementById("apiKeyBtn");
-    if (b) b.textContent = ls.get(KEY_SLOT) ? "کلید API ✓" : "کلید API";
+    if (b) b.textContent = admin ? "کلید سایت ✓" : ls.get(KEY_SLOT) ? "کلید API ✓" : "کلید API";
   }
   document.addEventListener("DOMContentLoaded", () => {
     const box = document.querySelector(".projbox");
@@ -130,6 +213,8 @@
     b.onclick = openKeyPanel;
     box.insertBefore(b, box.querySelector(".savestate"));
     markButton();
+    loadConfig();
+    refreshAdmin().then(markButton);
   });
 
   const caps = { db, user, downloads, sample };
