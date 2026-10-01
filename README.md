@@ -31,8 +31,13 @@ Im realen Einsatz: Gäste buchen darüber, die Vermietung wird darüber abgewick
 - **5 Pollar** unter [kolbenarenji.com/5p](https://kolbenarenji.com/5p):
   Unternehmensanalyse in fünf Säulen (Machbarkeit, Businessplan, Marketing,
   Betriebshandbuch, Finanzplan) mit Fortschrittsplan. Die Zahlen rechnet die
-  Seite selbst; die Texte schreibt Claude mit dem API-Schlüssel des Besuchers,
-  der nur in dessen Browser bleibt. Quellcode: [5p](https://github.com/farhadjavanmardi-art/5p).
+  Seite selbst; die Texte schreibt Claude. Angemeldete Verwaltungskonten nutzen
+  den Schlüssel der Website über die Funktion `fivep-generate` (der Schlüssel
+  bleibt auf dem Server, jeder Aufruf steht in `ai_usage_log`); alle anderen
+  Besucher tragen ihren eigenen Schlüssel ein, der nur in ihrem Browser bleibt.
+  Regeln, Prompts und Profi-Beispiele je Abschnitt liegen in Supabase
+  (`fivep_settings`, `fivep_pillars`, `fivep_sections`) und lassen sich dort
+  ändern; schreiben darf nur die Verwaltung. Quellcode: [5p](https://github.com/farhadjavanmardi-art/5p).
 - **Persisch und Englisch**, rechts nach links, ohne Nachladen der Seite.
 
 ## Technik
