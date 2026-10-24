@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}body{margin:0}</style>
+<title>کم‌حجم‌کن ویدیو</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;700&display=swap">
+</head>
+<body>
+<style>
+/* Layout: one narrow RTL column, a workbench: file in, settings, run, before/after bars. */
+:root {
+  --bg: #eef2f3;
+  --surface: #ffffff;
+  --fg: #16232b;
+  --muted: #5d6e78;
+  --line: #d3dde1;
+  --accent: #0a6f6a;
+  --accent-ink: #ffffff;
+  --accent-soft: #d7ecea;
+  --warn: #a4520b;
+  --warn-soft: #fbead9;
+  --bad: #b3261e;
+  --display: "Lalezar", "Vazirmatn", Tahoma, sans-serif;
+  --body: "Vazirmatn", Tahoma, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f171b; --surface: #172227; --fg: #e3ecef; --muted: #93a6ae; --line: #2a3a41;
+    --accent: #3fb8af; --accent-ink: #062523; --accent-soft: #163a38;
+    --warn: #f0a35c; --warn-soft: #3a2a19; --bad: #ff8a80;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f171b; --surface: #172227; --fg: #e3ecef; --muted: #93a6ae; --line: #2a3a41;
+  --accent: #3fb8af; --accent-ink: #062523; --accent-soft: #163a38;
+  --warn: #f0a35c; --warn-soft: #3a2a19; --bad: #ff8a80;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--body); font-size: 15px; line-height: 1.7;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 48px;
+}
+main { max-width: 620px; margin: 0 auto; display: grid; gap: 20px; }
+header { display: grid; gap: 4px; }
+h1 { font-family: var(--display); font-weight: 400; font-size: 2.4rem; line-height: 1.2; margin: 0; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 16px; min-width: 0; }
+.drop {
+  border: 2px dashed var(--line); border-radius: 12px; padding: 28px 16px; text-align: center;
+  cursor: pointer; display: grid; gap: 6px; justify-items: center; transition: border-color .15s, background .15s;
+}
+.drop:hover, .drop.over, .drop:focus-visible { border-color: var(--accent); background: var(--accent-soft); outline: none; }
+.drop strong { font-size: 1.05rem; }
+.drop span { color: var(--muted); font-size: .9rem; }
+.drop svg { width: 36px; height: 36px; color: var(--accent); }
+.fileinfo { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; }
+.fileinfo .name { font-weight: 700; overflow-wrap: anywhere; flex-basis: 100%; }
+.fileinfo .meta { color: var(--muted); font-variant-numeric: tabular-nums; }
+.field { display: grid; gap: 8px; }
+.label { font-weight: 500; font-size: .9rem; letter-spacing: .01em; }
+.hint { color: var(--muted); font-size: .85rem; margin: 0; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label {
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+  font-size: .92rem; background: var(--surface); transition: background .15s, border-color .15s;
+}
+.seg input:checked + label { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.seg input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+input[type="number"] {
+  font: inherit; width: 7.5em; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--bg); color: var(--fg); font-variant-numeric: tabular-nums;
+}
+input[type="number"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.estimate { background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; font-variant-numeric: tabular-nums; }
+button {
+  font: inherit; font-weight: 700; border: 0; border-radius: 10px; padding: 12px 20px; cursor: pointer;
+  background: var(--accent); color: var(--accent-ink);
+}
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); font-weight: 500; }
+button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.progress { height: 10px; background: var(--bg); border-radius: 999px; overflow: hidden; border: 1px solid var(--line); }
+.progress > div { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+.status { font-variant-numeric: tabular-nums; color: var(--muted); }
+.bars { display: grid; gap: 10px; }
+.bar { display: grid; grid-template-columns: 4.5em 1fr auto; gap: 10px; align-items: center; font-variant-numeric: tabular-nums; }
+.bar .track { height: 18px; background: var(--bg); border-radius: 5px; overflow: hidden; }
+.bar .fill { height: 100%; border-radius: 5px; }
+.bar.before .fill { background: var(--muted); }
+.bar.after .fill { background: var(--accent); }
+.big { font-family: var(--display); font-size: 2rem; line-height: 1.1; color: var(--accent); }
+video { width: 100%; max-width: 100%; border-radius: 10px; background: #000; }
+.note { border-radius: 10px; padding: 10px 14px; background: var(--warn-soft); color: var(--warn); }
+.err { color: var(--bad); }
+footer { color: var(--muted); font-size: .85rem; text-align: center; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<main dir="rtl">
+  <header>
+    <h1>کم‌حجم‌کن ویدیو</h1>
+    <p>ویدیو را بدهید، با حجم کمتر تحویل بگیرید. همه‌چیز داخل مرورگر خودتان انجام می‌شود و فایل جایی آپلود نمی‌شود.</p>
+    <p><a href="/video-de" style="color:var(--accent)">Deutsch</a></p>
+  </header>
+
+  <section class="panel" aria-label="انتخاب فایل">
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="انتخاب ویدیو">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="13" height="14" rx="2" fill="none"/><path d="M16 10l5-3v10l-5-3" fill="none"/></svg>
+      <strong id="dropTitle">ویدیو را اینجا رها کنید یا کلیک کنید</strong>
+      <span>MP4، MOV، WebM، MKV</span>
+    </div>
+    <input type="file" id="file" accept="video/*,.mkv,.mov" hidden>
+    <div class="fileinfo" id="fileinfo" hidden>
+      <span class="name" id="fName"></span>
+      <span class="meta" id="fSize"></span>
+      <span class="meta" id="fRes"></span>
+      <span class="meta" id="fDur"></span>
+    </div>
+  </section>
+
+  <section class="panel" aria-label="تنظیمات">
+    <div class="field">
+      <span class="label">روش</span>
+      <div class="seg" role="radiogroup">
+        <input type="radio" name="mode" id="modeQ" value="quality" checked><label for="modeQ">بر اساس کیفیت</label>
+        <input type="radio" name="mode" id="modeT" value="target"><label for="modeT">حجم مشخص</label>
+      </div>
+    </div>
+
+    <div class="field" id="qualityField">
+      <span class="label">کیفیت</span>
+      <div class="seg" role="radiogroup">
+        <input type="radio" name="q" id="qH" value="0.09"><label for="qH">بالا</label>
+        <input type="radio" name="q" id="qM" value="0.055" checked><label for="qM">متوسط</label>
+        <input type="radio" name="q" id="qL" value="0.03"><label for="qL">حجم خیلی کم</label>
+      </div>
+    </div>
+
+    <div class="field" id="targetField" hidden>
+      <label class="label" for="targetMb">حجم نهایی (مگابایت)</label>
+      <div class="row"><input type="number" id="targetMb" min="0.5" step="0.5" value="20"></div>
+      <p class="hint">مناسب برای محدودیت‌های ارسال، مثلاً ایمیل یا پیام‌رسان. حجم نهایی تقریبی است.</p>
+    </div>
+
+    <div class="field">
+      <span class="label">حداکثر کیفیت تصویر</span>
+      <div class="seg" role="radiogroup">
+        <input type="radio" name="res" id="r0" value="0" checked><label for="r0">بدون تغییر</label>
+        <input type="radio" name="res" id="r1080" value="1080"><label for="r1080">1080p</label>
+        <input type="radio" name="res" id="r720" value="720"><label for="r720">720p</label>
+        <input type="radio" name="res" id="r480" value="480"><label for="r480">480p</label>
+        <input type="radio" name="res" id="r360" value="360"><label for="r360">360p</label>
+      </div>
+      <p class="hint">کوچک کردن تصویر بیشترین تأثیر را روی حجم دارد. 720p برای گوشی کافی است.</p>
+    </div>
+
+    <div class="estimate" id="estimate">یک ویدیو انتخاب کنید تا حجم تقریبی خروجی را ببینید.</div>
+
+    <div class="row">
+      <button id="go" disabled>کم کردن حجم</button>
+      <button id="cancel" class="ghost" hidden>توقف</button>
+    </div>
+
+    <div id="run" hidden>
+      <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+      <p class="status" id="status" aria-live="polite"></p>
+    </div>
+    <p class="err" id="err" hidden></p>
+  </section>
+
+  <section class="panel" id="result" hidden aria-label="نتیجه">
+    <div class="big" id="saved"></div>
+    <div class="bars">
+      <div class="bar before"><span>قبل</span><div class="track"><div class="fill" id="bBefore"></div></div><span id="sBefore"></span></div>
+      <div class="bar after"><span>بعد</span><div class="track"><div class="fill" id="bAfter"></div></div><span id="sAfter"></span></div>
+    </div>
+    <p class="note" id="biggerNote" hidden>فایل خروجی کوچک‌تر نشد؛ احتمالاً ویدیو از قبل فشرده بوده. کیفیت پایین‌تر یا 480p را امتحان کنید.</p>
+    <video id="preview" controls playsinline></video>
+    <div class="row">
+      <button id="save">ذخیره ویدیو</button>
+      <span class="hint" id="saveMsg"></span>
+    </div>
+  </section>
+
+  <footer>خروجی MP4 با کدک H.264 است. سرعت به قدرت دستگاه بستگی دارد. در Chrome، Edge و Safari جدید بهترین کار را می‌کند.</footer>
+</main>
+
+<script type="module">
+import {
+  Input, Output, Conversion, BlobSource, BufferTarget, Mp4OutputFormat, ALL_FORMATS,
+  canEncodeVideo, canEncodeAudio
+} from "https://cdn.jsdelivr.net/npm/mediabunny@1.61.3/dist/bundles/mediabunny.min.mjs";
+
+const $ = (id) => document.getElementById(id);
+const fa = (n, d = 1) => n.toLocaleString("fa-IR", { maximumFractionDigits: d });
+const px = (n) => n.toLocaleString("fa-IR", { useGrouping: false });
+const mb = (b) => fa(b / 1048576, b < 10485760 ? 2 : 1) + " مگابایت";
+const fmtTime = (s) => { s = Math.round(s); const m = Math.floor(s / 60); return fa(m, 0) + ":" + String(s % 60).padStart(2, "0").replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]); };
+const AUDIO_BPS = 96000;
+
+let file = null, info = null, conversion = null, result = null;
+
+// ---------- file selection ----------
+const drop = $("drop"), picker = $("file");
+drop.addEventListener("click", () => picker.click());
+drop.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); picker.click(); } });
+drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); if (e.dataTransfer.files[0]) load(e.dataTransfer.files[0]); });
+picker.addEventListener("change", () => { if (picker.files[0]) load(picker.files[0]); });
+
+async function load(f) {
+  file = f; info = null; showErr(""); $("result").hidden = true; $("go").disabled = true;
+  $("fileinfo").hidden = false; $("fName").textContent = f.name; $("fSize").textContent = mb(f.size);
+  $("fRes").textContent = "در حال خواندن…"; $("fDur").textContent = "";
+  $("dropTitle").textContent = "برای انتخاب ویدیوی دیگر کلیک کنید";
+  try {
+    const input = new Input({ source: new BlobSource(f), formats: ALL_FORMATS });
+    const vt = await input.getPrimaryVideoTrack();
+    if (!vt) throw new Error("این فایل تصویر ویدیویی ندارد.");
+    const duration = await input.computeDuration();
+    let fps = 30;
+    try { const st = await vt.computePacketStats(120); if (st.averagePacketRate > 1) fps = Math.min(60, st.averagePacketRate); } catch {}
+    info = { w: vt.displayWidth, h: vt.displayHeight, duration, fps };
+    $("fRes").textContent = px(info.w) + "×" + px(info.h);
+    $("fDur").textContent = fmtTime(duration);
+    $("go").disabled = false;
+    updateEstimate();
+  } catch (e) {
+    $("fRes").textContent = "";
+    showErr("این فایل خوانده نشد: " + (e.message || e) + " فرمت دیگری مثل MP4 را امتحان کنید.");
+  }
+}
+
+// ---------- settings ----------
+const val = (name) => document.querySelector(`input[name="${name}"]:checked`).value;
+document.querySelectorAll('input[name="mode"]').forEach((r) => r.addEventListener("change", () => {
+  const t = val("mode") === "target";
+  $("targetField").hidden = !t; $("qualityField").hidden = t; updateEstimate();
+}));
+document.querySelectorAll('input[name="q"], input[name="res"]').forEach((r) => r.addEventListener("change", updateEstimate));
+$("targetMb").addEventListener("input", updateEstimate);
+
+function outputSize() {
+  // limit the shorter side, so portrait videos are handled the same as landscape ones
+  const limit = Number(val("res")), short = Math.min(info.w, info.h);
+  const scale = limit && short > limit ? limit / short : 1;
+  const even = (n) => Math.max(2, Math.round(n / 2) * 2);
+  return { w: even(info.w * scale), h: even(info.h * scale) };
+}
+
+function plan() {
+  const { w, h } = outputSize();
+  let videoBps;
+  if (val("mode") === "target") {
+    const totalBps = (Number($("targetMb").value) || 0) * 8 * 1048576 / info.duration;
+    videoBps = Math.floor(totalBps * 0.97 - AUDIO_BPS); // small margin for the container overhead
+  } else {
+    videoBps = Math.round(w * h * info.fps * Number(val("q")));
+  }
+  return { w, h, videoBps };
+}
+
+function updateEstimate() {
+  if (!info) return;
+  const p = plan();
+  const el = $("estimate");
+  if (p.videoBps < 60000) {
+    el.textContent = "این حجم برای ویدیویی به این طول خیلی کم است. عدد بزرگ‌تری وارد کنید.";
+    $("go").disabled = true; return;
+  }
+  $("go").disabled = false;
+  const est = (p.videoBps + AUDIO_BPS) * info.duration / 8;
+  el.textContent = `خروجی: ${px(p.w)}×${px(p.h)}، حدود ${mb(est)}` +
+    (est < file.size ? ` (${fa(100 * (1 - est / file.size), 0)}٪ کمتر)` : "؛ احتمالاً کوچک‌تر از فایل فعلی نمی‌شود");
+}
+
+// ---------- compress ----------
+$("go").addEventListener("click", compress);
+$("cancel").addEventListener("click", () => conversion?.cancel());
+
+async function compress() {
+  const p = plan();
+  showErr(""); $("result").hidden = true; $("go").disabled = true; $("cancel").hidden = false;
+  $("run").hidden = false; setProgress(0, "در حال آماده‌سازی…");
+  const started = performance.now();
+  try {
+    if (!(await canEncodeVideo("avc", { width: p.w, height: p.h, bitrate: p.videoBps }))) {
+      throw new Error("مرورگر شما از ساخت ویدیوی H.264 پشتیبانی نمی‌کند. لطفاً Chrome یا Edge را امتحان کنید.");
+    }
+    const audioCodec = (await canEncodeAudio("aac", { bitrate: AUDIO_BPS })) ? "aac" : "opus";
+    const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
+    const output = new Output({ format: new Mp4OutputFormat({ fastStart: "in-memory" }), target: new BufferTarget() });
+    conversion = await Conversion.init({
+      input, output, tracks: "primary", showWarnings: false,
+      video: { codec: "avc", width: p.w, height: p.h, fit: "contain", bitrate: p.videoBps, forceTranscode: true },
+      audio: { codec: audioCodec, bitrate: AUDIO_BPS, forceTranscode: true },
+    });
+    if (!conversion.isValid) throw new Error("این ویدیو قابل تبدیل نیست (" + conversion.discardedTracks.map((t) => t.reason).join("، ") + ").");
+    conversion.onProgress = (x) => {
+      const el = (performance.now() - started) / 1000;
+      const left = x > 0.02 ? el / x - el : null;
+      setProgress(x, `${fa(x * 100, 0)}٪` + (left != null ? ` · حدود ${fmtTime(left)} مانده` : ""));
+    };
+    await conversion.execute();
+    const blob = new Blob([output.target.buffer], { type: "video/mp4" });
+    showResult(blob, (performance.now() - started) / 1000);
+  } catch (e) {
+    if (e?.name === "ConversionCanceledError" || /cancel/i.test(e?.message || "")) {
+      setProgress(0, "متوقف شد.");
+    } else {
+      $("run").hidden = true; showErr(e.message || String(e));
+    }
+  } finally {
+    conversion = null; $("cancel").hidden = true; $("go").disabled = false;
+  }
+}
+
+function setProgress(x, text) { $("bar").style.width = (x * 100) + "%"; $("status").textContent = text; }
+function showErr(t) { $("err").textContent = t; $("err").hidden = !t; }
+
+function showResult(blob, secs) {
+  result = blob;
+  setProgress(1, `تمام شد در ${fmtTime(secs)}`);
+  const before = file.size, after = blob.size, max = Math.max(before, after);
+  $("bBefore").style.width = (before / max * 100) + "%";
+  $("bAfter").style.width = (after / max * 100) + "%";
+  $("sBefore").textContent = mb(before); $("sAfter").textContent = mb(after);
+  const smaller = after < before;
+  $("saved").textContent = smaller ? `${fa(100 * (1 - after / before), 0)}٪ کم‌حجم‌تر` : "کوچک‌تر نشد";
+  $("biggerNote").hidden = smaller;
+  const v = $("preview"); if (v.src) URL.revokeObjectURL(v.src); v.src = URL.createObjectURL(blob);
+  $("saveMsg").textContent = "";
+  $("result").hidden = false;
+  $("result").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// ---------- save ----------
+let downloads = null;
+window.claude?.use?.("downloads").then((d) => { downloads = d; }).catch(() => {});
+$("save").addEventListener("click", async () => {
+  if (!result) return;
+  const name = file.name.replace(/\.[^.]+$/, "") + "-compressed.mp4";
+  if (!downloads) {
+    const a = document.createElement("a");
+    a.href = $("preview").src; a.download = name; a.click();
+    $("saveMsg").textContent = "اگر دانلود شروع نشد، روی ویدیو راست‌کلیک کنید و «Save video as» را بزنید.";
+    return;
+  }
+  try {
+    await downloads.save({ filename: name, data: result });
+    $("saveMsg").textContent = "ذخیره شد.";
+  } catch (e) {
+    $("saveMsg").textContent = e?.code === "declined" ? "ذخیره لغو شد." : "ذخیره انجام نشد. دوباره امتحان کنید.";
+  }
+});
+</script>
+
+</body>
+</html>
