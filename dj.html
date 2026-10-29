@@ -828,7 +828,10 @@ class Deck {
     sl.addEventListener('dblclick', () => { sl.value = 0; this.setPitch(0); });
     $('.reset', el).addEventListener('click', () => { sl.value = 0; this.setPitch(0); });
     $('.range', el).addEventListener('click', () => {
-      this.range = this.range === 8 ? 16 : this.range === 16 ? 50 : 8;
+      // skip ranges smaller than the current pitch, so switching never changes a playing deck's tempo
+      const opts = [8, 16, 50]; let i = opts.indexOf(this.range);
+      do { i = (i + 1) % opts.length; } while (opts[i] < Math.abs(this.pitch));
+      this.range = opts[i];
       this.setPitch(this.pitch);
     });
     $$('.nd', el).forEach(b => {
@@ -845,6 +848,7 @@ class Deck {
     ov.addEventListener('pointerdown', e => { if (!this.buffer) return; ovDrag = true; ov.setPointerCapture(e.pointerId); ovSeek(e); });
     ov.addEventListener('pointermove', e => { if (ovDrag) ovSeek(e); });
     ov.addEventListener('pointerup', () => { ovDrag = false; });
+    ov.addEventListener('pointercancel', () => { ovDrag = false; });
     ov.addEventListener('keydown', e => {
       if (!this.buffer) return;
       const step = (this.beatLen || 0.5) * 4;
@@ -922,6 +926,7 @@ class Deck {
     const w = Math.max(1, Math.round(c.clientWidth * dpr)), h = Math.max(1, Math.round(c.clientHeight * dpr));
     c.width = w; c.height = h;
     const off = this.ovImg = document.createElement('canvas'); off.width = w; off.height = h;
+    this.drawKey = null;
     if (!this.peaks) return;
     const g = off.getContext('2d'), n = this.peaks.length, col = css(this.id === 'A' ? '--deck-a' : '--deck-b');
     for (let x = 0; x < w; x++) {
@@ -934,6 +939,10 @@ class Deck {
   }
   draw(colors) {
     const pos = this.pos;
+    // skip the canvas work when nothing on screen would change (saves battery when paused)
+    const key = [pos.toFixed(3), this.playing, this.rate, this.loop && this.loop.start, this.loop && this.loop.end, this.hot.join(), this.cue, this.zoom.width, this.peaks && this.peaks.length, this.name].join('|');
+    if (key === this.drawKey) return;
+    this.drawKey = key;
     // times
     $('.el', this.el).textContent = fmt(pos);
     const rem = (this.duration - pos) / this.rate, rm = $('.rm', this.el);
@@ -1181,6 +1190,7 @@ async function store(mode, fn) {
 const newId = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
 let saveWarned = false;
 async function saveTrack(it) {
+  if (it.removed) return;
   try {
     await store('readwrite', st => st.put({ id: it.id, name: it.name, blob: it.file, added: it.added, bpm: it.bpm ?? null, dur: it.dur ?? null }));
     navigator.storage?.persist?.().catch(() => {});
@@ -1199,6 +1209,7 @@ async function loadSaved() {
 }
 async function removeTrack(it) {
   const i = crate.indexOf(it); if (i < 0) return;
+  it.removed = true;   // a load still in progress must not save it again
   crate.splice(i, 1); renderCrate();
   if (!it.demo) { try { await store('readwrite', st => st.delete(it.id)); } catch (e) { /* nothing saved */ } }
 }
@@ -1209,7 +1220,12 @@ function addFiles(files) {
   added.forEach(saveTrack);
   return added;
 }
-async function prepare(item) {
+function prepare(item) {
+  // two quick clicks (deck A and B, or a double click) share one decode
+  if (!item.preparing) item.preparing = doPrepare(item).finally(() => { item.preparing = null; });
+  return item.preparing;
+}
+async function doPrepare(item) {
   if (!item.buffer) {
     if (!item.file && item.online) {
       if (!sb || !sbUser) throw new Error('Sign in to play online tracks.');
@@ -1221,9 +1237,10 @@ async function prepare(item) {
     item.buffer = await new Promise((res, rej) => ctx.decodeAudioData(data, res, rej));
   }
   if (!item.analysis) {
+    const known = item.bpm != null;
     item.analysis = await analyze(item.buffer);
     item.bpm = item.analysis.bpm; item.dur = item.buffer.duration;
-    if (!item.demo && !item.online) saveTrack(item);
+    if (!known && !item.demo && !item.online) saveTrack(item);   // store BPM and length once, not the file again on every visit
   }
   renderCrate();
   return item;
@@ -1232,9 +1249,19 @@ async function loadItem(item, deck) {
   if (deck.playing && deck.level > 0.05 && ((deck.id === 'A' && +xf.value < 0.9) || (deck.id === 'B' && +xf.value > 0.1)) && +$('.chfader', deck.ch).value > 0.05) {
     return toast(`Deck ${deck.id} is on air. Pause it or move the crossfader away first.`);
   }
+  const token = deck.loadToken = (deck.loadToken || 0) + 1;   // the newest click for a deck wins
   $('.title', deck.el).textContent = (item.online && !item.file ? 'Downloading ' : 'Analyzing ') + item.name + ' …';
-  try { await prepare(item); deck.load(item.buffer, item.name, item.analysis); }
-  catch (e) { console.error(e); $('.title', deck.el).textContent = deck.name || 'Empty deck'; toast(item.online && !item.buffer && !item.file ? 'Could not download ' + item.name + ' from the online library. ' + (e.message || '') : 'Could not decode ' + item.name + '. Try MP3 or WAV.'); }
+  try {
+    await prepare(item);
+    if (deck.loadToken === token) deck.load(item.buffer, item.name, item.analysis);
+    releaseBuffers();
+    if (deck.loadToken !== token) return;
+  }
+  catch (e) { console.error(e); if (deck.loadToken !== token) return; $('.title', deck.el).textContent = deck.name || 'Empty deck'; toast(item.online && !item.buffer && !item.file ? 'Could not download ' + item.name + ' from the online library. ' + (e.message || '') : 'Could not decode ' + item.name + '. Try MP3 or WAV.'); }
+}
+// decoded audio takes ~10 MB per minute; keep it only for tracks on a deck (the file and the analysis stay, so reloading is quick)
+function releaseBuffers() {
+  for (const it of crate) if (it.buffer && it.file && !it.preparing && it.buffer !== A.buffer && it.buffer !== B.buffer) it.buffer = null;
 }
 function renderCrate() {
   const tb = $('#crateBody');
