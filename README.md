@@ -70,6 +70,7 @@ diesem Repository.
 | `dashboard-6p.html` | [/dashboard-6p](https://kolbenarenji.com/dashboard-6p) | Kennzahlen (Anmeldung nötig) |
 | `5p.html` | [/5p](https://kolbenarenji.com/5p) | 5 Pollar: Unternehmensanalyse (Erzeugt aus dem Repository `5p`) |
 | `gold.html` | [/gold](https://kolbenarenji.com/gold) | Gold Intelligence — eigenes Repository: [farhadjavanmardi-art/gold](https://github.com/farhadjavanmardi-art/gold) |
+| `dj.html` | [/dj](https://kolbenarenji.com/dj) | Javan Decks: DJ-Mixer mit zwei Decks im Browser — Quellcode: [farhadjavanmardi-art](https://github.com/farhadjavanmardi-art/farhadjavanmardi-art/tree/main/dj) |
 | `panel.html` | [/panel](https://kolbenarenji.com/panel) | Einstieg zu den Bereichen |
 | `crm.html` | [/crm](https://kolbenarenji.com/crm) | Kundenverwaltung, noch nicht angeschlossen |
 
