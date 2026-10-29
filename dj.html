@@ -168,6 +168,7 @@ td .tag { font-family: var(--f-display); font-size: 10px; letter-spacing: .1em; 
 td .btn { min-height: 28px; padding: 0 10px; }
 td .btn.a { color: var(--deck-a); }
 td .btn.b { color: var(--deck-b); }
+td .btn.rm { color: var(--muted); }
 tr.empty td { color: var(--muted); text-align: center; padding: 18px; }
 .recs { display: grid; gap: 6px; }
 .recs:empty { display: none; }
@@ -334,7 +335,7 @@ body.learning [data-midi].picked { outline: 3px solid var(--warn); }
   <section class="crate" aria-label="Track crate">
     <div class="crate-head">
       <h2>Crate</h2>
-      <span class="hint">Drop audio files anywhere, or onto a deck to load it directly. MP3, WAV, FLAC, M4A, OGG.</span>
+      <span class="hint">Drop audio files anywhere, or onto a deck to load it directly. MP3, WAV, FLAC, M4A, OGG. Tracks stay saved in this browser.</span>
       <label class="btn" for="fileIn">Add tracks</label>
       <input type="file" id="fileIn" accept="audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus" multiple hidden>
     </div>
@@ -352,6 +353,7 @@ body.learning [data-midi].picked { outline: 3px solid var(--warn); }
   <div class="help">
     <h2>راهنمای Javan Decks</h2>
     <p>دو دک (A و B) و یک میکسر وسط. آهنگ‌ها را از دکمه‌ی <b>Add tracks</b> اضافه کنید یا فایل را مستقیم روی دک بکشید. دو آهنگ دمو هم از اول بارگذاری شده‌اند تا بلافاصله تمرین کنید.</p>
+    <p>آهنگ‌هایی که اضافه می‌کنید در همین مرورگر ذخیره می‌شوند و دفعه‌ی بعد که برنامه را باز کنید دوباره در لیست هستند. با دکمه‌ی <b>×</b> کنار هر آهنگ آن را از لیست و حافظه پاک کنید.</p>
     <h3>دک</h3>
     <ul>
       <li><b>PLAY</b> پخش/توقف. <b>CUE</b> وقتی آهنگ متوقف است نقطه‌ی شروع را ثبت می‌کند؛ وقتی پخش می‌شود به همان نقطه برمی‌گردد.</li>
@@ -1126,9 +1128,57 @@ $('#midiClear').addEventListener('click', () => { midiMap = {}; saveMidi(); mark
 const crate = [];
 const isAudio = f => f.type.startsWith('audio/') || /\.(mp3|wav|flac|m4a|aac|ogg|opus|aiff?|webm)$/i.test(f.name);
 const cleanName = n => n.replace(/\.[^.]+$/, '').replace(/_/g, ' ');
+
+/* tracks you add are kept in this browser (IndexedDB), so the crate is still there next time */
+const DB_NAME = 'javanDecks', STORE = 'tracks';
+let dbP = null;
+function openDb() {
+  if (!dbP) {
+    dbP = new Promise((res, rej) => {
+      if (!window.indexedDB) return rej(new Error('IndexedDB unavailable'));
+      const r = indexedDB.open(DB_NAME, 1);
+      r.onupgradeneeded = () => r.result.createObjectStore(STORE, { keyPath: 'id' });
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    });
+  }
+  return dbP;
+}
+async function store(mode, fn) {
+  const db = await openDb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, mode), req = fn(tx.objectStore(STORE));
+    tx.oncomplete = () => res(req && req.result); tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error);
+  });
+}
+const newId = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+let saveWarned = false;
+async function saveTrack(it) {
+  try {
+    await store('readwrite', st => st.put({ id: it.id, name: it.name, blob: it.file, added: it.added, bpm: it.bpm ?? null, dur: it.dur ?? null }));
+    navigator.storage?.persist?.().catch(() => {});
+  } catch (e) {
+    if (!saveWarned) { saveWarned = true; toast('Tracks could not be saved in this browser (storage full or blocked). They stay until you close the page.'); }
+  }
+}
+async function loadSaved() {
+  try {
+    const recs = await store('readonly', st => st.getAll());
+    recs.sort((a, b) => a.added - b.added);
+    for (const r of recs) crate.push({ id: r.id, name: r.name, file: r.blob, added: r.added, bpm: r.bpm, dur: r.dur, buffer: null, analysis: null, demo: false });
+    renderCrate();
+    if (recs.length) toast(recs.length + ' saved track(s) back in the crate.');
+  } catch (e) { /* storage blocked: start with the demos only */ }
+}
+async function removeTrack(it) {
+  const i = crate.indexOf(it); if (i < 0) return;
+  crate.splice(i, 1); renderCrate();
+  if (!it.demo) { try { await store('readwrite', st => st.delete(it.id)); } catch (e) { /* nothing saved */ } }
+}
 function addFiles(files) {
-  const added = files.filter(isAudio).map(f => ({ name: cleanName(f.name), file: f, buffer: null, analysis: null, demo: false }));
+  const now = Date.now();
+  const added = files.filter(isAudio).map((f, i) => ({ id: newId(), name: cleanName(f.name), file: f, added: now + i, buffer: null, analysis: null, demo: false }));
   crate.push(...added); renderCrate();
+  added.forEach(saveTrack);
   return added;
 }
 async function prepare(item) {
@@ -1136,7 +1186,11 @@ async function prepare(item) {
     const data = await item.file.arrayBuffer();
     item.buffer = await new Promise((res, rej) => ctx.decodeAudioData(data, res, rej));
   }
-  if (!item.analysis) item.analysis = await analyze(item.buffer);
+  if (!item.analysis) {
+    item.analysis = await analyze(item.buffer);
+    item.bpm = item.analysis.bpm; item.dur = item.buffer.duration;
+    if (!item.demo) saveTrack(item);
+  }
   renderCrate();
   return item;
 }
@@ -1154,16 +1208,20 @@ function renderCrate() {
   tb.innerHTML = '';
   crate.forEach((it, i) => {
     const tr = document.createElement('tr');
-    const len = it.buffer ? fmt(it.buffer.duration).replace(/\.\d$/, '') : '–';
-    const bpm = it.analysis ? (it.analysis.bpm ? it.analysis.bpm.toFixed(it.analysis.bpm % 1 ? 2 : 0) : '?') : '–';
+    const d = it.buffer ? it.buffer.duration : it.dur;
+    const len = d ? fmt(d).replace(/\.\d$/, '') : '–';
+    const b = it.analysis ? it.analysis.bpm : it.bpm;
+    const bpm = b == null ? '–' : b ? b.toFixed(b % 1 ? 2 : 0) : '?';
     tr.innerHTML = `<td class="mono">${i + 1}</td><td class="name"></td><td class="mono">${len}</td><td class="mono">${bpm}</td>
-      <td><button class="btn a" type="button">A</button> <button class="btn b" type="button">B</button></td>`;
+      <td><button class="btn a" type="button">A</button> <button class="btn b" type="button">B</button> <button class="btn rm" type="button">×</button></td>`;
     const nm = tr.querySelector('.name'); nm.textContent = it.name;
     if (it.demo) { const t = document.createElement('span'); t.className = 'tag'; t.textContent = 'Demo'; nm.append(t); }
     tr.querySelector('.a').setAttribute('aria-label', 'Load ' + it.name + ' to deck A');
     tr.querySelector('.b').setAttribute('aria-label', 'Load ' + it.name + ' to deck B');
     tr.querySelector('.a').addEventListener('click', () => loadItem(it, A));
     tr.querySelector('.b').addEventListener('click', () => loadItem(it, B));
+    tr.querySelector('.rm').setAttribute('aria-label', 'Remove ' + it.name + ' from the crate');
+    tr.querySelector('.rm').addEventListener('click', () => removeTrack(it));
     tb.append(tr);
   });
 }
@@ -1210,6 +1268,7 @@ async function boot() {
   ];
   for (const d of demos) crate.push({ ...d, file: null, analysis: null, demo: true });
   renderCrate();
+  await loadSaved();
   await loadItem(crate[0], A);
   await loadItem(crate[1], B);
   xf.value = 0; applyXf();
