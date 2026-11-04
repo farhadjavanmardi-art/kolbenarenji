@@ -284,6 +284,10 @@ body.learning [data-midi].picked { outline: 3px solid var(--warn); }
 .fxrow .fxb .btn { padding: 0 2px; font-size: 11px; min-height: 26px; }
 .fxrow .fxb .btn.on { background: var(--fg); border-color: var(--fg); color: var(--ink); }
 .btn.fxon { min-height: 26px; padding: 0 8px; font-size: 11px; }
+.btn.klock.on { background: var(--dc); border-color: var(--dc); color: var(--ink); }
+.gridrow { display: grid; grid-template-columns: auto repeat(6, minmax(0, 1fr)); gap: 4px; align-items: center; }
+.gridrow .btn { min-height: 24px; font-size: 10px; padding: 0 2px; letter-spacing: .04em; }
+.gridrow .btn.tapping { border-color: var(--warn); color: var(--warn); }
 .btn.fxon.on { background: var(--dc); border-color: var(--dc); color: var(--ink); }
 .fxrow .knob { width: 26px; height: 26px; }
 .fxrow .knob::after { top: 2px; height: 7px; transform-origin: 50% 9px; }
@@ -413,6 +417,10 @@ td.key.match::after { content: " ✓"; }
       <li><b>SYNC</b> حالا روشن می‌ماند (Sync lock): اگر تمپوی دک دیگر را عوض کنید این دک دنبالش می‌آید. با حرکت دادن اسلایدر تمپوی خود دک یا زدن دوباره‌ی SYNC خاموش می‌شود.</li>
       <li><b>◀ 4 / 4 ▶</b> چهار ضرب عقب/جلو می‌پرد (اگر لوپ روشن باشد لوپ هم با آن جابه‌جا می‌شود). <b>½ ×</b> و <b>2 ×</b> لوپ را نصف یا دو برابر می‌کنند.</li>
       <li><b>افکت (FX)</b>: Echo، Reverb یا Flanger را انتخاب کنید، طول را بر حسب ضرب بزنید (¼ تا ۲) و <b>FX</b> را روشن کنید. ولوم کوچک کنارش میزان افکت است. وقتی Echo را خاموش کنید صدای اکو آرام محو می‌شود (Echo out).</li>
+      <li><b>Key lock</b> (زیر Reset): تمپو را عوض کنید بدون اینکه صدا زیر یا بم شود (مثل Master Tempo در دستگاه‌های Pioneer). گام آهنگ هم ثابت می‌ماند.</li>
+      <li><b>Grid</b>: اگر BPM دو برابر یا نصف تشخیص داده شده با <b>÷2</b> / <b>×2</b> درستش کنید؛ اگر خطوط گرید کمی جلو/عقب هستند با <b>◀|</b> و <b>|▶</b> (هر بار ۵ میلی‌ثانیه) جابه‌جا کنید؛ با <b>Tap</b> همراه ضرب چند بار بزنید تا BPM تنظیم شود؛ <b>1 here</b> جای فعلی را ضرب اول میزان می‌کند.</li>
+      <li>هات‌کیوها، نقطه‌ی Cue و اصلاح گرید برای هر آهنگ ذخیره می‌شوند و دفعه‌ی بعد که آهنگ را بیاورید سر جایشان هستند.</li>
+      <li>اسم خواننده و آهنگ از تگ‌های MP3 خوانده می‌شود.</li>
       <li><b>Bar 12.3</b> زیر زمان آهنگ یعنی میزان ۱۲، ضرب ۳ — برای اینکه بدانید فریز بعدی کی شروع می‌شود (معمولاً هر ۸ یا ۱۶ میزان).</li>
       <li>بالای لیست آهنگ‌ها جستجو کنید؛ با کلیک روی عنوان ستون‌ها (Title, Length, BPM, Key) مرتب کنید.</li>
       <li>میکس‌های ضبط‌شده در همین مرورگر می‌مانند تا خودتان با دو بار زدن <b>×</b> پاکشان کنید.</li>
@@ -718,6 +726,108 @@ function reverbIR() {
   for (let c = 0; c < 2; c++) { const d = irBuf.getChannelData(c); let s = 7 + c * 31; for (let i = 0; i < n; i++) { s = (s * 1664525 + 1013904223) >>> 0; d[i] = (s / 4294967296 * 2 - 1) * Math.pow(1 - i / n, 3.2) * 0.5; } }
   return irBuf;
 }
+/* ---------- key lock: time-stretch player running in an AudioWorklet (used only while key lock is on) ---------- */
+const LOCK_WORKLET = `// key lock player (AudioWorklet): WSOLA time-stretch reading the track at the tempo rate while each 2048-sample piece plays at
+// its original speed, so tempo changes and the pitch stays. Pieces overlap by half (Hann windows sum to 1); each new piece
+// is shifted by up to ±D samples to the spot whose waveform best continues the previous one, which avoids phase smearing.
+class LockPlayer extends AudioWorkletProcessor {
+  constructor(options) {
+    super();
+    this.N = 2048; this.Hs = 1024; this.D = 384; this.C = 512;
+    this.win = new Float32Array(this.N);
+    for (let i = 0; i < this.N; i++) this.win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / this.N);
+    this.acc = [new Float32Array(this.N), new Float32Array(this.N)];
+    this.fifo = [new Float32Array(this.Hs), new Float32Array(this.Hs)];
+    this.ch = null; this.len = 0; this.playing = false; this.fifoN = 0; this.fr = 0;
+    this.port.onmessage = e => this.cmd(e.data);
+    // commands can also arrive with the node (used by offline rendering, where messages would come too late)
+    for (const m of (options && options.processorOptions && options.processorOptions.init) || []) this.cmd(m);
+  }
+  cmd(m) {
+    const sr = sampleRate;
+    if (m.cmd === 'load') { this.ch = m.ch; this.len = m.ch[0].length; this.playing = false; return; }
+    if (m.cmd === 'play') {
+      this.id = m.id; this.rate = m.rate; this.loop = m.loop; this.stopAt = null;
+      this.pos = m.offset * sr + Math.max(0, currentTime - m.at) * m.rate * sr;   // catch up for message latency
+      this.prev = null; this.acc[0].fill(0); this.acc[1].fill(0); this.fifoN = 0; this.playing = !!this.ch;
+      return;
+    }
+    if (m.id !== this.id) return;
+    if (m.cmd === 'rate') { this.rate = m.rate; this.pos = m.pos * sr + Math.max(0, currentTime - m.at) * m.rate * sr; }
+    else if (m.cmd === 'loop') this.loop = m.loop;
+    else if (m.cmd === 'stop') this.stopAt = m.at;
+  }
+  frame() {
+    const { N, Hs, D, C, ch, len } = this, sr = sampleRate, x = ch[0];
+    if (this.loop && this.pos >= this.loop.e * sr) this.pos -= (this.loop.e - this.loop.s) * sr;
+    const target = Math.round(this.pos);
+    if (target >= len) { this.playing = false; this.port.postMessage({ cmd: 'ended', id: this.id }); return false; }
+    let best = target;
+    if (this.prev !== null) {
+      const nat = this.prev + Hs;
+      if (nat >= 0 && nat + C <= len) {
+        // search outward from the nominal position and move only for a clearly better match, so silence or ties keep timing exact
+        const corr = (c, step) => { let s = 0, e = 0; for (let j = 0; j < C; j += step) { s += x[nat + j] * x[c + j]; e += x[c + j] * x[c + j]; } return e > 1e-9 ? s / Math.sqrt(e) : 0; };
+        let bs = target >= 0 && target + C <= len ? corr(target, 4) : -Infinity;
+        for (let k = 2; k <= D; k += 2) for (const c of [target - k, target + k]) {
+          if (c < 0 || c + C > len) continue;
+          const s = corr(c, 4); if (s > bs + 1e-4 + Math.abs(bs) * 1e-3) { bs = s; best = c; }
+        }
+        const c0 = best; bs = c0 >= 0 && c0 + C <= len ? corr(c0, 2) : -Infinity;
+        for (const c of [c0 - 1, c0 + 1]) { if (c < 0 || c + C > len) continue; const s = corr(c, 2); if (s > bs + 1e-4 + Math.abs(bs) * 1e-3) { bs = s; best = c; } }
+      }
+    }
+    for (let c = 0; c < 2; c++) {
+      const a = this.acc[c], src = ch[Math.min(c, ch.length - 1)], w = this.win;
+      for (let j = 0; j < N; j++) { const i = best + j; if (i >= 0 && i < len) a[j] += src[i] * w[j]; }
+      this.fifo[c].set(a.subarray(0, Hs)); a.copyWithin(0, Hs); a.fill(0, N - Hs);
+    }
+    this.fifoN = Hs; this.fr = 0; this.prev = best; this.pos += this.rate * Hs;
+    return true;
+  }
+  process(inputs, outputs) {
+    const out = outputs[0], L = out[0], R = out[1] || out[0];
+    if (this.stopAt !== null && this.stopAt !== undefined && currentTime >= this.stopAt) { this.playing = false; this.stopAt = null; }
+    for (let i = 0; i < L.length; i++) {
+      if (this.playing && this.fifoN === 0 && !this.frame()) { /* ended */ }
+      if (!this.playing || this.fifoN === 0) { L[i] = 0; R[i] = 0; continue; }
+      L[i] = this.fifo[0][this.fr]; R[i] = this.fifo[1][this.fr]; this.fr++; this.fifoN--;
+    }
+    return true;
+  }
+}
+registerProcessor('lock-player', LockPlayer);
+`;
+let lockSeq = 0;
+// stands in for an AudioBufferSourceNode, so the deck's start/stop/loop/rate code stays the same with key lock on
+class LockedSource {
+  constructor(deck) {
+    this.isLock = true; this.deck = deck; this.id = ++lockSeq; this._loop = false; this.loopStart = 0; this.loopEnd = 0; this.onended = null;
+    const self = this;
+    this.playbackRate = { value: deck.rate, setValueAtTime(v) { this.value = v; self.post({ cmd: 'rate', rate: v, pos: deck.pos, at: ctx.currentTime }); } };
+    deck.lockSrc = this;
+  }
+  post(m) { m.id = this.id; this.deck.lockNode.port.postMessage(m); }
+  connect(dest) { this.dest = dest; this.deck.lockNode.connect(dest); }
+  get loop() { return this._loop; }
+  set loop(v) { this._loop = v; this.post({ cmd: 'loop', loop: v ? { s: this.loopStart, e: this.loopEnd } : null }); }
+  start(when, offset) { this.post({ cmd: 'play', offset, rate: this.playbackRate.value, at: ctx.currentTime, loop: this._loop ? { s: this.loopStart, e: this.loopEnd } : null }); }
+  stop(when) {
+    this.post({ cmd: 'stop', at: when });
+    const n = this.deck.lockNode, d = this.dest;
+    setTimeout(() => { try { n.disconnect(d); } catch (e) { /* already disconnected */ } }, Math.max(0, (when - ctx.currentTime) * 1000) + 40);
+  }
+}
+let lockReady = false;
+async function initKeyLock() {
+  if (!ctx.audioWorklet) return;
+  for (const url of [URL.createObjectURL(new Blob([LOCK_WORKLET], { type: 'application/javascript' })), 'data:application/javascript;charset=utf-8,' + encodeURIComponent(LOCK_WORKLET)]) {
+    try { await ctx.audioWorklet.addModule(url); lockReady = true; break; } catch (e) { /* a file:// page refuses blob: worklets; try the data: URL */ }
+  }
+  if (!lockReady) return;
+  for (const d of decks) d.initLock();
+}
+
 const ICON_PLAY = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>';
 const ICON_PHONES = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-9 9v7a2 2 0 0 0 2 2h2v-8H5v-1a7 7 0 0 1 14 0v1h-2v8h2a2 2 0 0 0 2-2v-7a9 9 0 0 0-9-9z"/></svg>';
 const ICON_PAUSE = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
@@ -743,6 +853,15 @@ function deckHTML(id) {
         <button class="btn ld" type="button" data-midi="double${id}" aria-label="Deck ${id} double loop">2 ×</button>
         <button class="btn bj" type="button" data-jump="1" data-midi="jump${id}+" aria-label="Deck ${id} beat jump forward 4 beats">4 ▶</button>
       </div>
+      <div class="gridrow" aria-label="Beat grid">
+        <span class="label" title="Fix the beat grid when the BPM or the beat position is off">Grid</span>
+        <button class="btn" type="button" data-g="half" data-midi="ghalf${id}" title="Half the BPM (detected double time)" aria-label="Deck ${id} half BPM">÷2</button>
+        <button class="btn" type="button" data-g="double" data-midi="gdouble${id}" title="Double the BPM (detected half time)" aria-label="Deck ${id} double BPM">×2</button>
+        <button class="btn" type="button" data-g="left" data-midi="gleft${id}" title="Move the grid 5 ms earlier" aria-label="Deck ${id} move grid earlier">◀|</button>
+        <button class="btn" type="button" data-g="right" data-midi="gright${id}" title="Move the grid 5 ms later" aria-label="Deck ${id} move grid later">|▶</button>
+        <button class="btn" type="button" data-g="tap" data-midi="gtap${id}" title="Tap along to set the BPM" aria-label="Deck ${id} tap tempo">Tap</button>
+        <button class="btn" type="button" data-g="here" data-midi="ghere${id}" title="Make the current position beat 1 of a bar" aria-label="Deck ${id} set bar start here">1 here</button>
+      </div>
       <div class="fxrow">
         <select class="fxsel" aria-label="Deck ${id} effect"><option value="echo">Echo</option><option value="reverb">Reverb</option><option value="flanger">Flanger</option></select>
         <div class="fxb">${[['¼', 0.25], ['½', 0.5], ['1', 1], ['2', 2]].map(([t, b]) => `<button class="btn" type="button" data-fxb="${b}" data-midi="fxb${id}-${b}" aria-label="Deck ${id} effect length ${t} beat">${t}</button>`).join('')}</div>
@@ -761,6 +880,7 @@ function deckHTML(id) {
       <input class="vslider" type="range" min="-1" max="1" step="0.0005" value="0" id="tempo${id}" data-midi="tempo${id}" aria-label="Deck ${id} tempo">
       <button class="btn range" type="button" aria-label="Deck ${id} tempo range">±8%</button>
       <button class="btn reset" type="button">Reset</button>
+      <button class="btn klock" type="button" aria-pressed="false" data-midi="klock${id}" title="Key lock: change the tempo without changing the pitch" aria-label="Deck ${id} key lock">Key lock</button>
       <div class="nudge"><button class="btn nd" type="button" data-nudge="-1" data-midi="nudge${id}-" aria-label="Deck ${id} nudge slower">◀</button><button class="btn nd" type="button" data-nudge="1" data-midi="nudge${id}+" aria-label="Deck ${id} nudge faster">▶</button></div>
     </div>
   </div>`;
@@ -807,12 +927,13 @@ class Deck {
     this.echoOut = ctx.createGain();
     this.fxSend.connect(this.echo); this.echo.connect(this.echoTone); this.echoTone.connect(this.echoFb); this.echoFb.connect(this.echo); this.echo.connect(this.echoOut); this.echoOut.connect(this.fxWet);
     this.verb = ctx.createConvolver(); this.verb.buffer = reverbIR(); this.verbOut = ctx.createGain(); this.verbOut.gain.value = 0;
-    this.fxSend.connect(this.verb); this.verb.connect(this.verbOut); this.verbOut.connect(this.fxWet);
+    this.verb.connect(this.verbOut); this.verbOut.connect(this.fxWet); this.verbOn = false;   // the send is connected only while reverb is chosen (convolution is costly)
     this.flg = ctx.createDelay(0.05); this.flg.delayTime.value = 0.004; this.flgFb = ctx.createGain(); this.flgFb.gain.value = 0.55;
     this.flgLfo = ctx.createOscillator(); this.flgDepth = ctx.createGain(); this.flgDepth.gain.value = 0.0028; this.flgOut = ctx.createGain(); this.flgOut.gain.value = 0;
     this.flgLfo.connect(this.flgDepth); this.flgDepth.connect(this.flg.delayTime); this.flgLfo.start();
     this.fxSend.connect(this.flg); this.flg.connect(this.flgFb); this.flgFb.connect(this.flg); this.flg.connect(this.flgOut); this.flgOut.connect(this.fxWet);
     this.syncLock = false;
+    this.keyLock = false; this.lockNode = null; this.lockSrc = null; this.lockBuf = null; this.item = null; this.taps = [];
     this.pfl = ctx.createGain(); this.pfl.gain.value = 0; this.pflOn = false;
     this.hp.connect(this.pfl); this.pfl.connect(cueBus);
     this.tbuf = new Float32Array(this.an.fftSize);
@@ -832,7 +953,9 @@ class Deck {
 
   _start(at) {
     const now = ctx.currentTime;
-    const s = ctx.createBufferSource(); s.buffer = this.buffer; s.playbackRate.value = this.rate;
+    const s = this.keyLock && this.lockNode ? this.newLockSrc() : ctx.createBufferSource();
+    if (!s.isLock) s.buffer = this.buffer;
+    s.playbackRate.value = this.rate;
     if (this.loop) { s.loop = true; s.loopStart = this.loop.start; s.loopEnd = this.loop.end; }
     const env = ctx.createGain(); env.gain.setValueAtTime(0, now); env.gain.linearRampToValueAtTime(1, now + FADE);
     s.connect(env); env.connect(this.trim);
@@ -874,14 +997,15 @@ class Deck {
   cueBtn() {
     if (!this.buffer) return;
     if (this.playing) { this._stopSrc(); this.playing = false; this.offset = this.cue; if (this.loop && (this.cue < this.loop.start || this.cue >= this.loop.end)) this.loop = null; }
-    else this.cue = this.offset;
+    else { this.cue = this.offset; saveMeta(this.item, { cue: this.cue }); }
     this.ui();
   }
   hotcue(i, del) {
     if (!this.buffer) return;
     if (del) this.hot[i] = null;
     else if (this.hot[i] == null) this.hot[i] = this.snap(this.pos);
-    else this.seek(this.hot[i]);
+    else { this.seek(this.hot[i]); return; }
+    saveMeta(this.item, { hot: this.hot.slice() });
     this.ui();
   }
   snap(t) {
@@ -944,9 +1068,63 @@ class Deck {
     const nb = clamp(this.loop.beats * f, 0.125, 32);
     if (nb !== this.loop.beats) this.setLoop(nb);
   }
+  initLock() {
+    this.lockNode = new AudioWorkletNode(ctx, 'lock-player', { numberOfInputs: 0, outputChannelCount: [2] });
+    this.lockNode.port.onmessage = e => { const m = e.data, s = this.lockSrc; if (m.cmd === 'ended' && s && m.id === s.id && s.onended) s.onended(); };
+  }
+  setKeyLock(on) {
+    if (on && !this.lockNode) return toast('Key lock needs a newer browser (AudioWorklet). Try Chrome, Edge or Firefox.');
+    this.keyLock = on;
+    $('.klock', this.el).classList.toggle('on', on); $('.klock', this.el).setAttribute('aria-pressed', String(on));
+    if (this.playing) { const p = this.pos; this._stopSrc(); this._start(p); }
+    if (!on && this.lockBuf) { this.lockNode.port.postMessage({ cmd: 'load', ch: [new Float32Array(1)] }); this.lockBuf = null; }   // free the copy
+    this.uiTempo(); lastAir = null;
+  }
+  newLockSrc() {
+    if (this.lockBuf !== this.buffer) {   // the worklet keeps its own copy of the samples
+      const b = this.buffer, ch = [];
+      for (let c = 0; c < Math.min(2, b.numberOfChannels); c++) ch.push(b.getChannelData(c).slice());
+      this.lockNode.port.postMessage({ cmd: 'load', ch }, ch.map(a => a.buffer));
+      this.lockBuf = b;
+    }
+    return new LockedSource(this);
+  }
+  // beat grid corrections, kept per track
+  gridEdit(op) {
+    if (!this.buffer) return;
+    if (op === 'tap') return this.tap();
+    if (!this.bpm && op !== 'here') return toast('No beat grid yet. Tap the tempo first.');
+    const bl = this.beatLen;
+    if (op === 'half') this.bpm = +(this.bpm / 2).toFixed(2);
+    else if (op === 'double') this.bpm = +(this.bpm * 2).toFixed(2);
+    else if (op === 'left' || op === 'right') this.firstBeat = (((this.firstBeat + (op === 'left' ? -0.005 : 0.005)) % bl) + bl) % bl;
+    else if (op === 'here') { if (!this.bpm) return toast('Tap the tempo first.'); const bar = 4 * bl; this.firstBeat = this.pos - Math.floor(this.pos / bar) * bar; }
+    this.gridChanged();
+  }
+  tap() {
+    const now = performance.now();
+    if (this.taps.length && now - this.taps[this.taps.length - 1] > 2000) this.taps = [];
+    this.taps.push(now); if (this.taps.length > 12) this.taps.shift();
+    const b = $('[data-g="tap"]', this.el); b.classList.add('tapping'); clearTimeout(this.tapT); this.tapT = setTimeout(() => b.classList.remove('tapping'), 2000);
+    if (this.taps.length < 4) return toast(`Keep tapping on the beat (${this.taps.length}/4)…`);
+    const iv = (this.taps[this.taps.length - 1] - this.taps[0]) / (this.taps.length - 1) / 1000;
+    const bpm = 60 / iv / this.rate;   // taps follow what you hear, which already includes the tempo fader
+    if (bpm < 40 || bpm > 250) return;
+    this.bpm = +bpm.toFixed(1);
+    if (this.firstBeat == null || this.firstBeat >= this.beatLen) this.firstBeat = 0;
+    this.gridChanged();
+  }
+  gridChanged() {
+    const it = this.item;
+    if (it && it.analysis) { it.analysis.bpm = this.bpm; it.analysis.firstBeat = this.firstBeat; it.bpm = this.bpm; }
+    saveMeta(it, { bpm: this.bpm, firstBeat: this.firstBeat });
+    $('.artist', this.el).textContent = 'Beat grid edited';
+    this.drawKey = null; this.ui(); renderCrate();
+  }
   setFx(patch) {
     Object.assign(this.fx, patch);
     const t = ctx.currentTime, fx = this.fx;
+    if ((fx.type === 'reverb') !== this.verbOn) { this.verbOn = fx.type === 'reverb'; if (this.verbOn) this.fxSend.connect(this.verb); else this.fxSend.disconnect(this.verb); }
     this.fxSend.gain.setTargetAtTime(fx.on ? 1 : 0, t, 0.01);
     this.fxWet.gain.setTargetAtTime(fx.level, t, 0.02);
     this.echoOut.gain.setTargetAtTime(fx.type === 'echo' ? 1 : 0, t, 0.02);
@@ -982,6 +1160,7 @@ class Deck {
   }
   load(buffer, name, a) {
     this._stopSrc(); this.playing = false;
+    if (this.lockBuf && this.lockBuf !== buffer) { this.lockNode.port.postMessage({ cmd: 'load', ch: [new Float32Array(1)] }); this.lockBuf = null; }
     this.buffer = buffer; this.name = name;
     this.bpm = a.bpm; this.firstBeat = a.firstBeat; this.peaks = a.peaks; this.low = a.low; this.autoGain = a.autoGain;
     this.offset = 0; this.cue = this.bpm ? this.firstBeat : 0; this.offset = this.cue;
@@ -1015,6 +1194,8 @@ class Deck {
     $('.lh', el).addEventListener('click', () => this.loopScale(0.5));
     $('.ld', el).addEventListener('click', () => this.loopScale(2));
     $('.fxsel', el).addEventListener('change', e => this.setFx({ type: e.target.value }));
+    $('.klock', el).addEventListener('click', () => this.setKeyLock(!this.keyLock));
+    $$('[data-g]', el).forEach(b => b.addEventListener('click', () => this.gridEdit(b.dataset.g)));
     $$('[data-fxb]', el).forEach(b => b.addEventListener('click', () => this.setFx({ beats: +b.dataset.fxb })));
     $('.fxon', el).addEventListener('click', () => this.setFx({ on: !this.fx.on }));
     makeKnob($('.fxknob', el), { min: 0, max: 1, value: 0.6, def: 0.6, devAt: 0.6, onChange: v => this.setFx({ level: v }) });
@@ -1106,7 +1287,7 @@ class Deck {
     $('.vslider', el).value = this.pitch / this.range;
     $('.bpm', el).textContent = this.bpm ? (this.bpm * this.rate).toFixed(1) : '--.-';
     $('.orig', el).textContent = this.bpm ? 'BPM · orig ' + this.bpm.toFixed(this.bpm % 1 ? 2 : 0) : 'BPM';
-    const k = keyAt(this.key, this.rate), kt = $('.keytag', el);
+    const k = keyAt(this.key, this.keyLock ? 1 : this.rate), kt = $('.keytag', el);
     kt.textContent = k ? camelot(k) + ' · ' + k.name : '';
     kt.title = k && this.key && k.tonic !== this.key.tonic ? 'Key shifted by the tempo change (original ' + camelot(keyAt(this.key)) + ')' : 'Musical key (Camelot)';
   }
@@ -1228,6 +1409,7 @@ class Deck {
 const A = new Deck('A'), B = new Deck('B');
 A.other = B; B.other = A;
 A.setFx({}); B.setFx({});
+initKeyLock();
 const decks = [A, B];
 
 /* ---------- crossfader + master ---------- */
@@ -1373,17 +1555,18 @@ const isAudio = f => f.type.startsWith('audio/') || /\.(mp3|wav|flac|m4a|aac|ogg
 const cleanName = n => n.replace(/\.[^.]+$/, '').replace(/_/g, ' ');
 
 /* tracks you add are kept in this browser (IndexedDB), so the crate is still there next time */
-const DB_NAME = 'javanDecks', STORE = 'tracks', REC_STORE = 'recs';
+const DB_NAME = 'javanDecks', STORE = 'tracks', REC_STORE = 'recs', META_STORE = 'meta';
 let dbP = null;
 function openDb() {
   if (!dbP) {
     dbP = new Promise((res, rej) => {
       if (!window.indexedDB) return rej(new Error('IndexedDB unavailable'));
-      const r = indexedDB.open(DB_NAME, 2);
+      const r = indexedDB.open(DB_NAME, 3);
       r.onupgradeneeded = () => {
         const db = r.result;
         if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE, { keyPath: 'id' });
         if (!db.objectStoreNames.contains(REC_STORE)) db.createObjectStore(REC_STORE, { keyPath: 'id' });
+        if (!db.objectStoreNames.contains(META_STORE)) db.createObjectStore(META_STORE, { keyPath: 'k' });
       };
       r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
     });
@@ -1397,6 +1580,17 @@ async function store(mode, fn, name = STORE) {
     tx.oncomplete = () => res(req && req.result); tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error);
   });
 }
+// per-track memory (hot cues, cue point, grid corrections), like the memory cues of club software
+const metaCache = new Map();
+const metaKey = it => it.online ? 'ol:' + it.path : it.demo ? 'demo:' + it.name : it.id;
+async function loadMeta() { try { (await store('readonly', st => st.getAll(), META_STORE)).forEach(m => metaCache.set(m.k, m)); } catch (e) { /* storage blocked */ } }
+function saveMeta(it, patch) {
+  if (!it) return;
+  const k = metaKey(it), m = Object.assign(metaCache.get(k) || { k }, patch);
+  metaCache.set(k, m);
+  store('readwrite', st => st.put(m), META_STORE).catch(() => {});
+}
+function dropMeta(it) { const k = metaKey(it); metaCache.delete(k); store('readwrite', st => st.delete(k), META_STORE).catch(() => {}); }
 const newId = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
 let saveWarned = false;
 async function saveTrack(it) {
@@ -1412,7 +1606,7 @@ async function loadSaved() {
   try {
     const recs = await store('readonly', st => st.getAll());
     recs.sort((a, b) => a.added - b.added);
-    for (const r of recs) crate.push({ id: r.id, name: r.name, file: r.blob, added: r.added, bpm: r.bpm, dur: r.dur, key: r.key, buffer: null, analysis: null, demo: false });
+    for (const r of recs) { const m = metaCache.get(r.id); crate.push({ id: r.id, name: r.name, file: r.blob, added: r.added, bpm: m && m.bpm || r.bpm, dur: r.dur, key: r.key, buffer: null, analysis: null, demo: false }); }
     renderCrate();
     if (recs.length) toast(recs.length + ' saved track(s) back in the crate.');
   } catch (e) { /* storage blocked: start with the demos only */ }
@@ -1421,13 +1615,45 @@ async function removeTrack(it) {
   const i = crate.indexOf(it); if (i < 0) return;
   it.removed = true;   // a load still in progress must not save it again
   crate.splice(i, 1); renderCrate();
-  if (!it.demo) { try { await store('readwrite', st => st.delete(it.id)); } catch (e) { /* nothing saved */ } }
+  if (!it.demo) { try { await store('readwrite', st => st.delete(it.id)); } catch (e) { /* nothing saved */ } dropMeta(it); }
+}
+// artist and title from an MP3's ID3v2 tag (v2.2-2.4); the file name is the fallback
+async function readTags(file) {
+  try {
+    const head = new Uint8Array(await file.slice(0, 10).arrayBuffer());
+    if (head[0] !== 0x49 || head[1] !== 0x44 || head[2] !== 0x33) return null;
+    const ver = head[3], size = ((head[6] & 127) << 21) | ((head[7] & 127) << 14) | ((head[8] & 127) << 7) | (head[9] & 127);
+    const b = new Uint8Array(await file.slice(10, 10 + Math.min(size, 512 * 1024)).arrayBuffer());
+    const text = (d) => {
+      const enc = d[0], body = d.subarray(1);
+      const dec = enc === 1 ? (body[0] === 0xfe ? 'utf-16be' : 'utf-16le') : enc === 2 ? 'utf-16be' : enc === 3 ? 'utf-8' : 'latin1';
+      return new TextDecoder(dec).decode(enc === 1 && (body[0] === 0xff || body[0] === 0xfe) ? body.subarray(2) : body).replace(/\u0000.*$/s, '').trim();
+    };
+    const out = {}, idLen = ver === 2 ? 3 : 4, hdr = ver === 2 ? 6 : 10;
+    for (let i = 0; i + hdr <= b.length;) {
+      const id = String.fromCharCode(...b.subarray(i, i + idLen));
+      if (!/^[A-Z0-9]+$/.test(id)) break;
+      const sz = ver === 2 ? (b[i + 3] << 16) | (b[i + 4] << 8) | b[i + 5]
+        : ver === 4 ? ((b[i + 4] & 127) << 21) | ((b[i + 5] & 127) << 14) | ((b[i + 6] & 127) << 7) | (b[i + 7] & 127)
+        : ((b[i + 4] << 24) | (b[i + 5] << 16) | (b[i + 6] << 8) | b[i + 7]) >>> 0;
+      if (!sz || i + hdr + sz > b.length) break;
+      const d = b.subarray(i + hdr, i + hdr + sz);
+      if (id === 'TIT2' || id === 'TT2') out.title = text(d);
+      if (id === 'TPE1' || id === 'TP1') out.artist = text(d);
+      i += hdr + sz;
+    }
+    return out.title ? out : null;
+  } catch (e) { return null; }
 }
 function addFiles(files) {
   const now = Date.now();
   const added = files.filter(isAudio).map((f, i) => ({ id: newId(), name: cleanName(f.name), file: f, added: now + i, buffer: null, analysis: null, demo: false }));
   crate.push(...added); renderCrate();
-  added.forEach(saveTrack);
+  added.forEach(async it => {
+    const t = await readTags(it.file);
+    if (t) { it.name = t.artist ? `${t.artist} – ${t.title}` : t.title; renderCrate(); }
+    saveTrack(it);
+  });
   return added;
 }
 function prepare(item) {
@@ -1449,6 +1675,8 @@ async function doPrepare(item) {
   if (!item.analysis) {
     const known = item.bpm != null && item.key !== undefined;
     item.analysis = await analyze(item.buffer);
+    const m = metaCache.get(metaKey(item));
+    if (m && m.bpm) { item.analysis.bpm = m.bpm; if (m.firstBeat != null) item.analysis.firstBeat = m.firstBeat; }   // the user's grid correction wins
     item.bpm = item.analysis.bpm; item.dur = item.buffer.duration; item.key = item.analysis.key;
     if (!known && !item.demo && !item.online) saveTrack(item);   // store BPM and length once, not the file again on every visit
   }
@@ -1463,7 +1691,12 @@ async function loadItem(item, deck) {
   $('.title', deck.el).textContent = (item.online && !item.file ? 'Downloading ' : 'Analyzing ') + item.name + ' …';
   try {
     await prepare(item);
-    if (deck.loadToken === token) { deck.load(item.buffer, item.name, item.analysis); if (deck.syncLock) deck.followTempo(); }
+    if (deck.loadToken === token) {
+      deck.load(item.buffer, item.name, item.analysis); deck.item = item;
+      const m = metaCache.get(metaKey(item));
+      if (m) { if (m.hot) deck.hot = m.hot.slice(); if (m.cue != null) { deck.cue = m.cue; deck.offset = m.cue; } if (m.bpm) $('.artist', deck.el).textContent = 'Beat grid edited'; deck.ui(); }
+      if (deck.syncLock) deck.followTempo();
+    }
     releaseBuffers(); lastAir = null; refreshMatches();
     if (deck.loadToken !== token) return;
   }
@@ -1478,7 +1711,7 @@ const itemKey = it => it.analysis ? it.analysis.key : it.key;
 // the deck the audience hears: the playing one on the crossfader's side (key shifted by its tempo)
 function onAirKey() {
   const x = +xf.value, cand = [A, B].filter(d => d.buffer && d.key).sort((a, b) => (b.playing - a.playing) || ((a === A ? 1 - x : x) > (b === A ? 1 - x : x) ? -1 : 1));
-  return cand.length ? keyAt(cand[0].key, cand[0].rate) : null;
+  return cand.length ? keyAt(cand[0].key, cand[0].keyLock ? 1 : cand[0].rate) : null;
 }
 let lastAir = '';
 function refreshMatches() { const k = camelot(onAirKey()); if (k !== lastAir) { lastAir = k; renderCrate(); } }
@@ -1608,9 +1841,11 @@ async function uploadItem(it) {
   const { error } = await sb.storage.from(SB_BUCKET).upload(path, it.file, { contentType: type, upsert: false });
   it.uploading = false;
   if (error) { renderCrate(); return toast('Upload failed: ' + error.message); }
-  // the track now lives online; drop the copy kept in this browser
+  // the track now lives online; drop the copy kept in this browser (its memory moves along)
   try { await store('readwrite', st => st.delete(it.id)); } catch (e) { /* not saved locally */ }
+  const oldMeta = metaCache.get(metaKey(it)); if (oldMeta) dropMeta(it);
   it.online = true; it.path = path; it.id = 'ol:' + path;
+  if (oldMeta) { const { k, ...rest } = oldMeta; saveMeta(it, rest); }
   toast(it.name + ' is now in your online library.');
   renderOnline();
 }
@@ -1686,6 +1921,7 @@ async function boot() {
   ];
   for (const d of demos) crate.push({ ...d, file: null, analysis: null, demo: true });
   renderCrate();
+  await loadMeta();
   await loadSaved();
   loadRecordings();
   bootOnline();
